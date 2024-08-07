@@ -14,6 +14,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
+import { Link as RouterLink } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -60,37 +61,37 @@ export default function DrawerComponent({ open, toggleDrawer }) {
       </Toolbar>
       <Divider />
       <List component="nav">
-        <ListItemButton>
+        <ListItemButton component={RouterLink} to="/dashboard">
           <ListItemIcon>
             <DashboardIcon />
           </ListItemIcon>
           <ListItemText primary="활동" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton component={RouterLink} to="/goals">
           <ListItemIcon>
             <AssignmentIcon />
           </ListItemIcon>
           <ListItemText primary="목표" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton component={RouterLink} to="/community">
           <ListItemIcon>
             <PeopleIcon />
           </ListItemIcon>
           <ListItemText primary="커뮤니티" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton component={RouterLink} to="/challenges">
           <ListItemIcon>
             <BarChartIcon />
           </ListItemIcon>
           <ListItemText primary="챌린지(도전)" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton component={RouterLink} to="/families">
           <ListItemIcon>
             <LayersIcon />
           </ListItemIcon>
           <ListItemText primary="가족관리" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton component={RouterLink} to="/posture">
           <ListItemIcon>
             <LayersIcon />
           </ListItemIcon>
