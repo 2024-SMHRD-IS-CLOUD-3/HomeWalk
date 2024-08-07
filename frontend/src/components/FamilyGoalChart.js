@@ -3,7 +3,7 @@ import { Grid, Paper, Typography } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const familyGoalData = [
-  { name: '김관웅', goal: 10000, current: 7000 },
+  { name: '김관용', goal: 10000, current: 7000 },
   { name: '임현진', goal: 9000, current: 6000 },
   { name: '배지환', goal: 8000, current: 5000 },
   { name: '박규민', goal: 7000, current: 4000 },

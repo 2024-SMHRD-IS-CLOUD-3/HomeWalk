@@ -9,7 +9,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { DirectionsWalk, TrendingUp, Update } from '@mui/icons-material';
 
 const metricsData = [
-  { name: '김관웅', steps: 10000, color: 'primary', trend: '어제보다 2,000 걸음 많음' },
+  { name: '김관용', steps: 10000, color: 'primary', trend: '어제보다 2,000 걸음 많음' },
   { name: '임현진', steps: 9000, color: 'secondary', trend: '어제보다 3% 증가' },
   { name: '배지환', steps: 8000, color: 'success', trend: '어제보다 1% 증가' },
   { name: '박규민', steps: 7000, color: 'warning', trend: '최근 업데이트' },

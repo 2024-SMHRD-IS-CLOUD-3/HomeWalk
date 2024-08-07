@@ -8,7 +8,7 @@ export default function Ranking() {
         <Typography component="h2" variant="h6" color="primary" gutterBottom>
           8월 랭킹
         </Typography>
-        <Typography component="p" variant="body1">1. 관웅Fam: 50,000 걸음</Typography>
+        <Typography component="p" variant="body1">1. 관용Fam: 50,000 걸음</Typography>
         <Typography component="p" variant="body1">2. 현진Fam: 33,000 걸음</Typography>
         <Typography component="p" variant="body1">3. 지환Fam: 30,000 걸음 (100% 달성)</Typography>
       </Paper>
