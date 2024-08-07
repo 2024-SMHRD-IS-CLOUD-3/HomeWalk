@@ -29,3 +29,13 @@ export const loginUser = async (userData) => {
     });
     return response.data;
 };
+
+// 가족 정보 관련 API
+export const createFamily = async (userId, familyData) => {
+    const response = await axios.post(`${API_URL}/families/${userId}/create`, familyData, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    return response.data;
+};
