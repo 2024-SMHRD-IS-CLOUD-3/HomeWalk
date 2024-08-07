@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Button, TextField, CssBaseline, Toolbar, Grid, Paper, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { Container, Typography, Box, Button, TextField, CssBaseline, Toolbar, Grid, Paper, List, ListItem, ListItemText, Divider, Alert } from '@mui/material';
 import { createFamily, getFamilies } from '../api/api';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
@@ -9,6 +9,7 @@ const Families = () => {
   const [newFamilyName, setNewFamilyName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(true);
+  const [error, setError] = useState('');
   const userId = 1; // 실제 사용시 로그인한 사용자의 ID를 사용해야 합니다.
 
   useEffect(() => {
@@ -29,12 +30,19 @@ const Families = () => {
   };
 
   const handleCreateFamily = async () => {
+    if (!newFamilyName.trim()) {
+      setError('가족 이름을 입력하세요.');
+      return;
+    }
+
     try {
-      await createFamily(userId, { familyName: newFamilyName }); // API에 전송되는 키와 값 확인
+      await createFamily(userId, { familyName: newFamilyName });
       setNewFamilyName('');
+      setError('');
       fetchFamilies(); // 새 가족을 생성한 후 목록을 갱신합니다.
     } catch (error) {
       console.error('Error creating family:', error);
+      setError('가족 생성 중 오류가 발생했습니다.');
     }
   };
 
@@ -98,6 +106,11 @@ const Families = () => {
                 <Typography variant="h4" component="h1" gutterBottom>
                   가족 생성
                 </Typography>
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
                 <TextField
                   label="가족 이름"
                   value={newFamilyName}
