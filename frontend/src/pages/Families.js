@@ -32,6 +32,9 @@ const Families = () => {
   const handleCreateFamily = async () => {
     if (!newFamilyName.trim()) {
       setError('가족 이름을 입력하세요.');
+      setTimeout(() => {
+        setError('');
+      }, 2000);
       return;
     }
 
@@ -43,6 +46,9 @@ const Families = () => {
     } catch (error) {
       console.error('Error creating family:', error);
       setError('가족 생성 중 오류가 발생했습니다.');
+      setTimeout(() => {
+        setError('');
+      }, 2000);
     }
   };
 
