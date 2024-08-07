@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
-import { Container, Typography, Box, Button, TextField, CssBaseline, Toolbar, Grid, Paper } from '@mui/material';
-import { createFamily } from '../api/api';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Box, Button, TextField, CssBaseline, Toolbar, Grid, Paper, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { createFamily, getFamilies } from '../api/api';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 
 const Families = () => {
+  const [families, setFamilies] = useState([]);
   const [newFamilyName, setNewFamilyName] = useState('');
-  const [familyInfo, setFamilyInfo] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(true);
+  const userId = 1; // 실제 사용시 로그인한 사용자의 ID를 사용해야 합니다.
+
+  useEffect(() => {
+    fetchFamilies();
+  }, []);
+
+  const fetchFamilies = async () => {
+    try {
+      const fetchedFamilies = await getFamilies(userId);
+      setFamilies(fetchedFamilies);
+    } catch (error) {
+      console.error('Error fetching families:', error);
+    }
+  };
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -15,13 +30,21 @@ const Families = () => {
 
   const handleCreateFamily = async () => {
     try {
-      const newFamily = await createFamily(1, { name: newFamilyName }); // userId를 1로 가정
-      setFamilyInfo(newFamily);
+      await createFamily(userId, { familyName: newFamilyName }); // API에 전송되는 키와 값 확인
       setNewFamilyName('');
+      fetchFamilies(); // 새 가족을 생성한 후 목록을 갱신합니다.
     } catch (error) {
       console.error('Error creating family:', error);
     }
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredFamilies = families.filter(family =>
+    family.familyName && family.familyName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -41,10 +64,37 @@ const Families = () => {
         }}
       >
         <Toolbar />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Grid container spacing={3} justifyContent="flex-start">
-            <Grid item xs={12} md={6}> {/* md={6}으로 설정하여 너비를 조정 */}
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4, pl: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                  가족 목록
+                </Typography>
+                <TextField
+                  label="검색"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+                <List>
+                  {filteredFamilies.map((family) => (
+                    <React.Fragment key={family.familyId}>
+                      <ListItem>
+                        <ListItemText 
+                          primary={family.familyName} 
+                          secondary={`인원수: ${family.memberCount || 1}`} 
+                        />
+                      </ListItem>
+                      <Divider />
+                    </React.Fragment>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
                 <Typography variant="h4" component="h1" gutterBottom>
                   가족 생성
                 </Typography>
@@ -58,17 +108,6 @@ const Families = () => {
                 <Button variant="contained" onClick={handleCreateFamily}>
                   생성
                 </Button>
-                {familyInfo && (
-                  <Box sx={{ mt: 4 }}>
-                    <Typography variant="h6">가족 이름: {familyInfo.name}</Typography>
-                    <Typography variant="h6">가족 구성원:</Typography>
-                    <ul>
-                      {familyInfo.members.map((member) => (
-                        <li key={member.id}>{member.name}</li>
-                      ))}
-                    </ul>
-                  </Box>
-                )}
               </Paper>
             </Grid>
           </Grid>
