@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -32,6 +33,10 @@ public class Families {
 
     public Families(String familyName) {
         this.familyName = familyName;
+    }
+
+    @PrePersist
+    public void prePersist() {
         this.createdDate = LocalDate.now();
     }
 }

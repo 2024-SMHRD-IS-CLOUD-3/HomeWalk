@@ -61,7 +61,7 @@ export default function DrawerComponent({ open, toggleDrawer }) {
       </Toolbar>
       <Divider />
       <List component="nav">
-        <ListItemButton component={RouterLink} to="/dashboard">
+        <ListItemButton component={RouterLink} to="/activity">
           <ListItemIcon>
             <DashboardIcon />
           </ListItemIcon>

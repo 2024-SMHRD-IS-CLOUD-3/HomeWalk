@@ -11,6 +11,8 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
 import InputBase from '@mui/material/InputBase';
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'; // 경로에 맞게 수정
 
 const drawerWidth = 240;
 
@@ -72,6 +74,20 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function AppBarComponent({ open, toggleDrawer }) {
+  const { userId, logout } = useAuth(); // AuthContext에서 userId와 logout 가져오기
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout(); // 로그아웃 함수 호출
+  };
+  
+  const handleProfileClick = () => {
+    console.log('userId', userId);
+    if (userId) {
+      navigate(`/profile/${userId}`); // 프로필 페이지로 이동
+    }
+  };
+
   return (
     <AppBar position="absolute" open={open}>
       <Toolbar sx={{ pr: '24px' }}>
@@ -104,10 +120,10 @@ export default function AppBarComponent({ open, toggleDrawer }) {
             <NotificationsIcon />
           </Badge>
         </IconButton>
-        <IconButton color="inherit">
+        <IconButton color="inherit" onClick={handleProfileClick}>
           <AccountCircleIcon />
         </IconButton>
-        <IconButton color="inherit">
+        <IconButton color="inherit" onClick={handleLogout}>
           <LogoutIcon />
         </IconButton>
       </Toolbar>

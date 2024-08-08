@@ -3,14 +3,15 @@ import { Container, Typography, Box, Button, TextField, CssBaseline, Toolbar, Gr
 import { createFamily, getFamilies } from '../api/api';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
+import { useAuth } from '../context/AuthContext'; // AuthContext import
 
 const Families = () => {
+  const { userId } = useAuth(); // AuthContext에서 userId 가져오기
   const [families, setFamilies] = useState([]);
   const [newFamilyName, setNewFamilyName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(true);
   const [error, setError] = useState('');
-  const userId = 1; // 실제 사용시 로그인한 사용자의 ID를 사용해야 합니다.
 
   useEffect(() => {
     fetchFamilies();

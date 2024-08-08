@@ -1,16 +1,19 @@
 package com.example.homewalk.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.homewalk.entity.Users;
 import com.example.homewalk.repository.UsersRepository;
+import com.example.homewalk.util.JwtUtil; // JWT 유틸리티 클래스
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UsersService {
 
     @Autowired
     private UsersRepository usersRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil; // JWT 유틸리티 클래스 주입
 
     public Users registerUser(Users users) {
         if (usersRepository.existsByUsername(users.getUsername())) {
@@ -36,5 +39,9 @@ public class UsersService {
 
     public boolean existsByEmail(String email) {
         return usersRepository.existsByEmail(email);
+    }
+
+    public String generateToken(Users user) {
+        return jwtUtil.generateToken(user.getUsername());
     }
 }

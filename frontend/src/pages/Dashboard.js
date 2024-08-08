@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,8 +15,6 @@ import WeeklyProgress from '../components/WeeklyProgress';
 import Ranking from '../components/Ranking';
 import FamilyWeeklyGoal from '../components/FamilyWeeklyGoal';
 import ChallengeList from '../components/ChallengeList';
-
-const drawerWidth = 240;
 
 const defaultTheme = createTheme();
 
