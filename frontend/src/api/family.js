@@ -37,3 +37,16 @@ export const cancelJoinRequest = async (userId, familyId) => {
     });
     return response.data;
 };
+
+// 가족 가입 신청 확인
+export const getJoinRequestsForCreator = async (creatorId) => {
+    try {
+      const response = await axios.get(`/api/join-requests/creator`, {
+        params: { creatorId }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching join requests:', error);
+      throw error;
+    }
+  };
