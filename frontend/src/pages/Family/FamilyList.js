@@ -4,7 +4,7 @@ import { getFamilies, requestJoinFamily, cancelJoinRequest } from '../../api/fam
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyList = () => {
-  const { userId } = useAuth();
+  const { userId } = useAuth(); // 현재 로그인한 사용자의 ID
   const [families, setFamilies] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -15,7 +15,11 @@ const FamilyList = () => {
   const fetchFamilies = async () => {
     try {
       const fetchedFamilies = await getFamilies(userId);
-      setFamilies(fetchedFamilies);
+      console.log('fetchedFamilies', fetchedFamilies);
+      
+      // 본인이 만든 가족을 제외하는 필터링 추가
+      const filteredFamilies = fetchedFamilies.filter(family => String(family.creatorId) !== userId);
+      setFamilies(filteredFamilies);
     } catch (error) {
       console.error('Error fetching families:', error);
     }
@@ -47,7 +51,7 @@ const FamilyList = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredFamilies = families.filter(family =>
+  const filteredFamiliesToDisplay = families.filter(family =>
     family.familyName && family.familyName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -65,7 +69,7 @@ const FamilyList = () => {
           sx={{ mb: 2 }}
         />
         <List>
-          {filteredFamilies.map((family) => (
+          {filteredFamiliesToDisplay.map((family) => (
             <React.Fragment key={family.familyId}>
               <ListItem>
                 <ListItemText 

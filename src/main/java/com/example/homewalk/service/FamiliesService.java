@@ -47,6 +47,7 @@ public class FamiliesService {
             FamilyDto dto = new FamilyDto(family);
             Users creator = usersService.getUserById(family.getCreatorId());
             dto.setCreatorName(creator.getUsername());
+            dto.setCreatorId(family.getCreatorId());
             Optional<FamilyJoinRequest> joinRequest = joinRequestRepository.findByUserIdAndFamilyId(userId, family.getFamilyId());
             dto.setJoinRequested(joinRequest.isPresent());
             return dto;

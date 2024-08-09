@@ -8,6 +8,7 @@ import lombok.Data;
 public class FamilyDto {
     private Long familyId;
     private String familyName;
+    private Long creatorId; // 새로 추가된 필드
     private String creatorName;
     private boolean joinRequested;
 
