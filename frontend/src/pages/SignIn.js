@@ -49,13 +49,13 @@ export default function SignIn() {
       if (response.jwt) {
         if (rememberMe) {
           localStorage.setItem('token', response.jwt);
-          localStorage.setItem('userId', username); // userId를 로컬 스토리지에 저장
+          localStorage.setItem('userId', response.userId); // userId를 로컬 스토리지에 저장
         } else {
           sessionStorage.setItem('token', response.jwt);
-          sessionStorage.setItem('userId', username); // userId를 세션 스토리지에 저장
+          sessionStorage.setItem('userId', response.userId); // userId를 세션 스토리지에 저장
         }
         console.log('Token saved');
-        login(response.jwt, username); // AuthContext의 login 함수 호출
+        login(response.jwt, response.userId); // AuthContext의 login 함수 호출
         navigate('/dashboard', { replace: true });
         console.log('isAuthenticated set to true');
       } else {

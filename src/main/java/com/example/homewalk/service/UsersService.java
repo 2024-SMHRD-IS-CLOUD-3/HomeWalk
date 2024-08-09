@@ -44,4 +44,8 @@ public class UsersService {
     public String generateToken(Users user) {
         return jwtUtil.generateToken(user.getUsername());
     }
+    
+    public Users getUserById(Long userId) {
+        return usersRepository.findByUserId(userId);
+    }
 }

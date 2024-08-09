@@ -1,65 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Button, TextField, CssBaseline, Toolbar, Grid, Paper, List, ListItem, ListItemText, Divider, Alert } from '@mui/material';
-import { createFamily, getFamilies } from '../api/api';
+import React, { useState } from 'react';
+import { Box, Tabs, Tab, CssBaseline, Toolbar, Container } from '@mui/material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
-import { useAuth } from '../context/AuthContext'; // AuthContext import
+import FamilyList from './Family/FamilyList';
+import FamilyCreate from './Family/FamilyCreate';
+import FamilyRequests from './Family/FamilyRequests';
 
 const Families = () => {
-  const { userId } = useAuth(); // AuthContext에서 userId 가져오기
-  const [families, setFamilies] = useState([]);
-  const [newFamilyName, setNewFamilyName] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState(0);
   const [open, setOpen] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    fetchFamilies();
-  }, []);
-
-  const fetchFamilies = async () => {
-    try {
-      const fetchedFamilies = await getFamilies(userId);
-      setFamilies(fetchedFamilies);
-    } catch (error) {
-      console.error('Error fetching families:', error);
-    }
-  };
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  const handleCreateFamily = async () => {
-    if (!newFamilyName.trim()) {
-      setError('가족 이름을 입력하세요.');
-      setTimeout(() => {
-        setError('');
-      }, 2000);
-      return;
-    }
-
-    try {
-      await createFamily(userId, { familyName: newFamilyName });
-      setNewFamilyName('');
-      setError('');
-      fetchFamilies(); // 새 가족을 생성한 후 목록을 갱신합니다.
-    } catch (error) {
-      console.error('Error creating family:', error);
-      setError('가족 생성 중 오류가 발생했습니다.');
-      setTimeout(() => {
-        setError('');
-      }, 2000);
-    }
+  const handleChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+  const renderTab = () => {
+    switch (activeTab) {
+      case 0:
+        return <FamilyList />;
+      case 1:
+        return <FamilyCreate />;
+      case 2:
+        return <FamilyRequests />;
+      default:
+        return <FamilyList />;
+    }
   };
-
-  const filteredFamilies = families.filter(family =>
-    family.familyName && family.familyName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -80,57 +50,14 @@ const Families = () => {
       >
         <Toolbar />
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4, pl: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                  가족 목록
-                </Typography>
-                <TextField
-                  label="검색"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-                <List>
-                  {filteredFamilies.map((family) => (
-                    <React.Fragment key={family.familyId}>
-                      <ListItem>
-                        <ListItemText 
-                          primary={family.familyName} 
-                          secondary={`인원수: ${family.memberCount || 1}`} 
-                        />
-                      </ListItem>
-                      <Divider />
-                    </React.Fragment>
-                  ))}
-                </List>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                  가족 생성
-                </Typography>
-                {error && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                  </Alert>
-                )}
-                <TextField
-                  label="가족 이름"
-                  value={newFamilyName}
-                  onChange={(e) => setNewFamilyName(e.target.value)}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-                <Button variant="contained" onClick={handleCreateFamily}>
-                  생성
-                </Button>
-              </Paper>
-            </Grid>
-          </Grid>
+          <Tabs value={activeTab} onChange={handleChange} aria-label="family tabs">
+            <Tab label="Family List" />
+            <Tab label="Create Family" />
+            <Tab label="Manage Requests" />
+          </Tabs>
+          <Box sx={{ mt: 2 }}>
+            {renderTab()}
+          </Box>
         </Container>
       </Box>
     </Box>

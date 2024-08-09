@@ -20,7 +20,8 @@ public class FamiliesController {
 
     @PostMapping
     public ResponseEntity<Families> createFamilies(@RequestBody Families families, @RequestParam Long userId) {
-        Families createdFamily = familiesService.createFamilies(families, userId);
+        families.setCreatorId(userId);  // creatorId 설정
+        Families createdFamily = familiesService.createFamilies(families, userId);  // userId를 함께 전달
         return ResponseEntity.ok(createdFamily);
     }
 
