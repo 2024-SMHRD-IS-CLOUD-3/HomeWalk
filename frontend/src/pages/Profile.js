@@ -1,13 +1,67 @@
-import React, { useState } from 'react';
-import { Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper, TextField, Button, Avatar, IconButton } from '@mui/material';
+import { PhotoCamera } from '@mui/icons-material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
+import { fetchUserProfile, updateUserProfile, uploadProfileImage } from '../api/profile';
 
 const Profile = () => {
   const [open, setOpen] = useState(true);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [avatarCustomization, setAvatarCustomization] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const userData = await fetchUserProfile(token); // fetchUserProfile로 사용자 정보 가져오기
+        const { username, password, email, avatarCustomization } = userData;
+        setUsername(username);
+        setPassword(password);
+        setEmail(email);
+        setAvatarCustomization(avatarCustomization);
+      } catch (error) {
+        console.error('Failed to fetch user data', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      let uploadedImagePath = avatarCustomization;
+
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        uploadedImagePath = await uploadProfileImage(token, formData);
+      }
+
+      const updatedUserData = {
+        username,
+        password,
+        email,
+        avatarCustomization: uploadedImagePath,
+      };
+      await updateUserProfile(token, updatedUserData);
+      alert('Profile updated successfully');
+    } catch (error) {
+      alert('Failed to update profile');
+    }
   };
 
   return (
@@ -35,7 +89,57 @@ const Profile = () => {
                 <Typography variant="h4" component="h1" gutterBottom>
                   내 프로필
                 </Typography>
-                {/* 추가적인 내용은 나중에 작성할 수 있습니다 */}
+
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <Avatar src={selectedFile ? URL.createObjectURL(selectedFile) : avatarCustomization} sx={{ width: 100, height: 100 }} />
+                  <IconButton color="primary" component="label" sx={{ ml: -4, mt: 6 }}>
+                    <PhotoCamera />
+                    <input hidden accept="image/*" type="file" onChange={handleFileChange} />
+                  </IconButton>
+                </Box>
+
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoFocus
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+
+                <Button variant="contained" color="primary" onClick={handleUpdate}>
+                  수정
+                </Button>
               </Paper>
             </Grid>
           </Grid>

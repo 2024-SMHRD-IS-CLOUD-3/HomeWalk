@@ -2,9 +2,18 @@ package com.example.homewalk.controller;
 
 import com.example.homewalk.entity.Users;
 import com.example.homewalk.service.UsersService;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -29,7 +38,9 @@ public class UsersController {
         Users authenticatedUser = usersService.authenticateUser(users.getUsername(), users.getPassword());
         if (authenticatedUser != null) {
             String token = usersService.generateToken(authenticatedUser); // 토큰 생성 메소드 호출
-            return ResponseEntity.ok(new AuthResponse(authenticatedUser.getUserId(), token)); // userId와 jwt 반환
+            
+            // 로그인 시 아바타 URL 포함하여 반환
+            return ResponseEntity.ok(new AuthResponse(authenticatedUser.getUserId(), token, authenticatedUser.getAvatarCustomization())); // userId와 jwt, 아바타 URL 반환
         } else {
             return ResponseEntity.badRequest().body("Invalid username or password or user is inactive");
         }
@@ -46,4 +57,67 @@ public class UsersController {
         boolean exists = usersService.existsByEmail(email);
         return ResponseEntity.ok(exists);
     }
+    
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
+        try {
+            Users user = usersService.getUserFromToken(token);
+            // 사용자의 username, email, password를 포함한 객체 반환
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/user")
+    public ResponseEntity<?> updateUserProfile(@RequestHeader("Authorization") String token, @RequestBody Users updatedUser) {
+        try {
+            Users user = usersService.getUserFromToken(token);
+            user.setUsername(updatedUser.getUsername());
+            user.setPassword(updatedUser.getPassword());
+            user.setEmail(updatedUser.getEmail());
+            
+            // 경로가 존재하는 경우 업데이트
+            if (updatedUser.getAvatarCustomization() != null) {
+                user.setAvatarCustomization(updatedUser.getAvatarCustomization());
+            }
+
+            usersService.updateUser(user); // 사용자 업데이트
+            return ResponseEntity.ok("User profile updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/upload-avatar")
+    public ResponseEntity<String> uploadAvatar(@RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            if (fileName != null) {
+                fileName = fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_"); // 안전한 파일명으로 변환
+            }
+
+            Path directoryPath = Paths.get("src/main/resources/static/assets/profile/");
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath); // 디렉토리 생성
+            }
+
+            Path path = directoryPath.resolve(fileName);
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            // 저장된 파일 경로 반환
+            String filePath = "/assets/profile/" + fileName;
+
+            // 사용자 정보를 업데이트
+            Users user = usersService.getUserFromToken(token);
+            user.setAvatarCustomization(filePath);
+            usersService.updateUser(user); // 사용자 업데이트
+
+            return ResponseEntity.ok(filePath);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file: " + e.getMessage());
+        }
+    }
+
+
 }

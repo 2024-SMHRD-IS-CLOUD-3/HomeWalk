@@ -8,4 +8,5 @@ import lombok.Data;
 public class AuthResponse {
     private Long userId;
     private String jwt;
+    private String avatarCustomization;
 }

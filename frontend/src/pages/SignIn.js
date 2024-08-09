@@ -47,6 +47,7 @@ export default function SignIn() {
       const response = await loginUser({ username, password });
       console.log('Response:', response);
       if (response.jwt) {
+        const avatarUrl = response.avatarCustomization || ''; // 아바타 URL 가져오기
         if (rememberMe) {
           localStorage.setItem('token', response.jwt);
           localStorage.setItem('userId', response.userId); // userId를 로컬 스토리지에 저장
@@ -55,7 +56,7 @@ export default function SignIn() {
           sessionStorage.setItem('userId', response.userId); // userId를 세션 스토리지에 저장
         }
         console.log('Token saved');
-        login(response.jwt, response.userId); // AuthContext의 login 함수 호출
+        login(response.jwt, response.userId, avatarUrl); // AuthContext의 login 함수 호출
         navigate('/dashboard', { replace: true });
         console.log('isAuthenticated set to true');
       } else {
