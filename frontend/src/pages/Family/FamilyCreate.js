@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Typography, Paper, TextField, Button, Alert, Grid } from '@mui/material';
-import { createFamily } from '../../api/api';
+import { createFamily } from '../../api/family';
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyCreate = () => {

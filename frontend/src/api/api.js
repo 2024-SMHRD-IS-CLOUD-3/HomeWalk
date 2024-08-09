@@ -29,20 +29,3 @@ export const loginUser = async (userData) => {
     });
     return response.data;
 };
-
-// 가족 정보 관련 API
-export const createFamily = async (userId, familyData) => {
-    const response = await axios.post(`${API_URL}/families`, familyData, {
-        params: { userId },
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    return response.data;
-};
-
-
-export const getFamilies = async () => {
-    const response = await axios.get(`${API_URL}/families`);
-    return response.data;
-};

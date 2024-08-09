@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box } from '@mui/material';
-import { getFamilies } from '../../api/api';
+import { Typography, Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box, Button } from '@mui/material';
+import { getFamilies, requestJoinFamily } from '../../api/family'; // requestJoinFamily 함수는 가입 신청을 처리하는 API 호출
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyList = () => {
@@ -24,6 +24,16 @@ const FamilyList = () => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleJoinRequest = async (familyId) => {
+    try {
+      await requestJoinFamily(userId, familyId); // 가입 신청 API 호출
+      alert('가입 신청이 완료되었습니다.');
+    } catch (error) {
+      console.error('Error requesting to join family:', error);
+      alert('가입 신청 중 오류가 발생했습니다.');
+    }
   };
 
   const filteredFamilies = families.filter(family =>
@@ -59,6 +69,13 @@ const FamilyList = () => {
                     </>
                   }
                 />
+                <Button
+                  variant="contained"
+                  onClick={() => handleJoinRequest(family.familyId)}
+                  sx={{ ml: 2 }}
+                >
+                  가입
+                </Button>
               </ListItem>
               <Divider />
             </React.Fragment>
