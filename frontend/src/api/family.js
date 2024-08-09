@@ -13,15 +13,27 @@ export const createFamily = async (userId, familyData) => {
     return response.data;
 };
 
-export const getFamilies = async () => {
-    const response = await axios.get(`${API_URL}/families`);
+// 사용자와 관련된 가족 목록 가져오기 (가입 신청 상태 포함)
+export const getFamilies = async (userId) => {
+    const response = await axios.get(`${API_URL}/families`, {
+        params: { userId },
+    });
     return response.data;
 };
 
+// 가족 가입 신청
 export const requestJoinFamily = async (userId, familyId) => {
     const response = await axios.post(`${API_URL}/join-requests`, {
         userId,
         familyId,
+    });
+    return response.data;
+};
+
+// 가족 가입 취소
+export const cancelJoinRequest = async (userId, familyId) => {
+    const response = await axios.delete(`${API_URL}/join-requests`, {
+        params: { userId, familyId },
     });
     return response.data;
 };

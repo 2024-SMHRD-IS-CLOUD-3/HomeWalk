@@ -22,4 +22,10 @@ public class JoinRequestsController {
         FamilyJoinRequest createdRequest = joinRequestService.saveJoinRequest(joinRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRequest);
     }
+    
+    @DeleteMapping
+    public ResponseEntity<Void> cancelJoinRequest(@RequestParam Long userId, @RequestParam Long familyId) {
+        joinRequestService.deleteJoinRequest(userId, familyId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box, Button } from '@mui/material';
-import { getFamilies, requestJoinFamily } from '../../api/family'; // requestJoinFamily 함수는 가입 신청을 처리하는 API 호출
+import { getFamilies, requestJoinFamily, cancelJoinRequest } from '../../api/family';
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyList = () => {
@@ -15,25 +15,36 @@ const FamilyList = () => {
   const fetchFamilies = async () => {
     try {
       const fetchedFamilies = await getFamilies(userId);
-      const filteredFamilies = fetchedFamilies.filter(family => String(family.creatorId) !== String(userId));
-      setFamilies(filteredFamilies);
+      setFamilies(fetchedFamilies);
     } catch (error) {
       console.error('Error fetching families:', error);
     }
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
   const handleJoinRequest = async (familyId) => {
     try {
-      await requestJoinFamily(userId, familyId); // 가입 신청 API 호출
+      await requestJoinFamily(userId, familyId);
       alert('가입 신청이 완료되었습니다.');
+      fetchFamilies(); // 가입 신청 후 상태 갱신
     } catch (error) {
       console.error('Error requesting to join family:', error);
       alert('가입 신청 중 오류가 발생했습니다.');
     }
+  };
+
+  const handleCancelJoinRequest = async (familyId) => {
+    try {
+      await cancelJoinRequest(userId, familyId);
+      alert('가입 신청이 취소되었습니다.');
+      fetchFamilies(); // 가입 취소 후 상태 갱신
+    } catch (error) {
+      console.error('Error canceling join request:', error);
+      alert('가입 신청 취소 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const filteredFamilies = families.filter(family =>
@@ -64,18 +75,27 @@ const FamilyList = () => {
                       <Box component="span" fontWeight="fontWeightBold">
                         만든이: {family.creatorName}
                       </Box>
-                      <br />
-                      인원수: {family.memberCount || 1}
                     </>
                   }
                 />
-                <Button
-                  variant="contained"
-                  onClick={() => handleJoinRequest(family.familyId)}
-                  sx={{ ml: 2 }}
-                >
-                  가입
-                </Button>
+                {family.joinRequested ? (
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleCancelJoinRequest(family.familyId)}
+                    sx={{ ml: 2 }}
+                  >
+                    가입 취소
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    onClick={() => handleJoinRequest(family.familyId)}
+                    sx={{ ml: 2 }}
+                  >
+                    가입
+                  </Button>
+                )}
               </ListItem>
               <Divider />
             </React.Fragment>

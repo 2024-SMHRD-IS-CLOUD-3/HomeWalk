@@ -3,6 +3,7 @@ package com.example.homewalk.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.homewalk.dto.FamilyDto;
 import com.example.homewalk.entity.Families;
 import com.example.homewalk.service.FamiliesService;
 
@@ -26,8 +27,8 @@ public class FamiliesController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Families>> getAllFamilies() {
-        List<Families> families = familiesService.getAllFamilies();
+    public ResponseEntity<List<FamilyDto>> getAllFamilies(@RequestParam Long userId) {
+        List<FamilyDto> families = familiesService.getFamiliesWithJoinStatus(userId);
         return ResponseEntity.ok(families);
     }
 }
