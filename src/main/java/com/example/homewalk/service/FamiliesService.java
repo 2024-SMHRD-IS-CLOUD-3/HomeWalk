@@ -1,8 +1,11 @@
 package com.example.homewalk.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -48,10 +51,28 @@ public class FamiliesService {
             Users creator = usersService.getUserById(family.getCreatorId());
             dto.setCreatorName(creator.getUsername());
             dto.setCreatorId(family.getCreatorId());
+
+            // 해당 사용자의 가족 가입 상태를 확인
             Optional<FamilyJoinRequest> joinRequest = joinRequestRepository.findByUserIdAndFamilyId(userId, family.getFamilyId());
-            dto.setJoinRequested(joinRequest.isPresent());
+
+            if (joinRequest.isPresent()) {
+                dto.setJoinRequested(true);
+                dto.setIsMember(joinRequest.get().isApproved());
+            } else {
+                dto.setJoinRequested(false);
+                dto.setIsMember(false);
+            }
+
+            // 가족 구성원 목록 설정, 만든이 제외
+            List<String> members = familyMembersRepository.findByFamilyId(family.getFamilyId())
+                .stream()
+                .map(member -> usersService.getUserById(member.getUserId()).getUsername())
+                .filter(username -> !username.equals(creator.getUsername())) // 만든이를 제외
+                .collect(Collectors.toList());
+
+            dto.setMembers(members); // dto에 설정
+
             return dto;
         }).collect(Collectors.toList());
     }
-   
 }

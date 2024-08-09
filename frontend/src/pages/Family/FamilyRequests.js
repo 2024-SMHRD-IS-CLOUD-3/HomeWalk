@@ -26,10 +26,6 @@ const FamilyRequests = () => {
 
   const handleApprove = async (requestId, familyId, userId) => {
     try {
-      console.log('requestId', requestId); // 확인 로그
-      console.log('familyId', familyId);
-      console.log('userId', userId);
-
       await approveJoinRequest(requestId, familyId, userId); // 승인 API 호출
 
       // 상태를 즉시 업데이트하여 UI에 반영

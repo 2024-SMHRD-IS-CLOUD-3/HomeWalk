@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Typography, Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box, Button } from '@mui/material';
-import { getFamilies, requestJoinFamily, cancelJoinRequest } from '../../api/family';
+import { getFamilies, leaveFamily, requestJoinFamily, cancelJoinRequest } from '../../api/family'; 
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyList = () => {
@@ -57,6 +57,17 @@ const FamilyList = () => {
         }
     };
 
+    const handleLeaveFamily = async (familyId) => {
+        try {
+            await leaveFamily(userId, familyId);
+            alert('가족에서 탈퇴했습니다.');
+            fetchFamilies(); // 탈퇴 후 상태 갱신
+        } catch (error) {
+            console.error('Error leaving family:', error);
+            alert('가족 탈퇴 중 오류가 발생했습니다.');
+        }
+    };
+
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
@@ -89,10 +100,24 @@ const FamilyList = () => {
                                             <Box component="span" fontWeight="fontWeightBold">
                                                 만든이: {family.creatorName}
                                             </Box>
+                                            {/* 구성원 목록을 표시 */}
+                                            <Box component="span" display="block" mt={1}>
+                                                구성원: {family.members.join(', ')}
+                                            </Box>
                                         </>
                                     }
                                 />
-                                {family.joinRequested ? (
+                                {/* 가입 상태에 따른 버튼 표시 */}
+                                {family.member ? (
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={() => handleLeaveFamily(family.familyId)}
+                                        sx={{ ml: 2 }}
+                                    >
+                                        탈퇴
+                                    </Button>
+                                ) : family.joinRequested ? (
                                     <Button
                                         variant="contained"
                                         color="secondary"

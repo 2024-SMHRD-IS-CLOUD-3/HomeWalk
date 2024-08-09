@@ -68,3 +68,15 @@ export const approveJoinRequest = async (requestId, familyId, userId) => {
     }
 };
 
+// 가족 탈퇴
+export const leaveFamily = async (userId, familyId) => {
+    try {
+        const response = await axios.delete(`${API_URL}/families/leave`, {
+            params: { userId, familyId }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error leaving family:', error);
+        throw error;
+    }
+};
