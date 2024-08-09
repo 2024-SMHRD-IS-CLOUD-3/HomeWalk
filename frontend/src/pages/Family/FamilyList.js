@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Typography, Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box, Button } from '@mui/material';
-import { getFamilies, leaveFamily, requestJoinFamily, cancelJoinRequest } from '../../api/family'; 
+import { getFamilies, leaveFamily, requestJoinFamily, cancelJoinRequest } from '../../api/family';
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyList = () => {
@@ -108,7 +108,7 @@ const FamilyList = () => {
                                     }
                                 />
                                 {/* 가입 상태에 따른 버튼 표시 */}
-                                {family.member ? (
+                                {family.isMember ? (
                                     <Button
                                         variant="contained"
                                         color="secondary"

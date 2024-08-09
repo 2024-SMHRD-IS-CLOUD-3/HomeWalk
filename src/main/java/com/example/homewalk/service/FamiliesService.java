@@ -1,12 +1,11 @@
 package com.example.homewalk.service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
@@ -74,5 +73,14 @@ public class FamiliesService {
 
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void leaveFamily(Long userId, Long familyId) {
+        // FamilyMembers 테이블에서 해당 사용자를 제거
+        familyMembersRepository.deleteByUserIdAndFamilyId(userId, familyId);
+
+        // FamilyJoinRequests 테이블에서 해당 사용자의 가입 요청 제거
+        joinRequestRepository.deleteByUserIdAndFamilyId(userId, familyId);
     }
 }

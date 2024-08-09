@@ -32,4 +32,11 @@ public class FamiliesController {
         return ResponseEntity.ok(families);
     }
     
+    // 가족에서 탈퇴하는 엔드포인트
+    @DeleteMapping("/leave")
+    public ResponseEntity<Void> leaveFamily(@RequestParam Long userId, @RequestParam Long familyId) {
+        familiesService.leaveFamily(userId, familyId);
+        return ResponseEntity.noContent().build();
+    }
+    
 }
