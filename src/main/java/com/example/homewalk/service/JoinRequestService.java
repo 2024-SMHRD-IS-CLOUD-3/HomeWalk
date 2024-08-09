@@ -7,9 +7,12 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
+import com.example.homewalk.dto.FamilyJoinRequestDto;
 import com.example.homewalk.entity.FamilyJoinRequest;
+import com.example.homewalk.entity.Users;
 import com.example.homewalk.repository.FamilyJoinRequestRepository;
 import com.example.homewalk.repository.FamiliesRepository;
+import com.example.homewalk.repository.UsersRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +23,7 @@ public class JoinRequestService {
 
     private final FamilyJoinRequestRepository joinRequestRepository;
     private final FamiliesRepository familiesRepository;
+    private final UsersRepository usersRepository;
 
     public FamilyJoinRequest saveJoinRequest(FamilyJoinRequest joinRequest) {
         joinRequest.setRequestDate(LocalDate.now());
@@ -32,7 +36,7 @@ public class JoinRequestService {
     }
 
     // 특정 사용자가 만든 가족에 대한 가입 신청 정보 가져오기
-    public List<FamilyJoinRequest> getJoinRequestsForCreator(Long creatorId) {
+    public List<FamilyJoinRequestDto> getJoinRequestsForCreator(Long creatorId) {
         // 사용자가 만든 모든 가족 ID를 가져옵니다.
         List<Long> familyIds = familiesRepository.findByCreatorId(creatorId)
             .stream()
@@ -40,6 +44,20 @@ public class JoinRequestService {
             .collect(Collectors.toList());
 
         // 해당 가족 ID들에 대한 모든 가입 신청 목록을 가져옵니다.
-        return joinRequestRepository.findByFamilyIdIn(familyIds);
+        return joinRequestRepository.findByFamilyIdIn(familyIds)
+            .stream()
+            .map(request -> {
+                Users user = usersRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new IllegalStateException("User not found with id " + request.getUserId()));
+                return new FamilyJoinRequestDto(
+                    request.getRequestId(),
+                    request.getUserId(),
+                    user.getUsername(),
+                    request.getFamilyId(),
+                    request.getRequestDate(),
+                    request.isApproved()
+                );
+            })
+            .collect(Collectors.toList());
     }
 }

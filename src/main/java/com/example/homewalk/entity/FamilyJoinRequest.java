@@ -29,4 +29,8 @@ public class FamilyJoinRequest {
     private Boolean approved;
 
     private LocalDate approvalDate;
+    
+    public boolean isApproved() {
+        return approved;
+    }
 }
