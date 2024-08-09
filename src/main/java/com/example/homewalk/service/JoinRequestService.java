@@ -9,8 +9,10 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import com.example.homewalk.dto.FamilyJoinRequestDto;
 import com.example.homewalk.entity.FamilyJoinRequest;
+import com.example.homewalk.entity.FamilyMembers;
 import com.example.homewalk.entity.Users;
 import com.example.homewalk.repository.FamilyJoinRequestRepository;
+import com.example.homewalk.repository.FamilyMembersRepository;
 import com.example.homewalk.repository.FamiliesRepository;
 import com.example.homewalk.repository.UsersRepository;
 
@@ -23,6 +25,7 @@ public class JoinRequestService {
 
     private final FamilyJoinRequestRepository joinRequestRepository;
     private final FamiliesRepository familiesRepository;
+    private final FamilyMembersRepository familyMembersRepository;
     private final UsersRepository usersRepository;
 
     public FamilyJoinRequest saveJoinRequest(FamilyJoinRequest joinRequest) {
@@ -59,5 +62,24 @@ public class JoinRequestService {
                 );
             })
             .collect(Collectors.toList());
+    }
+    
+    public void approveJoinRequest(Long requestId, Long familyId, Long userId) {
+        // 1. FamilyJoinRequest 엔티티 가져오기
+        FamilyJoinRequest joinRequest = joinRequestRepository.findById(requestId)
+            .orElseThrow(() -> new RuntimeException("Join request not found"));
+
+        // 2. 승인 처리
+        joinRequest.setApproved(true);
+        joinRequest.setApprovalDate(LocalDate.now());
+        joinRequestRepository.save(joinRequest);
+
+        // 3. FamilyMembers 엔티티에 추가
+        FamilyMembers familyMember = new FamilyMembers();
+        familyMember.setFamilyId(familyId);
+        familyMember.setUserId(userId);
+        familyMember.setJoinDate(LocalDate.now());
+        familyMember.setApproved(true);
+        familyMembersRepository.save(familyMember);
     }
 }

@@ -127,10 +127,10 @@ export default function AppBarComponent({ open, toggleDrawer }) {
             <img 
               src={avatarCustomization} 
               alt="User Avatar" 
-              style={{ width: 40, height: 40, borderRadius: '50%' }} 
+              style={{ width: 30, height: 30, borderRadius: '50%' }} 
             />
           ) : (
-            <AccountCircleIcon sx={{ fontSize: 40 }} />
+            <AccountCircleIcon sx={{ fontSize: 30 }} />
           )}
         </IconButton>
         <IconButton color="inherit" onClick={handleLogout}>

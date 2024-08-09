@@ -41,12 +41,30 @@ export const cancelJoinRequest = async (userId, familyId) => {
 // 가족 가입 신청 확인
 export const getJoinRequestsForCreator = async (creatorId) => {
     try {
-      const response = await axios.get(`/api/join-requests/creator`, {
-        params: { creatorId }
-      });
-      return response.data;
+        const response = await axios.get(`/api/join-requests/creator`, {
+            params: { creatorId }
+        });
+        return response.data;
     } catch (error) {
-      console.error('Error fetching join requests:', error);
-      throw error;
+        console.error('Error fetching join requests:', error);
+        throw error;
     }
-  };
+};
+
+// 가족 가입 신청 승인
+export const approveJoinRequest = async (requestId, familyId, userId) => {
+    try {
+        const response = await axios.post(`${API_URL}/join-requests/approve`, null, {
+            params: {
+                requestId,
+                familyId,
+                userId,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error approving join request:', error);
+        throw error;
+    }
+};
+

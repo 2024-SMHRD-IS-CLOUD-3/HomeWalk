@@ -31,4 +31,5 @@ public class FamiliesController {
         List<FamilyDto> families = familiesService.getFamiliesWithJoinStatus(userId);
         return ResponseEntity.ok(families);
     }
+    
 }

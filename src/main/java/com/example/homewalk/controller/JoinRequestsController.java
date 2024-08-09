@@ -38,4 +38,15 @@ public class JoinRequestsController {
         List<FamilyJoinRequestDto> joinRequests = joinRequestService.getJoinRequestsForCreator(creatorId);
         return ResponseEntity.ok(joinRequests);
     }
+    
+    // 가입 신청 승인 API 추가
+    @PostMapping("/approve")
+    public ResponseEntity<String> approveJoinRequest(@RequestParam Long requestId, @RequestParam Long familyId, @RequestParam Long userId) {
+        try {
+            joinRequestService.approveJoinRequest(requestId, familyId, userId);
+            return ResponseEntity.ok("Join request approved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to approve join request: " + e.getMessage());
+        }
+    }
 }
