@@ -74,7 +74,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function AppBarComponent({ open, toggleDrawer }) {
-    const { avatarCustomization, logout } = useAuth(); // AuthContext에서 userId, avatarCustomization, logout 가져오기
+    const { userObject, logout } = useAuth(); // AuthContext에서 userObject와 logout 가져오기
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -118,9 +118,9 @@ export default function AppBarComponent({ open, toggleDrawer }) {
                     </Badge>
                 </IconButton>
                 <IconButton color="inherit" onClick={handleProfileClick}>
-                    {avatarCustomization ? (
+                    {userObject?.avatarCustomization ? (
                         <img
-                            src={avatarCustomization}
+                            src={userObject.avatarCustomization}
                             alt="User Avatar"
                             style={{ width: 30, height: 30, borderRadius: '50%' }}
                         />

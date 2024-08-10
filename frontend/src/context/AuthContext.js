@@ -44,8 +44,22 @@ export const AuthProvider = ({ children }) => {
     navigate('/'); // 로그아웃 후 로그인 페이지로 리디렉션
   };
 
+  // 추가된 함수: 아바타 URL 업데이트
+  const setAvatarCustomization = (newAvatarUrl) => {
+    setUserObject((prev) => ({ ...prev, avatarCustomization: newAvatarUrl }));
+
+    // 로컬 스토리지 또는 세션 스토리지에 업데이트된 userInfo 저장
+    if (localStorage.getItem('userInfo')) {
+      const updatedUserInfo = { ...JSON.parse(localStorage.getItem('userInfo')), avatarCustomization: newAvatarUrl };
+      localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+    } else if (sessionStorage.getItem('userInfo')) {
+      const updatedUserInfo = { ...JSON.parse(sessionStorage.getItem('userInfo')), avatarCustomization: newAvatarUrl };
+      sessionStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userObject, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userObject, login, logout, setAvatarCustomization }}>
       {children}
     </AuthContext.Provider>
   );
