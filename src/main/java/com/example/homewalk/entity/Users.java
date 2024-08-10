@@ -24,12 +24,16 @@ public class Users {
     @Column(columnDefinition = "JSON")
     private String avatarCustomization;
 
-    private Integer dailyStepGoal;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer dailyStepGoal = 0;
 
-    private Integer weeklyStepGoal;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer weeklyStepGoal = 0;
 
-    private Integer monthlyStepGoal;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer monthlyStepGoal = 0;
 
     @Column(name = "is_active")
     private Boolean isActive = true;
+
 }

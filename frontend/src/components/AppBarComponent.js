@@ -17,126 +17,121 @@ import { useAuth } from '../context/AuthContext';
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
+    shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
     }),
-  }),
+    ...(open && {
+        marginLeft: drawerWidth,
+        width: `calc(100% - ${drawerWidth}px)`,
+        transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+    }),
 }));
 
 const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.common.white,
-  '&:hover': {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.common.white,
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
-  },
+    '&:hover': {
+        backgroundColor: theme.palette.common.white,
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(3),
+        width: 'auto',
+    },
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
+    color: 'inherit',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('md')]: {
+            width: '20ch',
+        },
     },
-  },
 }));
 
 export default function AppBarComponent({ open, toggleDrawer }) {
-  const { userId, avatarCustomization, logout } = useAuth(); // AuthContext에서 userId, avatarCustomization, logout 가져오기
-  const navigate = useNavigate();
+    const { avatarCustomization, logout } = useAuth(); // AuthContext에서 userId, avatarCustomization, logout 가져오기
+    const navigate = useNavigate();
 
-  console.log('avatarCustomization', avatarCustomization);
-  
+    const handleLogout = () => {
+        logout(); // 로그아웃 함수 호출
+    };
 
-  const handleLogout = () => {
-    logout(); // 로그아웃 함수 호출
-  };
-  
-  const handleProfileClick = () => {
-    if (userId) {
-      navigate(`/profile/${userId}`); // 프로필 페이지로 이동
-    }
-  };
+    const handleProfileClick = () => {
+        navigate(`/profile`); // 프로필 페이지로 이동
+    };
 
-  return (
-    <AppBar position="absolute" open={open}>
-      <Toolbar sx={{ pr: '24px' }}>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="open drawer"
-          onClick={toggleDrawer}
-          sx={{
-            marginRight: '36px',
-            ...(open && { display: 'none' }),
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-          HomeWalk
-        </Typography>
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </Search>
-        <IconButton color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <IconButton color="inherit" onClick={handleProfileClick}>
-          {avatarCustomization ? (
-            <img 
-              src={avatarCustomization} 
-              alt="User Avatar" 
-              style={{ width: 30, height: 30, borderRadius: '50%' }} 
-            />
-          ) : (
-            <AccountCircleIcon sx={{ fontSize: 30 }} />
-          )}
-        </IconButton>
-        <IconButton color="inherit" onClick={handleLogout}>
-          <LogoutIcon />
-        </IconButton>
-      </Toolbar>
-    </AppBar>
-  );
+    return (
+        <AppBar position="absolute" open={open}>
+            <Toolbar sx={{ pr: '24px' }}>
+                <IconButton
+                    edge="start"
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={toggleDrawer}
+                    sx={{
+                        marginRight: '36px',
+                        ...(open && { display: 'none' }),
+                    }}
+                >
+                    <MenuIcon />
+                </IconButton>
+                <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+                    HomeWalk
+                </Typography>
+                <Search>
+                    <SearchIconWrapper>
+                        <SearchIcon />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                        placeholder="Search…"
+                        inputProps={{ 'aria-label': 'search' }}
+                    />
+                </Search>
+                <IconButton color="inherit">
+                    <Badge badgeContent={4} color="secondary">
+                        <NotificationsIcon />
+                    </Badge>
+                </IconButton>
+                <IconButton color="inherit" onClick={handleProfileClick}>
+                    {avatarCustomization ? (
+                        <img
+                            src={avatarCustomization}
+                            alt="User Avatar"
+                            style={{ width: 30, height: 30, borderRadius: '50%' }}
+                        />
+                    ) : (
+                        <AccountCircleIcon sx={{ fontSize: 30 }} />
+                    )}
+                </IconButton>
+                <IconButton color="inherit" onClick={handleLogout}>
+                    <LogoutIcon />
+                </IconButton>
+            </Toolbar>
+        </AppBar>
+    );
 }

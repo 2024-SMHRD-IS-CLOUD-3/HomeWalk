@@ -4,7 +4,7 @@ import { createFamily } from '../../api/family';
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyCreate = () => {
-    const { userId } = useAuth();
+    const { userObject } = useAuth(); // userObject에서 userId를 가져옴
     const [newFamilyName, setNewFamilyName] = useState('');
     const [error, setError] = useState('');
 
@@ -18,8 +18,7 @@ const FamilyCreate = () => {
         }
 
         try {
-            console.log('userId', userId);
-            await createFamily(userId, { familyName: newFamilyName });
+            await createFamily(userObject.userId, { familyName: newFamilyName }); // token과 가족 이름 전달
             setNewFamilyName('');
             setError('');
             // 가족 생성 후 추가 로직이 필요할 경우 여기에 작성

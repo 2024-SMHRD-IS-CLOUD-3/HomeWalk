@@ -20,13 +20,19 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const userData = await fetchUserProfile(token); // fetchUserProfile로 사용자 정보 가져오기
-        const { username, password, email, avatarCustomization } = userData;
-        setUsername(username);
-        setPassword(password);
-        setEmail(email);
-        setAvatarCustomization(avatarCustomization);
+        // token을 localStorage 또는 sessionStorage에서 가져오기
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (token) {
+          const userData = await fetchUserProfile(token); // fetchUserProfile로 사용자 정보 가져오기
+          const { username, password, email, avatarCustomization } = userData;
+          setUsername(username);
+          setPassword(password);
+          setEmail(email);
+          setAvatarCustomization(avatarCustomization);
+        } else {
+          console.error('No token found');
+        }
       } catch (error) {
         console.error('Failed to fetch user data', error);
       }
@@ -42,7 +48,7 @@ const Profile = () => {
 
   const handleUpdate = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       let uploadedImagePath = avatarCustomization;
 
       if (selectedFile) {

@@ -39,8 +39,20 @@ public class UsersController {
         if (authenticatedUser != null) {
             String token = usersService.generateToken(authenticatedUser); // 토큰 생성 메소드 호출
             
-            // 로그인 시 아바타 URL 포함하여 반환
-            return ResponseEntity.ok(new AuthResponse(authenticatedUser.getUserId(), token, authenticatedUser.getAvatarCustomization())); // userId와 jwt, 아바타 URL 반환
+            // AuthResponse 객체 생성 및 반환
+            AuthResponse authResponse = new AuthResponse(
+                authenticatedUser.getUserId(),
+                token,
+                authenticatedUser.getUsername(), // 추가
+                authenticatedUser.getEmail(), // 추가
+                authenticatedUser.getAvatarCustomization(),
+                authenticatedUser.getDailyStepGoal(), // 추가
+                authenticatedUser.getWeeklyStepGoal(), // 추가
+                authenticatedUser.getMonthlyStepGoal(), // 추가
+                authenticatedUser.getIsActive() // 추가
+            );
+
+            return ResponseEntity.ok(authResponse); // AuthResponse 객체 반환
         } else {
             return ResponseEntity.badRequest().body("Invalid username or password or user is inactive");
         }

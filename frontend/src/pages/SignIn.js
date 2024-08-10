@@ -14,7 +14,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
-import { useAuth } from '../context/AuthContext'; // AuthContext import
+import { useAuth } from '../context/AuthContext';
 
 function Copyright(props) {
   return (
@@ -33,7 +33,7 @@ const defaultTheme = createTheme();
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // AuthContext에서 login 함수 가져오기
+  const { login } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -46,19 +46,32 @@ export default function SignIn() {
     try {
       const response = await loginUser({ username, password });
       console.log('Response:', response);
+
       if (response.jwt) {
-        const avatarUrl = response.avatarCustomization || ''; // 아바타 URL 가져오기
+        // userInfo 객체에서 token을 분리하여 저장
+        const userInfo = {
+          userId: response.userId,
+          username: response.username,
+          email: response.email,
+          avatarCustomization: response.avatarCustomization,
+          dailyStepGoal: response.dailyStepGoal,
+          weeklyStepGoal: response.weeklyStepGoal,
+          monthlyStepGoal: response.monthlyStepGoal,
+          isActive: response.isActive,
+        };
+
+        // Token은 별도로 저장
         if (rememberMe) {
-          localStorage.setItem('token', response.jwt);
-          localStorage.setItem('userId', response.userId); // userId를 로컬 스토리지에 저장
+          localStorage.setItem('userInfo', JSON.stringify(userInfo));
+          localStorage.setItem('token', response.jwt); // Token 따로 저장
         } else {
-          sessionStorage.setItem('token', response.jwt);
-          sessionStorage.setItem('userId', response.userId); // userId를 세션 스토리지에 저장
+          sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+          sessionStorage.setItem('token', response.jwt); // Token 따로 저장
         }
-        console.log('Token saved');
-        login(response.jwt, response.userId, avatarUrl); // AuthContext의 login 함수 호출
+
+        // AuthContext의 login 함수 호출
+        login(response.jwt, userInfo, rememberMe);
         navigate('/dashboard', { replace: true });
-        console.log('isAuthenticated set to true');
       } else {
         console.error('No token found in response');
         setErrorMessage('Login failed. Please check your username and password.');

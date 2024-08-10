@@ -8,8 +8,5 @@ export const loginUser = async (userData) => {
             'Content-Type': 'application/json'
         }
     });
-    if (response.data.token) {
-        localStorage.setItem('user', JSON.stringify(response.data));
-    }
-    return response.data;
+    return response.data;  // 응답 데이터를 반환
 };
