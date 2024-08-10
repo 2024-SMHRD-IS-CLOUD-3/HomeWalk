@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,6 +13,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import InputBase from '@mui/material/InputBase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getUnreadNotifications, markNotificationAsRead } from '../api/notifications';
+import { Menu, MenuItem, ListItemText } from '@mui/material';
 
 const drawerWidth = 240;
 
@@ -74,15 +76,65 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function AppBarComponent({ open, toggleDrawer }) {
-    const { userObject, logout } = useAuth(); // AuthContext에서 userObject와 logout 가져오기
+    const { userObject, logout } = useAuth();
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [notifications, setNotifications] = useState([]);
+    const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if (userObject?.userId) {
+                try {
+                    const notifications = await getUnreadNotifications(userObject.userId);
+                    console.log(notifications);
+                    
+                    setNotifications(notifications); 
+                    setUnreadCount(notifications.length); 
+                } catch (error) {
+                    console.error('Failed to fetch notifications:', error);
+                }
+            }
+        };
+
+        fetchNotifications();
+    }, [userObject]);
+
     const handleLogout = () => {
-        logout(); // 로그아웃 함수 호출
+        logout();
     };
 
     const handleProfileClick = () => {
-        navigate(`/profile`); // 프로필 페이지로 이동
+        navigate(`/profile`);
+    };
+
+    const handleNotificationClick = (event) => {
+        if (unreadCount > 0) {
+            setAnchorEl(event.currentTarget); // 알림 목록을 여는 상태 설정
+        }
+    };
+
+    const handleNotificationClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleNotificationItemClick = async (notificationId) => {
+        try {
+            // 서버에 is_read 업데이트 요청
+            console.log(notificationId);
+            
+            await markNotificationAsRead(notificationId);
+
+            // 클라이언트 상태 업데이트
+            setNotifications((prevNotifications) =>
+                prevNotifications.filter(notification => notification.notificationId !== notificationId)
+            );
+            setUnreadCount((prevCount) => prevCount - 1);
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+        } finally {
+            handleNotificationClose(); // 메뉴 닫기
+        }
     };
 
     return (
@@ -112,11 +164,22 @@ export default function AppBarComponent({ open, toggleDrawer }) {
                         inputProps={{ 'aria-label': 'search' }}
                     />
                 </Search>
-                <IconButton color="inherit">
-                    <Badge badgeContent={4} color="secondary">
+                <IconButton color="inherit" onClick={handleNotificationClick}>
+                    <Badge badgeContent={unreadCount} color="secondary">
                         <NotificationsIcon />
                     </Badge>
                 </IconButton>
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleNotificationClose}
+                >
+                    {notifications.map((notification) => (
+                        <MenuItem key={notification.notificationId} onClick={() => handleNotificationItemClick(notification.notificationId)}>
+                            <ListItemText primary={notification.message} />
+                        </MenuItem>
+                    ))}
+                </Menu>
                 <IconButton color="inherit" onClick={handleProfileClick}>
                     {userObject?.avatarCustomization ? (
                         <img

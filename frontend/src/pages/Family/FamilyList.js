@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Typography, Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box, Button } from '@mui/material';
 import { getFamilies, leaveFamily, requestJoinFamily, cancelJoinRequest } from '../../api/family';
 import { useAuth } from '../../context/AuthContext';
+import { createNotification } from '../../api/notifications'; // 알림 생성 API 호출 추가
 
 const FamilyList = () => {
     const { userObject } = useAuth(); // userObject에서 userId를 가져옴
@@ -35,9 +36,14 @@ const FamilyList = () => {
         fetchFamilies();
     }, [fetchFamilies]);
 
-    const handleJoinRequest = async (familyId) => {
+    const handleJoinRequest = async (familyId, creatorId) => {
         try {
             await requestJoinFamily(userObject.userId, familyId);
+            
+            // 가족장에게 알림 생성
+            const notificationMessage = `${userObject.username} has requested to join your family.`;
+            await createNotification(creatorId, notificationMessage);
+
             alert('가입 신청이 완료되었습니다.');
             fetchFamilies(); // 가입 신청 후 상태 갱신
         } catch (error) {
@@ -129,7 +135,7 @@ const FamilyList = () => {
                                 ) : (
                                     <Button
                                         variant="contained"
-                                        onClick={() => handleJoinRequest(family.familyId)}
+                                        onClick={() => handleJoinRequest(family.familyId, family.creatorId)} // family.creatorId 전달
                                         sx={{ ml: 2 }}
                                     >
                                         가입

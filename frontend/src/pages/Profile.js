@@ -12,7 +12,8 @@ const Profile = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [localAvatar, setLocalAvatar] = useState(''); // 로컬 상태용으로 다른 이름 사용
+  const [localAvatar, setLocalAvatar] = useState(''); // 로컬 상태로 관리
+  const [serverAvatar, setServerAvatar] = useState(''); // 서버에서 가져온 기존 경로 관리
   const [selectedFile, setSelectedFile] = useState(null);
 
   const toggleDrawer = () => {
@@ -30,7 +31,8 @@ const Profile = () => {
           setUsername(username);
           setPassword(password);
           setEmail(email);
-          setLocalAvatar(avatarCustomization); // DB에서 가져온 경로로 설정
+          setLocalAvatar(avatarCustomization); // 로컬 미리보기용으로 설정
+          setServerAvatar(avatarCustomization); // 서버에서 가져온 경로를 별도로 저장
         } else {
           console.error('No token found');
         }
@@ -46,30 +48,31 @@ const Profile = () => {
     const file = event.target.files[0];
     setSelectedFile(file);
     const localUrl = URL.createObjectURL(file);
-    setLocalAvatar(localUrl); // 로컬 URL로 미리보기 업데이트 (AppBar에는 반영하지 않음)
+    setLocalAvatar(localUrl); // 로컬 URL로 미리보기 업데이트
   };
 
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      let uploadedImagePath = serverAvatar; // 서버에 저장된 경로로 초기화
 
       if (selectedFile) {
         const formData = new FormData();
         formData.append('file', selectedFile);
-        await uploadProfileImage(token, formData);
-
-        // 수정이 완료된 후에만 AppBar의 이미지를 업데이트
-        setAvatarCustomization(localAvatar);
+        uploadedImagePath = await uploadProfileImage(token, formData); // 서버에서 반환된 경로로 설정
       }
 
       const updatedUserData = {
         username,
         password,
         email,
-        avatarCustomization: localAvatar, // 이 상태는 로컬 URL을 그대로 유지합니다.
+        avatarCustomization: uploadedImagePath, // DB에 서버 경로 저장
       };
       
       await updateUserProfile(token, updatedUserData);
+
+      // 수정이 완료된 후에만 AppBar의 이미지를 업데이트
+      setAvatarCustomization(uploadedImagePath);
 
       alert('Profile updated successfully');
     } catch (error) {
