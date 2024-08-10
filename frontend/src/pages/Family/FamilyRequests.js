@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Paper, List, ListItem, ListItemText, Divider, Grid, Button } from '@mui/material';
-import { getJoinRequestsForCreator } from '../../api/family';
+import { getJoinRequestsForCreator, approveJoinRequest } from '../../api/family';  // 승인 API 호출 추가
 import { useAuth } from '../../context/AuthContext';
-import { approveJoinRequest } from '../../api/family';  // 승인 API 호출 추가
 
 const FamilyRequests = () => {
-  const { userId } = useAuth(); // 현재 로그인한 사용자의 ID
+  const { userObject } = useAuth(); // userObject에서 userId를 가져옴
   const [joinRequests, setJoinRequests] = useState([]);
 
   useEffect(() => {
     const fetchJoinRequests = async () => {
       try {
-        const requests = await getJoinRequestsForCreator(userId);
+        if (!userObject?.userId) {
+          return;
+        }
+
+        const requests = await getJoinRequestsForCreator(userObject.userId);
         console.log('requests', requests);
         setJoinRequests(requests);
       } catch (error) {
@@ -19,10 +22,10 @@ const FamilyRequests = () => {
       }
     };
 
-    if (userId) {
+    if (userObject?.userId) {
       fetchJoinRequests();
     }
-  }, [userId]);
+  }, [userObject?.userId]);
 
   const handleApprove = async (requestId, familyId, userId) => {
     try {
@@ -38,7 +41,6 @@ const FamilyRequests = () => {
       console.error('Error approving join request:', error);
     }
   };
-
 
   return (
     <Grid item xs={12}>

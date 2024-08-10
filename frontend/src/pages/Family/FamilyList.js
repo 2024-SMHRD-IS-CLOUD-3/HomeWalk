@@ -4,22 +4,22 @@ import { getFamilies, leaveFamily, requestJoinFamily, cancelJoinRequest } from '
 import { useAuth } from '../../context/AuthContext';
 
 const FamilyList = () => {
-    const { userId } = useAuth(); // 현재 로그인한 사용자의 ID
+    const { userObject } = useAuth(); // userObject에서 userId를 가져옴
     const [families, setFamilies] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
     const fetchFamilies = useCallback(async () => {
         try {
-            if (!userId) {
+            if (!userObject?.userId) {
                 return;
             }
 
-            const fetchedFamilies = await getFamilies(userId);
+            const fetchedFamilies = await getFamilies(userObject.userId);
 
             // 본인이 만든 가족을 제외하는 필터링 추가
             const filteredFamilies = fetchedFamilies.filter(family => {
                 const creatorIdString = String(family.creatorId);
-                const userIdString = String(userId);
+                const userIdString = String(userObject.userId);
                 const isSame = creatorIdString === userIdString;
                 return !isSame;
             });
@@ -29,7 +29,7 @@ const FamilyList = () => {
         } catch (error) {
             console.error('Error fetching families:', error);
         }
-    }, [userId]);
+    }, [userObject?.userId]);
 
     useEffect(() => {
         fetchFamilies();
@@ -37,7 +37,7 @@ const FamilyList = () => {
 
     const handleJoinRequest = async (familyId) => {
         try {
-            await requestJoinFamily(userId, familyId);
+            await requestJoinFamily(userObject.userId, familyId);
             alert('가입 신청이 완료되었습니다.');
             fetchFamilies(); // 가입 신청 후 상태 갱신
         } catch (error) {
@@ -48,7 +48,7 @@ const FamilyList = () => {
 
     const handleCancelJoinRequest = async (familyId) => {
         try {
-            await cancelJoinRequest(userId, familyId);
+            await cancelJoinRequest(userObject.userId, familyId);
             alert('가입 신청이 취소되었습니다.');
             fetchFamilies(); // 가입 취소 후 상태 갱신
         } catch (error) {
@@ -59,7 +59,7 @@ const FamilyList = () => {
 
     const handleLeaveFamily = async (familyId) => {
         try {
-            await leaveFamily(userId, familyId);
+            await leaveFamily(userObject.userId, familyId);
             alert('가족에서 탈퇴했습니다.');
             fetchFamilies(); // 탈퇴 후 상태 갱신
         } catch (error) {
