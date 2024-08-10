@@ -5,6 +5,7 @@ import DrawerComponent from '../components/DrawerComponent';
 import FamilyList from './Family/FamilyList';
 import FamilyCreate from './Family/FamilyCreate';
 import FamilyRequests from './Family/FamilyRequests';
+import MyFamily from './Family/MyFamily'; // MyFamily 컴포넌트 추가
 
 const Families = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -26,6 +27,8 @@ const Families = () => {
         return <FamilyCreate />;
       case 2:
         return <FamilyRequests />;
+      case 3:
+        return <MyFamily />; // MyFamily 탭 추가
       default:
         return <FamilyList />;
     }
@@ -54,6 +57,7 @@ const Families = () => {
             <Tab label="Family List" />
             <Tab label="Create Family" />
             <Tab label="Manage Requests" />
+            <Tab label="My Family" /> {/* MyFamily 탭 추가 */}
           </Tabs>
           <Box sx={{ mt: 2 }}>
             {renderTab()}

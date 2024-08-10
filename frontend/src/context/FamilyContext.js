@@ -4,9 +4,12 @@ const FamilyContext = createContext();
 
 export const FamilyProvider = ({ children }) => {
   const initialFamilyId = localStorage.getItem('familyId');
-  const initialCreatorId = localStorage.getItem('creatorId'); // 추가된 부분
+  const initialCreatorId = localStorage.getItem('creatorId'); 
+  const initialFamilyMembers = JSON.parse(localStorage.getItem('familyMembers')) || []; // 가족 구성원 초기화
+
   const [familyId, setFamilyId] = useState(initialFamilyId);
-  const [creatorId, setCreatorId] = useState(initialCreatorId); // 추가된 부분
+  const [creatorId, setCreatorId] = useState(initialCreatorId); 
+  const [familyMembers, setFamilyMembers] = useState(initialFamilyMembers); // 가족 구성원 상태 추가
 
   useEffect(() => {
     if (familyId) {
@@ -15,15 +18,23 @@ export const FamilyProvider = ({ children }) => {
       localStorage.removeItem('familyId');
     }
     
-    if (creatorId) { // 추가된 부분
+    if (creatorId) {
       localStorage.setItem('creatorId', creatorId);
     } else {
       localStorage.removeItem('creatorId');
     }
-  }, [familyId, creatorId]); // 추가된 부분
+
+    // 가족 구성원 로컬 스토리지에 저장
+    if (familyMembers && familyMembers.length > 0) {
+      localStorage.setItem('familyMembers', JSON.stringify(familyMembers));
+    } else {
+      localStorage.removeItem('familyMembers');
+    }
+
+  }, [familyId, creatorId, familyMembers]);
 
   return (
-    <FamilyContext.Provider value={{ familyId, setFamilyId, creatorId, setCreatorId }}>
+    <FamilyContext.Provider value={{ familyId, setFamilyId, creatorId, setCreatorId, familyMembers, setFamilyMembers }}>
       {children}
     </FamilyContext.Provider>
   );

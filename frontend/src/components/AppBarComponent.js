@@ -87,10 +87,9 @@ export default function AppBarComponent({ open, toggleDrawer }) {
             if (userObject?.userId) {
                 try {
                     const notifications = await getUnreadNotifications(userObject.userId);
-                    console.log(notifications);
-                    
-                    setNotifications(notifications); 
-                    setUnreadCount(notifications.length); 
+
+                    setNotifications(notifications);
+                    setUnreadCount(notifications.length);
                 } catch (error) {
                     console.error('Failed to fetch notifications:', error);
                 }
@@ -108,6 +107,10 @@ export default function AppBarComponent({ open, toggleDrawer }) {
         navigate(`/profile`);
     };
 
+    const handleHomeWalkClick = () => {
+        navigate(`/dashboard`);
+    };
+
     const handleNotificationClick = (event) => {
         if (unreadCount > 0) {
             setAnchorEl(event.currentTarget); // 알림 목록을 여는 상태 설정
@@ -121,8 +124,6 @@ export default function AppBarComponent({ open, toggleDrawer }) {
     const handleNotificationItemClick = async (notificationId) => {
         try {
             // 서버에 is_read 업데이트 요청
-            console.log(notificationId);
-            
             await markNotificationAsRead(notificationId);
 
             // 클라이언트 상태 업데이트
@@ -152,7 +153,7 @@ export default function AppBarComponent({ open, toggleDrawer }) {
                 >
                     <MenuIcon />
                 </IconButton>
-                <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+                <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={handleHomeWalkClick} >
                     HomeWalk
                 </Typography>
                 <Search>

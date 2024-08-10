@@ -80,3 +80,14 @@ export const leaveFamily = async (userId, familyId) => {
         throw error;
     }
 };
+
+// 가족 정보와 구성원 정보를 가져오는 API 호출 함수
+export const getFamilyData = async (userId) => {
+    try {
+        const response = await axios.get(`${API_URL}/families/${userId}/data`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching family data:', error);
+        throw error;
+    }
+};

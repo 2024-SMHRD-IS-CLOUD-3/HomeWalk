@@ -3,6 +3,7 @@ package com.example.homewalk.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.homewalk.dto.FamilyDataResponse;
 import com.example.homewalk.dto.FamilyDto;
 import com.example.homewalk.entity.Families;
 import com.example.homewalk.service.FamiliesService;
@@ -37,6 +38,13 @@ public class FamiliesController {
     public ResponseEntity<Void> leaveFamily(@RequestParam Long userId, @RequestParam Long familyId) {
         familiesService.leaveFamily(userId, familyId);
         return ResponseEntity.noContent().build();
+    }
+    
+    // 가족 정보와 구성원 정보를 가져오는 엔드포인트
+    @GetMapping("/{userId}/data")
+    public ResponseEntity<FamilyDataResponse> getFamilyData(@PathVariable Long userId) {
+        FamilyDataResponse familyData = familiesService.getFamilyData(userId);
+        return ResponseEntity.ok(familyData);
     }
     
 }

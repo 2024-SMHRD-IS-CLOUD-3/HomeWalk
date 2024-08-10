@@ -9,22 +9,25 @@ import Profile from './pages/Profile';
 import Challenges from './pages/Challenges';
 import Activity from './pages/Activity';
 import Goals from './pages/Goals';
+import { FamilyProvider } from './context/FamilyContext';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<SignIn />} />
-          <Route path="/SignUp" element={<SignUp />} />
-          <Route path="/profile/" element={<Profile />} />
+        <FamilyProvider>
+          <Routes>
+            <Route path="/" element={<SignIn />} />
+            <Route path="/SignUp" element={<SignUp />} />
+            <Route path="/profile/" element={<Profile />} />
 
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/activity" element={<Activity />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/families" element={<Families />} />
-          <Route path="/challenges" element={<Challenges />} />
-        </Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/activity" element={<Activity />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/families" element={<Families />} />
+            <Route path="/challenges" element={<Challenges />} />
+          </Routes>
+        </FamilyProvider>
       </AuthProvider>
     </Router>
   );
