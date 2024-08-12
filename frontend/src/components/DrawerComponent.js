@@ -14,6 +14,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import { Link as RouterLink } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -87,7 +88,7 @@ export default function DrawerComponent({ open, toggleDrawer }) {
         </ListItemButton>
         <ListItemButton component={RouterLink} to="/families">
           <ListItemIcon>
-            <LayersIcon />
+            <FamilyRestroomIcon />
           </ListItemIcon>
           <ListItemText primary="가족관리" />
         </ListItemButton>

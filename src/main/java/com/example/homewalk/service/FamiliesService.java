@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -61,16 +62,15 @@ public class FamiliesService {
             dto.setCreatorId(family.getCreatorId());
 
             // 해당 사용자의 가족 가입 상태를 확인
-            joinRequestRepository.findByUserIdAndFamilyId(userId, family.getFamilyId())
-                .ifPresentOrElse(
-                    joinRequest -> {
-                        dto.setJoinRequested(true);
-                        dto.setIsMember(joinRequest.isApproved());
-                    },
-                    () -> {
-                        dto.setJoinRequested(false);
-                        dto.setIsMember(false);
-                    });
+            Optional<FamilyJoinRequest> joinRequestOpt = joinRequestRepository.findByUserIdAndFamilyId(userId, family.getFamilyId());
+            if (joinRequestOpt.isPresent()) {
+                FamilyJoinRequest joinRequest = joinRequestOpt.get();
+                dto.setJoinRequested(true);
+                dto.setIsMember(joinRequest.isApproved());
+            } else {
+                dto.setJoinRequested(false);
+                dto.setIsMember(false);
+            }
 
             // 가족 구성원 목록 설정, 만든이 제외
             List<String> members = familyMembersRepository.findByFamilyId(family.getFamilyId())
@@ -85,6 +85,7 @@ public class FamiliesService {
         }).collect(Collectors.toList());
     }
 
+
     @Transactional
     public void leaveFamily(Long userId, Long familyId) {
         // FamilyMembers 테이블에서 해당 사용자를 제거
@@ -96,8 +97,14 @@ public class FamiliesService {
 
     public FamilyDataResponse getFamilyData(Long userId) {
         // 가족 정보 가져오기
-        Families family = familiesRepository.findByCreatorId(userId).stream().findFirst()
-            .orElseThrow(() -> new RuntimeException("Family not found"));
+        Optional<Families> familyOpt = familiesRepository.findByCreatorId(userId).stream().findFirst();
+        
+        if (!familyOpt.isPresent()) {
+            // 가족 정보가 없는 경우 빈 FamilyDataResponse 반환
+            return new FamilyDataResponse(); // 또는 null을 반환할 수도 있음
+        }
+
+        Families family = familyOpt.get();
 
         // 가족 구성원 정보 가져오기
         List<FamilyMembers> familyMembers = familyMembersRepository.findByFamilyId(family.getFamilyId());
@@ -127,5 +134,6 @@ public class FamiliesService {
 
         return familyData;
     }
+
 
 }
