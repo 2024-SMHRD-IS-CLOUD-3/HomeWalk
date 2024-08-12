@@ -96,15 +96,24 @@ public class FamiliesService {
     }
 
     public FamilyDataResponse getFamilyData(Long userId) {
-        // 가족 정보 가져오기
+        // 사용자가 만든 가족을 먼저 찾습니다.
         Optional<Families> familyOpt = familiesRepository.findByCreatorId(userId).stream().findFirst();
-        
+
         if (!familyOpt.isPresent()) {
-            // 가족 정보가 없는 경우 빈 FamilyDataResponse 반환
-            return new FamilyDataResponse(); // 또는 null을 반환할 수도 있음
+            // 사용자가 만든 가족이 없다면, 사용자가 가입한 가족을 찾습니다.
+            List<FamilyMembers> userFamilyMembers = familyMembersRepository.findByUserId(userId);
+
+            if (userFamilyMembers.isEmpty()) {
+                // 사용자가 생성하거나 가입한 가족이 없는 경우 빈 FamilyDataResponse 반환
+                return new FamilyDataResponse();
+            }
+
+            // 사용자가 가입한 첫 번째 가족을 기준으로 가족 정보를 가져옵니다.
+            FamilyMembers firstMember = userFamilyMembers.get(0);
+            familyOpt = familiesRepository.findById(firstMember.getFamilyId());
         }
 
-        Families family = familyOpt.get();
+        Families family = familyOpt.orElseThrow(() -> new RuntimeException("Family not found"));
 
         // 가족 구성원 정보 가져오기
         List<FamilyMembers> familyMembers = familyMembersRepository.findByFamilyId(family.getFamilyId());
@@ -134,6 +143,7 @@ public class FamiliesService {
 
         return familyData;
     }
+
 
 
 }
