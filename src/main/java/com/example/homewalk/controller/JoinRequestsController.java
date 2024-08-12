@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/join-requests")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
 public class JoinRequestsController {
 
     private final JoinRequestService joinRequestService;

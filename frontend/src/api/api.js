@@ -29,3 +29,9 @@ export const loginUser = async (userData) => {
     });
     return response.data;
 };
+
+// steps 추가
+export const getStepsByUserId = async (userId) => {
+    const response = await axios.get(`${API_URL}/steps/${userId}`);
+    return response.data;
+};
