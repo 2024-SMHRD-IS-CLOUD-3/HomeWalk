@@ -6,7 +6,8 @@ import CardContent from '@mui/material/CardContent';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DirectionsWalk, TrendingUp } from '@mui/icons-material';
+import { TrendingUp, TrendingDown } from '@mui/icons-material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { getFamilyData } from '../../api/family';
 import { getStepsComparisonData } from '../../api/getStepsData'; 
 import { useAuth } from '../../context/AuthContext';
@@ -46,8 +47,6 @@ export default function TopMetrics() {
       })
       .then(data => {
         setMetricsData(data);
-        console.log('metricsData', metricsData);
-        
       })
       .catch(error => {
         console.error('Error fetching metrics data:', error);
@@ -55,15 +54,23 @@ export default function TopMetrics() {
   }, [userObject]);
 
   return (
-    <Grid container spacing={3} sx={{ml:1, mt:1}}>
+    <Grid container spacing={3} sx={{ ml: 2 }}> {/* 왼쪽 마진 추가 */}
       {metricsData.map((metric, index) => (
         <Grid item xs={12} sm={6} md={3} key={index}>
           <Card sx={{ bgcolor: `${metric.color}.light`, color: `${metric.color}.contrastText` }}>
             <CardHeader
               avatar={
-                <Avatar sx={{ bgcolor: `${metric.color}.dark` }}>
-                  <DirectionsWalk />
-                </Avatar>
+                metric.avatarCustomization ? (
+                  <img
+                    src={metric.avatarCustomization}
+                    alt="User Avatar"
+                    style={{ width: 40, height: 40, borderRadius: '50%' }}
+                  />
+                ) : (
+                  <Avatar sx={{ bgcolor: `${metric.color}.dark`, width: 40, height: 40 }}>
+                    <AccountCircleIcon sx={{ fontSize: 30 }} />
+                  </Avatar>
+                )
               }
               title={metric.username}  
               titleTypographyProps={{ variant: 'h6' }}
@@ -75,8 +82,17 @@ export default function TopMetrics() {
               <Typography variant="subtitle1">걸음</Typography>
               <LinearProgress variant="determinate" value={(metric.steps / 10000) * 100} sx={{ my: 1, height: 10, borderRadius: 5 }} />
               <Typography sx={{ mt: 1, display: 'flex', alignItems: 'center' }} variant="body2">
-                <TrendingUp sx={{ mr: 1 }} fontSize="small" />
-                어제보다 {metric.trend}% 증가 {/* 어제 대비 증가율 */}
+                {metric.trend > 0 ? (
+                  <>
+                    <TrendingUp sx={{ mr: 1 }} fontSize="small" />
+                    어제보다 {metric.trend}% 증가
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown sx={{ mr: 1 }} fontSize="small" />
+                    어제보다 {Math.abs(metric.trend)}% 감소
+                  </>
+                )}
               </Typography>
             </CardContent>
           </Card>
