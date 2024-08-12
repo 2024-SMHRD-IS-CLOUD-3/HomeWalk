@@ -9,12 +9,12 @@ import Grid from '@mui/material/Grid';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import Copyright from '../components/Copyright';
-import TopMetrics from '../components/TopMetrics';
-import FamilyGoalChart from '../components/FamilyGoalChart';
-import WeeklyProgress from '../components/WeeklyProgress';
-import Ranking from '../components/Ranking';
-import FamilyWeeklyGoal from '../components/FamilyWeeklyGoal';
-import ChallengeList from '../components/ChallengeList';
+import TopMetrics from './DashBoard/TopMetrics';
+import FamilyGoalChart from './DashBoard/FamilyGoalChart';
+import WeeklyProgress from './DashBoard/WeeklyProgress';
+import Ranking from './DashBoard/Ranking';
+import FamilyWeeklyGoal from './DashBoard/FamilyWeeklyGoal';
+import ChallengeList from './DashBoard/ChallengeList';
 
 const defaultTheme = createTheme();
 
@@ -44,7 +44,7 @@ export default function Dashboard() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 0 }}>
             <Grid container spacing={3}>
               <TopMetrics />
               <FamilyGoalChart />

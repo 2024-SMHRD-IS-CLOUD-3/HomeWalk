@@ -124,6 +124,7 @@ public class FamiliesService {
                 Users user = usersRepository.findById(member.getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
                 Map<String, Object> details = new HashMap<>();
+                details.put("userId", user.getUserId());
                 details.put("username", user.getUsername());
                 details.put("email", user.getEmail());
                 details.put("avatarCustomization", user.getAvatarCustomization());
