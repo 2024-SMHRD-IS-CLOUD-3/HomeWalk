@@ -1,6 +1,8 @@
 package com.example.homewalk.service;
 
+import com.example.homewalk.entity.PasswordResetToken;
 import com.example.homewalk.entity.Users;
+import com.example.homewalk.repository.PasswordResetTokenRepository;
 import com.example.homewalk.repository.UsersRepository;
 import com.example.homewalk.util.JwtUtil; // JWT 유틸리티 클래스
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +13,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
+
+import javax.transaction.Transactional;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -23,6 +30,9 @@ public class UsersService {
 
     @Autowired
     private JwtUtil jwtUtil; // JWT 유틸리티 클래스 주입
+    
+    @Autowired
+    private PasswordResetTokenRepository tokenRepository; // 비밀번호 재설정 토큰 레포지토리 주입
     
     public Users findById(Long userId) {
         return usersRepository.findByUserId(userId);
@@ -104,5 +114,53 @@ public class UsersService {
             return user.getAvatarCustomization(); // 사용자 이미지 경로 반환
         }
         return null; // 사용자 정보가 없을 경우 null 반환
+    }
+    
+    // 비밀번호 재설정 토큰 생성 및 저장 메서드
+    @Transactional
+    public String createPasswordResetToken(String email) {
+        // 이메일로 사용자 찾기
+        Optional<Users> userOpt = usersRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            Users user = userOpt.get(); // Users 엔티티를 조회
+
+            // 고유한 토큰 생성
+            String token = UUID.randomUUID().toString();
+
+            // 기존 토큰이 있다면 삭제
+            tokenRepository.deleteByUser_UserId(user.getUserId());
+
+            // 새로운 토큰 저장
+            PasswordResetToken resetToken = new PasswordResetToken(token, user);
+            tokenRepository.save(resetToken);
+
+            return token;
+        } else {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+    }
+    
+    // 토큰을 이용하여 사용자 찾기
+    public Users getUserByPasswordResetToken(String token) {
+        PasswordResetToken resetToken = tokenRepository.findByToken(token);
+
+        if (resetToken == null || resetToken.isExpired()) {
+            throw new RuntimeException("Invalid or expired password reset token");
+        }
+
+        return resetToken.getUser(); // 토큰으로 연결된 Users 엔티티를 반환
+    }
+
+    // 비밀번호 재설정 메서드
+    public void resetPassword(String token, String newPassword) {
+        Users user = getUserByPasswordResetToken(token); // 토큰을 통해 Users 엔티티를 조회
+        user.setPassword(newPassword); // 비밀번호를 새 비밀번호로 설정
+        usersRepository.save(user); // 변경된 비밀번호를 저장
+    }
+
+    // 만료된 토큰 삭제
+    public void deleteExpiredTokens() {
+        tokenRepository.deleteAllExpiredTokens(new Date());
     }
 }

@@ -1,5 +1,7 @@
 package com.example.homewalk.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +14,5 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     Users findByUsernameAndPassword(String username, String password);
     Users findByUsername(String username);
     Users findByUserId(Long userId);
+	Optional<Users> findByEmail(String email);
 }

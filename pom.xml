@@ -84,6 +84,11 @@
 			<version>2.11.0</version> <!-- 원하는 버전을 설정하세요 -->
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
