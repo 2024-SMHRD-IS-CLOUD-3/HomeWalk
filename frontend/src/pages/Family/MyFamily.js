@@ -22,7 +22,10 @@ const MyFamily = () => {
                 setLoading(true); // 데이터 요청 시작
                 setError(null); // 에러 초기화
                 try {
+                    console.log('userId', userId);
                     const data = await getFamilyData(userId); // userId를 이용하여 가족 정보 가져오기
+                    console.log('data', data);
+                    
                     setFamilyData(data);
                 } catch (error) {
                     setError('가족 정보를 불러오는 데 실패했습니다.'); // 에러 메시지 설정
@@ -53,36 +56,42 @@ const MyFamily = () => {
                 ) : (
                     <>
                         <Typography variant="h5" component="h2" gutterBottom>
-                            가족명: {familyData.familyName}
+                            가족명: {familyData?.familyName}
                         </Typography>
                         <Grid container spacing={2}>
-                            {familyData.memberDetails.map((member, index) => (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
-                                    <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', position: 'relative' }}>
-                                        <Avatar src={member.avatarCustomization} sx={{ width: 56, height: 56, mr: 2 }} />
-                                        <Box>
-                                            <Typography variant="h6">{member.username}</Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {member.email}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Joined: {member.joinDate}
-                                            </Typography>
-                                        </Box>
-                                        {/* 가족장인 경우 왕관 아이콘을 표시 */}
-                                        {member.username === familyData.creatorName && (
-                                            <CrownIcon
-                                                sx={{
-                                                    position: 'absolute',
-                                                    top: 8,
-                                                    right: 8,
-                                                    color: 'gold',
-                                                }}
-                                            />
-                                        )}
-                                    </Paper>
-                                </Grid>
-                            ))}
+                            {familyData?.memberDetails?.length > 0 ? (
+                                familyData.memberDetails.map((member, index) => (
+                                    <Grid item xs={12} sm={6} md={4} key={index}>
+                                        <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', position: 'relative' }}>
+                                            <Avatar src={member.avatarCustomization} sx={{ width: 56, height: 56, mr: 2 }} />
+                                            <Box>
+                                                <Typography variant="h6">{member.username}</Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {member.email}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Joined: {member.joinDate}
+                                                </Typography>
+                                            </Box>
+                                            {/* 가족장인 경우 왕관 아이콘을 표시 */}
+                                            {member.username === familyData.creatorName && (
+                                                <CrownIcon
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: 8,
+                                                        right: 8,
+                                                        color: 'gold',
+                                                    }}
+                                                />
+                                            )}
+                                        </Paper>
+                                    </Grid>
+                                ))
+                            ) : (
+                                <Typography variant="body2" color="text.secondary">
+                                    가족 구성원이 없습니다.
+                                </Typography>
+                            )}
                         </Grid>
                     </>
                 )}

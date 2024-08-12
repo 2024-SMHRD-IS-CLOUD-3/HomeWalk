@@ -15,8 +15,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
-import { useFamily } from '../context/FamilyContext'; // FamilyContext 추가
-import { getFamilyData } from '../api/family'; // getFamilyData 추가
 
 function Copyright(props) {
     return (
@@ -36,7 +34,6 @@ const defaultTheme = createTheme();
 export default function SignIn() {
     const navigate = useNavigate();
     const { login } = useAuth();
-    const { setFamilyId, setFamilyMembers } = useFamily(); // FamilyContext에서 setter 가져오기
     const [rememberMe, setRememberMe] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -71,13 +68,6 @@ export default function SignIn() {
                 }
 
                 login(response.jwt, userInfo, rememberMe);
-
-                const familyData = await getFamilyData(response.userId);
-                console.log(familyData);
-                if (familyData) {
-                    setFamilyId(familyData.familyId);
-                    setFamilyMembers(familyData.familyMembers);
-                }
 
                 navigate('/dashboard', { replace: true });
             } else {
