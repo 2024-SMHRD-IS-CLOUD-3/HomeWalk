@@ -9,12 +9,12 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { TrendingUp, TrendingDown } from '@mui/icons-material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { getFamilyData } from '../../api/family';
-import { getStepsComparisonData } from '../../api/getStepsData'; 
+import { getStepsComparisonData } from '../../api/getStepsData';
 import { useAuth } from '../../context/AuthContext';
 
 export default function TopMetrics() {
   const [metricsData, setMetricsData] = useState([]);
-  const { userObject } = useAuth(); 
+  const { userObject } = useAuth();
 
   useEffect(() => {
     if (!userObject || !userObject.userId) {
@@ -39,7 +39,7 @@ export default function TopMetrics() {
             return {
               ...member,
               steps: todaySteps,
-              trend: trend.toFixed(2),  
+              trend: trend.toFixed(2),
               color: getColorBasedOnSteps(todaySteps), // 걸음 수에 따른 색상 결정
             };
           })
@@ -72,7 +72,7 @@ export default function TopMetrics() {
                   </Avatar>
                 )
               }
-              title={metric.username}  
+              title={metric.username}
               titleTypographyProps={{ variant: 'h6' }}
             />
             <CardContent>
@@ -87,10 +87,14 @@ export default function TopMetrics() {
                     <TrendingUp sx={{ mr: 1 }} fontSize="small" />
                     어제보다 {metric.trend}% 증가
                   </>
-                ) : (
+                ) : metric.trend < 0 ? (
                   <>
                     <TrendingDown sx={{ mr: 1 }} fontSize="small" />
                     어제보다 {Math.abs(metric.trend)}% 감소
+                  </>
+                ) : (
+                  <>
+                    어제와 동일한 걸음 수 {/* 트렌드가 0인 경우 */}
                   </>
                 )}
               </Typography>
