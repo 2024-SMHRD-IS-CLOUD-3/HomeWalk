@@ -123,10 +123,8 @@ export default function AppBarComponent({ open, toggleDrawer }) {
 
     const handleNotificationItemClick = async (notificationId) => {
         try {
-            // 서버에 is_read 업데이트 요청
             await markNotificationAsRead(notificationId);
 
-            // 클라이언트 상태 업데이트
             setNotifications((prevNotifications) =>
                 prevNotifications.filter(notification => notification.notificationId !== notificationId)
             );
@@ -134,7 +132,7 @@ export default function AppBarComponent({ open, toggleDrawer }) {
         } catch (error) {
             console.error('Failed to mark notification as read:', error);
         } finally {
-            handleNotificationClose(); // 메뉴 닫기
+            handleNotificationClose();
         }
     };
 
@@ -184,7 +182,7 @@ export default function AppBarComponent({ open, toggleDrawer }) {
                 <IconButton color="inherit" onClick={handleProfileClick}>
                     {userObject?.avatarCustomization ? (
                         <img
-                            src={userObject.avatarCustomization}
+                            src={userObject.avatarCustomization} // 로컬 URL 사용
                             alt="User Avatar"
                             style={{ width: 30, height: 30, borderRadius: '50%' }}
                         />

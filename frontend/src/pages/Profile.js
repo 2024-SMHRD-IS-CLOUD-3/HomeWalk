@@ -72,7 +72,7 @@ const Profile = () => {
       await updateUserProfile(token, updatedUserData);
 
       // 수정이 완료된 후에만 AppBar의 이미지를 업데이트
-      setAvatarCustomization(uploadedImagePath);
+      setAvatarCustomization(localAvatar);
 
       alert('Profile updated successfully');
     } catch (error) {

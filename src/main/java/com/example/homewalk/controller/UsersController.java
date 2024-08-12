@@ -37,26 +37,31 @@ public class UsersController {
     public ResponseEntity<?> authenticateUser(@RequestBody Users users) {
         Users authenticatedUser = usersService.authenticateUser(users.getUsername(), users.getPassword());
         if (authenticatedUser != null) {
+            if (!authenticatedUser.getIsActive()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is inactive");
+            }
+
             String token = usersService.generateToken(authenticatedUser); // 토큰 생성 메소드 호출
-            
+
             // AuthResponse 객체 생성 및 반환
             AuthResponse authResponse = new AuthResponse(
                 authenticatedUser.getUserId(),
                 token,
-                authenticatedUser.getUsername(), // 추가
-                authenticatedUser.getEmail(), // 추가
+                authenticatedUser.getUsername(),
+                authenticatedUser.getEmail(),
                 authenticatedUser.getAvatarCustomization(),
-                authenticatedUser.getDailyStepGoal(), // 추가
-                authenticatedUser.getWeeklyStepGoal(), // 추가
-                authenticatedUser.getMonthlyStepGoal(), // 추가
-                authenticatedUser.getIsActive() // 추가
+                authenticatedUser.getDailyStepGoal(),
+                authenticatedUser.getWeeklyStepGoal(),
+                authenticatedUser.getMonthlyStepGoal(),
+                authenticatedUser.getIsActive()
             );
 
             return ResponseEntity.ok(authResponse); // AuthResponse 객체 반환
         } else {
-            return ResponseEntity.badRequest().body("Invalid username or password or user is inactive");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
+
 
     @GetMapping("/check-username")
     public ResponseEntity<Boolean> checkUsername(@RequestParam String username) {
