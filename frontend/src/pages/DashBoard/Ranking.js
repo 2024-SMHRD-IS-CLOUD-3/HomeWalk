@@ -1,47 +1,72 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Grid, Paper, Typography } from '@mui/material';
-import { getLeaderboardData, updateLeaderboard } from '../../api/leaderBoard'; // API 호출 함수
+import React, { useEffect, useState } from 'react';
+import { Grid, Paper, Typography, CircularProgress, Divider } from '@mui/material';
+import { getRankingData } from '../../api/ranking';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Ranking() {
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [currentUserRanking, setCurrentUserRanking] = useState(null);
-  const { userObject } = useAuth(); // 현재 로그인한 사용자 정보 가져오기
-
-  const fetchLeaderboardData = useCallback(async () => {
-    if (!userObject) return; // userObject가 null인 경우, 데이터 요청 중단
-    try {
-      const data = await getLeaderboardData(userObject.userId);
-      const top3 = data.top3.slice(0, 3);
-      setLeaderboard(top3);
-      setCurrentUserRanking(data.currentUser);
-    } catch (error) {
-      console.error('Error fetching leaderboard data:', error);
-    }
-  }, [userObject]); // userObject를 의존성으로 추가
-
-  const updateLeaderboardData = useCallback(async () => {
-    if (!userObject) return; // userObject가 null인 경우, 업데이트 중단
-    try {
-      await updateLeaderboard(); // 리더보드 업데이트 호출
-      fetchLeaderboardData(); // 업데이트 후 리더보드 데이터 가져오기
-    } catch (error) {
-      console.error('Error updating leaderboard:', error);
-    }
-  }, [fetchLeaderboardData, userObject]); // userObject를 의존성으로 추가
+  const [rankingData, setRankingData] = useState({
+    topRanking: [],
+    currentUserRanking: null,
+    totalUsers: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { userObject } = useAuth();
 
   useEffect(() => {
-    // 초기 데이터 로드
-    fetchLeaderboardData();
-    updateLeaderboardData(); // 초기 업데이트 호출
+    const fetchRankingData = async () => {
+      if (!userObject || !userObject.userId) {
+        setIsLoading(false);
+        return;
+      }
 
-    // 10초마다 데이터 갱신
-    const intervalId = setInterval(() => {
-      updateLeaderboardData();
-    }, 10000);
+      try {
+        setIsLoading(true);
+        const data = await getRankingData(userObject.userId);
+        console.log('data', data);
+        
+        setRankingData(data);
+        setError(null);
+      } catch (error) {
+        console.error('Error fetching ranking data:', error);
+        setError('랭킹 정보를 불러오는 데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearInterval(intervalId);
-  }, [fetchLeaderboardData, updateLeaderboardData]); // 의존성 배열에 추가
+    fetchRankingData();
+  }, [userObject]);
+
+  if (isLoading) {
+    return (
+      <Grid item xs={12} md={4}>
+        <Paper sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+          <CircularProgress />
+        </Paper>
+      </Grid>
+    );
+  }
+
+  if (!userObject || !userObject.userId) {
+    return (
+      <Grid item xs={12} md={4}>
+        <Paper sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+          <Typography>로그인이 필요합니다.</Typography>
+        </Paper>
+      </Grid>
+    );
+  }
+
+  if (error) {
+    return (
+      <Grid item xs={12} md={4}>
+        <Paper sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+          <Typography color="error">{error}</Typography>
+        </Paper>
+      </Grid>
+    );
+  }
 
   return (
     <Grid item xs={12} md={4}>
@@ -49,18 +74,18 @@ export default function Ranking() {
         <Typography component="h2" variant="h6" color="primary" gutterBottom>
           전체 랭킹
         </Typography>
-        {leaderboard.map((user, index) => (
+        {rankingData.topRanking.map((user, index) => (
           <Typography key={index} component="p" variant="body1">
-            {index + 1}. {user.username}: <strong>{user.totalSteps.toLocaleString()} 걸음</strong>
+            {user.ranking}. {user.username}: <strong>{user.totalSteps} 걸음</strong>
           </Typography>
         ))}
-        {currentUserRanking && (
-          <>
-            <hr />
-            <Typography component="p" variant="body1">
-              <strong>{currentUserRanking.ranking}. {currentUserRanking.username}: {currentUserRanking.totalSteps.toLocaleString()} 걸음 (내 순위)</strong>
-            </Typography>
-          </>
+        <Divider sx={{ my: 2 }} />
+        {rankingData.currentUserRanking && (
+          <Typography component="p" variant="body1" sx={{ fontWeight: 'bold' }}>
+            나의 랭킹: {rankingData.currentUserRanking.ranking}위 / {rankingData.totalUsers}명 중
+            <br />
+            {rankingData.currentUserRanking.username}: <strong>{rankingData.currentUserRanking.totalSteps} 걸음</strong>
+          </Typography>
         )}
       </Paper>
     </Grid>
