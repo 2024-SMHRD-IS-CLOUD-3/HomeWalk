@@ -22,13 +22,9 @@ export default function TopMetrics() {
       return;
     }
 
-    console.log(userObject.userId);
-
     // 1. 가족 구성원 정보 가져오기
     getFamilyData(userObject.userId)
       .then(familyData => {
-        console.log(familyData);
-
         // 2. 각 구성원의 오늘과 어제 걸음 수 데이터 가져오기
         return Promise.all(familyData.memberDetails.map(member =>
           getStepsComparisonData(member.userId).then(stepsData => {

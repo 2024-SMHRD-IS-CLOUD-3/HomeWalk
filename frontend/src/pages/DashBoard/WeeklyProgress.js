@@ -35,7 +35,6 @@ export default function WeeklyProgress() {
         ));
       })
       .then(data => {
-        console.log("Processed weekly data:", data); // 가공된 데이터 확인용 로그
         setWeeklyData(data);
       })
       .catch(error => {

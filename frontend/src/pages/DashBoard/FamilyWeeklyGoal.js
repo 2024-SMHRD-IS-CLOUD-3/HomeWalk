@@ -4,28 +4,20 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { getFamilyData } from '../../api/family'; // 가족 정보를 가져오는 API 함수
 import { getWeeklyStepsData } from '../../api/getStepsData'; // 주간 걸음 수 데이터를 가져오는 API 함수
 import { getWeeklyFamilyGoals } from '../../api/familyGoals'; // 주간 목표 데이터를 가져오는 API 함수
+import { useAuth } from '../../context/AuthContext';
 
 export default function FamilyWeeklyGoal() {
     const [goalData, setGoalData] = useState([{ name: '우리 가족', achievement: 0 }]);
-    const [userId, setUserId] = useState(null);
+    const { userObject } = useAuth(); // AuthContext를 통해 사용자 정보 가져오기
 
     useEffect(() => {
-        // 로컬 스토리지 또는 세션 스토리지에서 userInfo 객체 가져오기
-        const storedUserInfo = JSON.parse(localStorage.getItem('userInfo')) || JSON.parse(sessionStorage.getItem('userInfo'));
-
-        if (storedUserInfo && storedUserInfo.userId) {
-            setUserId(storedUserInfo.userId);
-        } else {
-            console.error('User ID not found in storage');
-            return;
-        }
-
-        if (!userId) {
+        if (!userObject || !userObject.userId) {
+            console.error('User ID not found in context');
             return;
         }
 
         // 1. 가족 구성원 정보 가져오기
-        getFamilyData(userId)
+        getFamilyData(userObject.userId)
             .then(familyData => {
                 const userIds = familyData.memberDetails.map(member => member.userId);
                 // 2. 각 구성원의 주간 목표 데이터 가져오기
@@ -38,7 +30,7 @@ export default function FamilyWeeklyGoal() {
                                 const steps = day.stepsCount && !isNaN(day.stepsCount) ? day.stepsCount : 0;
                                 return sum + steps;
                             }, 0); // 주간 걸음 수 합계 계산
-                            
+
                             const goal = goals.find(g => g.userId === userId);
 
                             return {
@@ -58,7 +50,7 @@ export default function FamilyWeeklyGoal() {
             .catch(error => {
                 console.error('Error fetching family goal data:', error);
             });
-    }, [userId]);
+    }, [userObject]);
 
     return (
         <Grid item xs={12} md={4}>

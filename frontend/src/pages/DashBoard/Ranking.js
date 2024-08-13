@@ -23,8 +23,6 @@ export default function Ranking() {
       try {
         setIsLoading(true);
         const data = await getRankingData(userObject.userId);
-        console.log('data', data);
-        
         setRankingData(data);
         setError(null);
       } catch (error) {
