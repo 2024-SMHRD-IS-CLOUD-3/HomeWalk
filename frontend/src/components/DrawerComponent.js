@@ -9,11 +9,11 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+import FlagIcon from '@mui/icons-material/Flag';
 import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import LayersIcon from '@mui/icons-material/Layers';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import SettingsAccessibilityIcon from '@mui/icons-material/SettingsAccessibility';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -64,13 +64,13 @@ export default function DrawerComponent({ open, toggleDrawer }) {
       <List component="nav">
         <ListItemButton component={RouterLink} to="/activity">
           <ListItemIcon>
-            <DashboardIcon />
+            <DirectionsWalkIcon />
           </ListItemIcon>
           <ListItemText primary="활동" />
         </ListItemButton>
         <ListItemButton component={RouterLink} to="/goals">
           <ListItemIcon>
-            <AssignmentIcon />
+            <FlagIcon />
           </ListItemIcon>
           <ListItemText primary="목표" />
         </ListItemButton>
@@ -82,7 +82,7 @@ export default function DrawerComponent({ open, toggleDrawer }) {
         </ListItemButton>
         <ListItemButton component={RouterLink} to="/challenges">
           <ListItemIcon>
-            <BarChartIcon />
+            <EmojiEventsIcon />
           </ListItemIcon>
           <ListItemText primary="챌린지(도전)" />
         </ListItemButton>
@@ -94,7 +94,7 @@ export default function DrawerComponent({ open, toggleDrawer }) {
         </ListItemButton>
         <ListItemButton component={RouterLink} to="/posture">
           <ListItemIcon>
-            <LayersIcon />
+            <SettingsAccessibilityIcon />
           </ListItemIcon>
           <ListItemText primary="자세인식" />
         </ListItemButton>
