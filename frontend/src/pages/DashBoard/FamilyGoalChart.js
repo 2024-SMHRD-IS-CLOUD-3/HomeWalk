@@ -20,7 +20,6 @@ export default function FamilyGoalChart() {
     getFamilyData(userObject.userId)
       .then(familyData => {
         const userIds = familyData.memberDetails.map(member => member.userId);
-
         // 2. 각 구성원의 주간 목표 데이터 가져오기
         return getWeeklyFamilyGoals(userIds).then(goals => {
           // 3. 주간 걸음 수 데이터를 가져와서 합산
