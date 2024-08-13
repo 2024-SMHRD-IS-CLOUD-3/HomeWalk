@@ -20,55 +20,72 @@ import java.util.stream.Collectors;
 @Service
 public class StepsService {
 
-    @Autowired
-    private StepsRepository stepsRepository;
+	@Autowired
+	private StepsRepository stepsRepository;
 
-    public List<Steps> getStepsByUserId(Long userId) {
-        return stepsRepository.findByUserId(userId);
-    }
+	public List<Steps> getStepsByUserId(Long userId) {
+		return stepsRepository.findByUserId(userId);
+	}
 
-    public Steps getStepsByUserIdAndDate(Long userId, LocalDate date) {
-        return stepsRepository.findByUserIdAndDate(userId, date)
-                              .stream().findFirst().orElse(null);
-    }
+	public Steps getStepsByUserIdAndDate(Long userId, LocalDate date) {
+		return stepsRepository.findByUserIdAndDate(userId, date).stream().findFirst().orElse(null);
+	}
 
-    public Steps getTodaySteps(Long userId) {
-        LocalDate today = LocalDate.now();
-        return getStepsByUserIdAndDate(userId, today);
-    }
+	public Steps getTodaySteps(Long userId) {
+		LocalDate today = LocalDate.now();
+		return getStepsByUserIdAndDate(userId, today);
+	}
 
-    public Steps getYesterdaySteps(Long userId) {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        return getStepsByUserIdAndDate(userId, yesterday);
-    }
-    
+	public Steps getYesterdaySteps(Long userId) {
+		LocalDate yesterday = LocalDate.now().minusDays(1);
+		return getStepsByUserIdAndDate(userId, yesterday);
+	}
 
-    public List<StepData> getWeeklyStepsData(Long userId) {
-        LocalDate now = LocalDate.now();
-        LocalDate startOfWeek = now.with(DayOfWeek.MONDAY);
-        LocalDate endOfWeek = now.with(DayOfWeek.SUNDAY); // 이번 주의 일요일 날짜 가져오기
+	public List<StepData> getWeeklyStepsData(Long userId) {
+		LocalDate now = LocalDate.now();
+		LocalDate startOfWeek = now.with(DayOfWeek.MONDAY);
+		LocalDate endOfWeek = now.with(DayOfWeek.SUNDAY); // 이번 주의 일요일 날짜 가져오기
 
-        List<Steps> weeklySteps = stepsRepository.findByUserIdAndDateBetween(userId, startOfWeek, endOfWeek);
+		List<Steps> weeklySteps = stepsRepository.findByUserIdAndDateBetween(userId, startOfWeek, endOfWeek);
 
-        // 요일별 기본 값 설정
-        Map<String, Integer> stepsMap = new HashMap<>();
-        for (DayOfWeek day : DayOfWeek.values()) {
-            stepsMap.put(day.name(), 0);
-        }
+		// 요일별 기본 값 설정
+		Map<String, Integer> stepsMap = new HashMap<>();
+		for (DayOfWeek day : DayOfWeek.values()) {
+			stepsMap.put(day.name(), 0);
+		}
 
-        // 데이터 채우기
-        weeklySteps.forEach(step -> {
-            String dayOfWeek = step.getDate().getDayOfWeek().name();
-            stepsMap.put(dayOfWeek, stepsMap.get(dayOfWeek) + step.getStepsCount());
-        });
+		// 데이터 채우기
+		weeklySteps.forEach(step -> {
+			String dayOfWeek = step.getDate().getDayOfWeek().name();
+			stepsMap.put(dayOfWeek, stepsMap.get(dayOfWeek) + step.getStepsCount());
+		});
 
-        // 결과 리스트 생성
-        return stepsMap.entrySet().stream()
-                .map(entry -> new StepData(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.comparingInt(entry -> DayOfWeek.valueOf(entry.getDayOfWeek()).getValue()))
-                .collect(Collectors.toList());
-    }
+		// 결과 리스트 생성
+		return stepsMap.entrySet().stream().map(entry -> new StepData(entry.getKey(), entry.getValue()))
+				.sorted(Comparator.comparingInt(entry -> DayOfWeek.valueOf(entry.getDayOfWeek()).getValue()))
+				.collect(Collectors.toList());
+	}
 
+	// 추가
+	public Steps saveSteps(Steps steps) {
+		return stepsRepository.save(steps);
+	}
 
+	// 전주 추가
+//    public List<Steps> getPreviousWeekSteps(Long userId) {
+//        LocalDate endOfLastWeek = LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.SUNDAY);
+//        LocalDate startOfLastWeek = endOfLastWeek.minusDays(6);
+//        return stepsRepository.findByUserIdAndDateBetween(userId, startOfLastWeek, endOfLastWeek);
+//    }
+	public List<Steps> getPreviousWeekStepsByUserId(Long userId) {
+		LocalDate now = LocalDate.now();
+		LocalDate startOfPreviousWeek = now.minusWeeks(1).with(java.time.DayOfWeek.MONDAY);
+		LocalDate endOfPreviousWeek = startOfPreviousWeek.plusDays(6);
+		return stepsRepository.findByUserIdAndDateBetween(userId, startOfPreviousWeek, endOfPreviousWeek);
+	}
+
+	public List<Steps> getWalkedDaysByUserId(Long userId) {
+		return stepsRepository.findByUserIdAndStepsCountGreaterThan(userId, 0);
+	}
 
 }

@@ -1,10 +1,11 @@
 import React from 'react';
 import { Box, Card, Typography, LinearProgress } from '@mui/material';
 
-const MonthlyStepsCard = ({ currentWeekData, monthlyGoal }) => {
-    const currentWeeklyTotal = currentWeekData.reduce((sum, day) => sum + day.steps, 0);
-    const monthlyTotal = currentWeeklyTotal * 4;
-    const monthlyProgress = (monthlyTotal / monthlyGoal) * 100;
+const MonthlyStepsCard = ({ currentMonthlyTotal, monthlyGoal }) => {  //{ currentWeekData, monthlyGoal } 수정
+    // const currentWeeklyTotal = currentWeekData.reduce((sum, day) => sum + day.steps, 0);
+    // const monthlyTotal = currentWeeklyTotal * 4;
+    // const monthlyProgress = (monthlyTotal / monthlyGoal) * 100;
+    const monthlyProgress = (currentMonthlyTotal / monthlyGoal) * 100;
 
     return (
         <Card>
@@ -25,7 +26,8 @@ const MonthlyStepsCard = ({ currentWeekData, monthlyGoal }) => {
                 }}
             >
                 <Typography variant="h6">월간 총 걸음 수</Typography>
-                <Typography variant="h4">{monthlyTotal.toLocaleString()}</Typography>
+                {/* <Typography variant="h4">{monthlyTotal.toLocaleString()}</Typography> */}
+                <Typography variant="h4">{currentMonthlyTotal.toLocaleString()}</Typography>
                 <LinearProgress variant="determinate" value={monthlyProgress} sx={{ my: 1, width: '80%', bgcolor: 'white' }} />
                 <Typography variant="body2">{monthlyProgress.toFixed(1)}% 달성</Typography>
             </Box>

@@ -35,3 +35,15 @@ export const getStepsByUserId = async (userId) => {
     const response = await axios.get(`${API_URL}/steps/${userId}`);
     return response.data;
 };
+
+// 월간 steps 추가
+export const getMonthlyStepsByUserId = async (userId) => {
+    const response = await axios.get(`${API_URL}/steps/monthly/${userId}`);
+    return response.data;
+};
+
+// 전주 걸음
+export const getPreviousWeekStepsByUserId = async (userId) => {
+    const response = await axios.get(`${API_URL}/steps/previousWeek/${userId}`);
+    return response.data;
+};

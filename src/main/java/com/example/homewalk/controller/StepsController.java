@@ -50,4 +50,21 @@ public class StepsController {
         List<StepData> weeklySteps = stepsService.getWeeklyStepsData(userId);
         return weeklySteps;
     }
+    
+ // 특정 사용자 전주의 걸음 수 데이터 가져오기
+    @GetMapping("/previousWeek/{userId}")
+    public List<Steps> getPreviousWeekSteps(@PathVariable Long userId) {
+        return stepsService.getPreviousWeekStepsByUserId(userId);
+    }
+    
+    @GetMapping("/walkedDays/{userId}")
+    public List<Steps> getWalkedDays(@PathVariable Long userId) {
+        return stepsService.getWalkedDaysByUserId(userId);
+    }
+
+    @PostMapping
+    public Steps saveSteps(@RequestBody Steps steps) {
+        return stepsService.saveSteps(steps);
+    }
+
 }

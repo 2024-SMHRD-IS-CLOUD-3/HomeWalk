@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Toolbar, Typography } from '@mui/material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
-import { getStepsByUserId } from '../api/api';
-import { useAuth } from '../context/AuthContext';
+import { getStepsByUserId, getPreviousWeekStepsByUserId } from '../api/api'; 
+import { useAuth } from '../context/AuthContext'; 
 import TodayStepsCard from './MyActivity/TodayStepsCard';
 import WeeklyStepsCard from './MyActivity/WeeklyStepsCard';
 import MonthlyStepsCard from './MyActivity/MonthlyStepsCard';
@@ -12,69 +12,95 @@ import StepsTimelineChart from './MyActivity/StepsTimelineChart';
 import HealthMetrics from './MyActivity/HealthMetrics';
 
 const Activity = () => {
-    const { userObject } = useAuth();
-    const [open, setOpen] = useState(false);
-    const [dailySteps, setDailySteps] = useState(0);
+    const { userObject } = useAuth(); 
+    const [open, setOpen] = useState(false); 
+    const [dailySteps, setDailySteps] = useState(0); // 일일 걸음 수 상태
+    const [currentWeeklyTotal, setCurrentWeeklyTotal] = useState(0); // 주간 총 걸음 수 상태
+    const [currentMonthlyTotal, setCurrentMonthlyTotal] = useState(0); // 월간 총 걸음 수 상태
+    const [currentWeekData, setCurrentWeekData] = useState([]); // 주간 걸음 수 데이터 상태
+    const [todayStepsData, setTodayStepsData] = useState([]); // 시간대별 오늘의 걸음 수 데이터 상태
+    const [previousWeekData, setPreviousWeekData] = useState([]); // 전주의 걸음 수 데이터 상태
 
     const toggleDrawer = () => {
-        setOpen(!open);
+        setOpen(!open); 
     };
 
+    // 사용자 걸음 수 데이터를 가져오는 useEffect 훅
     useEffect(() => {
         const fetchSteps = async () => {
             if (userObject) {
-                console.log(userObject.userId);
-                const stepsData = await getStepsByUserId(userObject.userId);
-                console.log(stepsData);
-                const totalSteps = stepsData.reduce((sum, entry) => sum + entry.stepsCount, 0);
-                setDailySteps(totalSteps);
+                try {
+                    const stepsData = await getStepsByUserId(userObject.userId); // 현재 사용자의 걸음 수 데이터 가져오기
+
+                    const today = new Date().toISOString().split('T')[0]; // 오늘의 날짜 가져오기
+                    const todayStepsData = stepsData.find(entry => entry.date === today); // 오늘의 걸음 수 데이터 필터링
+                    const todaySteps = todayStepsData ? todayStepsData.stepsCount : 0; // 오늘의 걸음 수
+                    setDailySteps(todaySteps); // 일일 걸음 수 상태 업데이트
+
+                    if (todayStepsData && todayStepsData.hourlyData) {
+                        const hourlyData = JSON.parse(todayStepsData.hourlyData); // 시간대별 걸음 수 데이터 파싱
+                        const stepsTimeline = Object.keys(hourlyData).map(time => ({
+                            time,
+                            steps: hourlyData[time]
+                        }));
+                        setTodayStepsData(stepsTimeline); // 시간대별 걸음 수 데이터 상태 업데이트
+                    }
+
+                    const now = new Date();
+                    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay())); // 이번 주의 시작 날짜
+                    const endOfWeek = new Date(now.setDate(now.getDate() + 6)); // 이번 주의 끝 날짜
+
+                    const weekData = stepsData.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= startOfWeek && entryDate <= endOfWeek; // 이번 주의 걸음 수 데이터 필터링
+                    });
+
+                    const weekTotal = weekData.reduce((sum, entry) => sum + entry.stepsCount, 0); // 주간 총 걸음 수 계산
+                    setCurrentWeeklyTotal(weekTotal); // 주간 총 걸음 수 상태 업데이트
+
+                    const monthData = stepsData.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate.getMonth() === now.getMonth() && entryDate.getFullYear() === now.getFullYear(); // 이번 달의 걸음 수 데이터 필터링
+                    });
+
+                    const monthTotal = monthData.reduce((sum, entry) => sum + entry.stepsCount, 0); // 월간 총 걸음 수 계산
+                    setCurrentMonthlyTotal(monthTotal); // 월간 총 걸음 수 상태 업데이트
+
+                    const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+                    const weekStepsData = Array(7).fill({ steps: 0 }).map((_, index) => {
+                        const targetDate = new Date(startOfWeek);
+                        targetDate.setDate(targetDate.getDate() + index);
+                        const stepsForDay = weekData.find(entry => new Date(entry.date).toDateString() === targetDate.toDateString())?.stepsCount || 0;
+                        return { day: daysOfWeek[targetDate.getDay()], steps: stepsForDay }; // 주간 걸음 수 데이터 포맷팅
+                    });
+                    setCurrentWeekData(weekStepsData); // 주간 걸음 수 데이터 상태 업데이트
+                } catch (error) {
+                    console.error("Failed to fetch steps data:", error); // 오류 처리
+                }
             }
         };
 
-        fetchSteps();
+        // 전주의 걸음 수 데이터를 가져오는 함수
+        const fetchPreviousWeekSteps = async () => {
+            if (userObject) {
+                try {
+                    const previousWeekData = await getPreviousWeekStepsByUserId(userObject.userId); // 전주의 걸음 수 데이터 가져오기
+                    const formattedData = previousWeekData.map(entry => ({
+                        day: new Date(entry.date).getDay(), // 요일을 나타내기 위해 날짜를 요일로 변환
+                        steps: entry.stepsCount
+                    }));
+                    setPreviousWeekData(formattedData); // 전주의 걸음 수 데이터 상태 업데이트
+                } catch (error) {
+                    console.error("Failed to fetch previous week steps data:", error); // 오류 처리
+                }
+            }
+        };
+
+        fetchSteps(); // 현재 주의 걸음 수 데이터 가져오기
+        fetchPreviousWeekSteps(); // 전주의 걸음 수 데이터 가져오기
     }, [userObject]);
 
-    const currentWeekData = [
-        { day: '월', steps: 8000 },
-        { day: '화', steps: 10000 },
-        { day: '수', steps: 9000 },
-        { day: '목', steps: 7500 },
-        { day: '금', steps: 11000 },
-        { day: '토', steps: 13000 },
-        { day: '일', steps: 6000 },
-    ];
-
-    const previousWeekData = [
-        { day: '월', steps: 7000 },
-        { day: '화', steps: 8500 },
-        { day: '수', steps: 9500 },
-        { day: '목', steps: 7000 },
-        { day: '금', steps: 12000 },
-        { day: '토', steps: 12500 },
-        { day: '일', steps: 5500 },
-    ];
-
-    const todayStepsData = [
-        { time: '00:00', steps: 0 },
-        { time: '03:00', steps: 0 },
-        { time: '06:00', steps: 500 },
-        { time: '09:00', steps: 2000 },
-        { time: '12:00', steps: 4500 },
-        { time: '15:00', steps: 7000 },
-        { time: '18:00', steps: 9500 },
-        { time: '21:00', steps: 11000 },
-    ];
-
-    const weightData = [
-        { date: '07/01', weight: 70 },
-        { date: '07/08', weight: 69.5 },
-        { date: '07/12', weight: 69 },
-        { date: '07/19', weight: 68.5 },
-        { date: '07/25', weight: 68 },
-        { date: '08/01', weight: 67.8 },
-        { date: '08/08', weight: 67.5 },
-    ];
-
+    // 가족 목표 달성률 데이터
     const familyData = [
         { name: '아빠', value: 80 },
         { name: '엄마', value: 95 },
@@ -82,11 +108,12 @@ const Activity = () => {
         { name: '나', value: 90 },
     ];
 
+    // 차트 색상 배열
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CFE'];
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <AppBarComponent open={open} toggleDrawer={toggleDrawer} />
+            <AppBarComponent open={open} toggleDrawer={toggleDrawer} /> 
             <DrawerComponent open={open} toggleDrawer={toggleDrawer} />
             <Box
                 component="main"
@@ -101,15 +128,15 @@ const Activity = () => {
                     나의 활동(Activity)
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 2 }}>
-                    <TodayStepsCard dailySteps={dailySteps} />
-                    <WeeklyStepsCard currentWeekData={currentWeekData} weeklyGoal={70000} />
-                    <MonthlyStepsCard currentWeekData={currentWeekData} monthlyGoal={300000} />
+                    <TodayStepsCard dailySteps={dailySteps} /> {/* 일일 걸음 수 카드 */}
+                    <WeeklyStepsCard currentWeekData={currentWeekData} weeklyGoal={70000} /> {/* 주간 걸음 수 카드 */}
+                    <MonthlyStepsCard currentMonthlyTotal={currentMonthlyTotal} monthlyGoal={300000} /> {/* 월간 걸음 수 카드 */}
                 </Box>
                 <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                    <StepsComparisonChart currentWeekData={currentWeekData} previousWeekData={previousWeekData} />
-                    <StepsTimelineChart todayStepsData={todayStepsData} />
+                    <StepsComparisonChart currentWeekData={currentWeekData} previousWeekData={previousWeekData} /> {/* 주간 걸음 수 비교 차트 */}
+                    <StepsTimelineChart todayStepsData={todayStepsData} /> {/* 시간대별 걸음 수 타임라인 차트 */}
                 </Box>
-                <HealthMetrics weightData={weightData} familyData={familyData} COLORS={COLORS} />
+                <HealthMetrics userId={userObject.userId} familyData={familyData} COLORS={COLORS} /> {/* 건강 지표 컴포넌트 */}
             </Box>
         </Box>
     );

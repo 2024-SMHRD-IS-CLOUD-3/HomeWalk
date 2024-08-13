@@ -45,4 +45,8 @@ public interface StepsRepository extends JpaRepository<Steps, Long> {
 
 		Long getStepsCount(); // Integer에서 Long으로 변경
 	}
+	
+    // 추가
+    List<Steps> findByUserIdAndStepsCountGreaterThan(Long userId, int stepsCount);
+
 }
