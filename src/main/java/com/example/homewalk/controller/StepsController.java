@@ -3,6 +3,7 @@ package com.example.homewalk.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.homewalk.dto.StepData;
 import com.example.homewalk.entity.Steps;
 import com.example.homewalk.service.StepsService;
 
@@ -42,5 +43,11 @@ public class StepsController {
         stepsComparison.put("todaySteps", stepsService.getTodaySteps(userId));
         stepsComparison.put("yesterdaySteps", stepsService.getYesterdaySteps(userId));
         return stepsComparison;
+    }
+    
+    @GetMapping("/{userId}/weekly")
+    public List<StepData> getWeeklySteps(@PathVariable Long userId) {
+        List<StepData> weeklySteps = stepsService.getWeeklyStepsData(userId);
+        return weeklySteps;
     }
 }

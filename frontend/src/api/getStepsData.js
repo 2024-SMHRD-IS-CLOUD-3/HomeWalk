@@ -45,3 +45,14 @@ export const getStepsComparisonData = async (memberId) => {
         throw error;
     }
 };
+
+// 특정 구성원의 주간 걸음 수 데이터를 가져오는 함수
+export const getWeeklyStepsData = async (memberId) => {
+    try {
+        const response = await axios.get(`${API_URL}/steps/${memberId}/weekly`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching weekly steps data:', error);
+        throw error;
+    }
+};

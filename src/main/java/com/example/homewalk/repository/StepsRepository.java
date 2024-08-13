@@ -15,4 +15,6 @@ public interface StepsRepository extends JpaRepository<Steps, Long> {
 
     // 특정 사용자 ID로 모든 걸음수 데이터를 조회
     List<Steps> findByUserId(Long userId);
+    
+    List<Steps> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 }
