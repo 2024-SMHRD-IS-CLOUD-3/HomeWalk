@@ -5,6 +5,9 @@ import { getFamilyData } from '../../api/family'; // 가족 정보를 가져오�
 import { getWeeklyStepsData } from '../../api/getStepsData'; // 주간 걸음 수 데이터를 가져오는 API 함수
 import { useAuth } from '../../context/AuthContext';
 
+// X축을 요일 순으로 정렬하기 위한 요일 배열
+const daysOfWeek = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+
 export default function WeeklyProgress() {
   const [weeklyData, setWeeklyData] = useState([]);
   const { userObject } = useAuth();
@@ -35,15 +38,24 @@ export default function WeeklyProgress() {
         ));
       })
       .then(data => {
-        setWeeklyData(data);
+        // 데이터가 비어있는 경우 기본값으로 처리
+        const completeData = data.map(memberData => ({
+          ...memberData,
+          steps: daysOfWeek.map(day => ({
+            day: day,
+            steps: memberData.steps.find(step => step.day === day)?.steps || 0 // 데이터가 없으면 0으로 채움
+          }))
+        }));
+
+        setWeeklyData(completeData);
       })
       .catch(error => {
         console.error('Error fetching weekly steps data:', error);
       });
   }, [userObject]);
 
-  // X축을 요일 순으로 정렬하기 위한 요일 배열
-  const daysOfWeek = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+  // 고정 색상 팔레트
+  const colorPalette = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#d0ed57', '#8dd1e1'];
 
   return (
     <Grid item xs={12} md={4} lg={6}>
@@ -72,7 +84,7 @@ export default function WeeklyProgress() {
                 data={memberData.steps.sort((a, b) => daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day))} // 요일 순으로 정렬
                 dataKey="steps"
                 name={memberData.username} // 구성원의 이름을 범례로 사용
-                stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`} // 각 구성원마다 다른 색상
+                stroke={colorPalette[index % colorPalette.length]} // 고정 색상 할당
               />
             ))}
           </LineChart>
