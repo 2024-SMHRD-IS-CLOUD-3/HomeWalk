@@ -13,7 +13,7 @@ import HealthMetrics from './MyActivity/HealthMetrics';
 
 const Activity = () => {
     const { userObject } = useAuth(); 
-    const [open, setOpen] = useState(false); 
+    const [open, setOpen] = useState(true); // false -> true값으로 변경
     const [dailySteps, setDailySteps] = useState(0); // 일일 걸음 수 상태
     const [currentWeeklyTotal, setCurrentWeeklyTotal] = useState(0); // 주간 총 걸음 수 상태
     const [currentMonthlyTotal, setCurrentMonthlyTotal] = useState(0); // 월간 총 걸음 수 상태
@@ -96,17 +96,12 @@ const Activity = () => {
             }
         };
 
-        fetchSteps(); // 현재 주의 걸음 수 데이터 가져오기
-        fetchPreviousWeekSteps(); // 전주의 걸음 수 데이터 가져오기
+        if (userObject) {
+            fetchSteps(); // 현재 주의 걸음 수 데이터 가져오기
+            fetchPreviousWeekSteps(); // 전주의 걸음 수 데이터 가져오기
+        }
     }, [userObject]);
 
-    // 가족 목표 달성률 데이터
-    const familyData = [
-        { name: '아빠', value: 80 },
-        { name: '엄마', value: 95 },
-        { name: '아들', value: 70 },
-        { name: '나', value: 90 },
-    ];
 
     // 차트 색상 배열
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CFE'];
@@ -136,7 +131,7 @@ const Activity = () => {
                     <StepsComparisonChart currentWeekData={currentWeekData} previousWeekData={previousWeekData} /> {/* 주간 걸음 수 비교 차트 */}
                     <StepsTimelineChart todayStepsData={todayStepsData} /> {/* 시간대별 걸음 수 타임라인 차트 */}
                 </Box>
-                <HealthMetrics userId={userObject.userId} familyData={familyData} COLORS={COLORS} /> {/* 건강 지표 컴포넌트 */}
+                {userObject && <HealthMetrics userId={userObject.userId} />} {/* 건강 지표 컴포넌트 */}
             </Box>
         </Box>
     );

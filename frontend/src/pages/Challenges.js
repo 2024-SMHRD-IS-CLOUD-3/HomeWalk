@@ -19,7 +19,7 @@ const Challenges = () => {
     endDate: '', 
     invitedUsers: []
   });
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(true);
 
   // 현재 진행 중인 챌린지
   const [currentChallenges, setCurrentChallenges] = useState([

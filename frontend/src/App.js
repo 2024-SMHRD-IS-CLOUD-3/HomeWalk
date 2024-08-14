@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import Challenges from './pages/Challenges';
 import Activity from './pages/Activity';
 import Goals from './pages/Goals';
+import Posture from './pages/Posture';
 import { FamilyProvider } from './context/FamilyContext';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/activity" element={<Activity />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/families" element={<Families />} />
+            <Route path="/posture" element={<Posture />} />
             <Route path="/challenges" element={<Challenges />} />
           </Routes>
         </FamilyProvider>

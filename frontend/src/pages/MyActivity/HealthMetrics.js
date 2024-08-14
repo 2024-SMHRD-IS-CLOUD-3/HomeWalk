@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, TextField, Button } from '@mui/material';
 import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css'; // 캘린더 스타일 임포트
+import { LocalizationProvider, StaticDatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import axios from 'axios';
 
 const HealthMetrics = ({ userId }) => {
@@ -14,8 +14,10 @@ const HealthMetrics = ({ userId }) => {
     const [bmi, setBmi] = useState(0);
     const [weightRecords, setWeightRecords] = useState([]);
     const [walkedDays, setWalkedDays] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     useEffect(() => {
+        // 체중 기록을 가져오는 비동기 함수
         const fetchWeightRecords = async () => {
             try {
                 const response = await axios.get(`/api/weight/${userId}`);
@@ -26,6 +28,7 @@ const HealthMetrics = ({ userId }) => {
             }
         };
 
+        // 걸은 날을 가져오는 비동기 함수
         const fetchWalkedDays = async () => {
             try {
                 const response = await axios.get(`/api/steps/walkedDays/${userId}`);
@@ -41,6 +44,7 @@ const HealthMetrics = ({ userId }) => {
         fetchWalkedDays();
     }, [userId]);
 
+    // BMI 계산 함수
     const calculateBMI = async () => {
         const bmiValue = weight / ((height / 100) ** 2);
         setBmi(bmiValue.toFixed(1));
@@ -63,6 +67,7 @@ const HealthMetrics = ({ userId }) => {
         }
     };
 
+    // BMI 카테고리 반환 함수
     const getBMICategory = (bmiValue) => {
         if (bmiValue < 18.5) return '저체중';
         if (bmiValue < 25) return '정상';
@@ -70,11 +75,31 @@ const HealthMetrics = ({ userId }) => {
         return '비만';
     };
 
-    const tileClassName = ({ date, view }) => {
-        if (view === 'month' && walkedDays.find(d => d === date.toISOString().split('T')[0])) {
-            return 'highlight';
-        }
-        return null;
+    // 특정 날짜를 하이라이트하는 함수
+    const renderDay = (date, selectedDate, pickersDayProps) => {
+        const isWalkedDay = walkedDays.includes(date.toISOString().split('T')[0]); // 걸음수가 있는 날인지 확인
+        return (
+            <div {...pickersDayProps}>
+                {isWalkedDay ? (
+                    <Box
+                        sx={{
+                            backgroundColor: '#4caf50', // 배경색을 초록색으로 설정
+                            color: 'white', // 글자색을 흰색으로 설정
+                            borderRadius: '50%', // 동그랗게 만들기
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        {date.getDate()} // 날짜 표시
+                    </Box>
+                ) : (
+                    date.getDate() // 걸음수가 없는 날은 기본 날짜 표시
+                )}
+            </div>
+        );
     };
 
     return (
@@ -117,7 +142,7 @@ const HealthMetrics = ({ userId }) => {
                 <Card>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>체중 변화</Typography>
-                        <Box sx={{ height: 400 }}>
+                        <Box sx={{ height: 300 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={weightRecords}>
                                     <CartesianGrid strokeDasharray="3 3" />
@@ -133,10 +158,17 @@ const HealthMetrics = ({ userId }) => {
                 <Card>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>걸은 날 캘린더</Typography>
-                        <Box sx={{ height: 400 }}>
-                            <Calendar
-                                tileClassName={tileClassName}
-                            />
+                        <Box sx={{ height: 300 }}>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <StaticDatePicker
+                                    displayStaticWrapperAs="desktop"
+                                    openTo="day"
+                                    value={selectedDate}
+                                    onChange={(newValue) => setSelectedDate(newValue)}
+                                    renderDay={renderDay}
+                                    slots={{ textField: (params) => <TextField {...params} /> }} // 변경된 부분
+                                />
+                            </LocalizationProvider>
                         </Box>
                     </CardContent>
                 </Card>
