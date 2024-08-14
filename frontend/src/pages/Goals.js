@@ -1,33 +1,50 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Box, CssBaseline, Card, CardContent, Typography, Input, Slider, Button } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, CssBaseline, Card, CardContent, Typography, Slider, Button, Container, Tabs, Tab, Snackbar } from '@mui/material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
+import { saveGoals } from '../api/goals';
+import { useAuth } from '../context/AuthContext';
 
 const Goals = () => {
+  const { userObject } = useAuth();
   const [open, setOpen] = useState(true);
-  const [weeklyGoal, setWeeklyGoal] = useState(70000);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [monthlyGoal, setMonthlyGoal] = useState(500000);
-  const [familyWeeklyGoal, setFamilyWeeklyGoal] = useState(200000);
-  const [familyMonthlyGoal, setFamilyMonthlyGoal] = useState(800000);
+  const [activeTab, setActiveTab] = useState(0);
+  const [weeklyGoal, setWeeklyGoal] = useState(0);
+  const [monthlyGoal, setMonthlyGoal] = useState(0);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  const handleSaveGoal = async (goalType, goalValue) => {
+  useEffect(() => {
+    if (userObject?.userId) { 
+      console.log('Setting default goals for userId:', userObject.userId);
+      setWeeklyGoal(0); 
+      setMonthlyGoal(0);
+    } else {
+      console.warn('userId is not defined');
+    }
+  }, [userObject]);
+
+  const handleSaveGoal = async () => {
     try {
-      await axios.post('/api/goals/save', {
-        goalType,
-        goalValue,
-        selectedDate
-      });
-      console.log(`${goalType} 목표가 저장되었습니다.`);
+      if (!userObject?.userId) {
+        throw new Error('User ID is undefined');
+      }
+      await saveGoals(userObject.userId, 'weekly', weeklyGoal);
+      await saveGoals(userObject.userId, 'monthly', monthlyGoal);
+      console.log('Goals saved successfully');
     } catch (error) {
-      console.error(`${goalType} 목표 저장 중 오류가 발생했습니다.`, error);
+      console.error('Error saving goals:', error);
+      showSnackbar('목표 저장에 실패했습니다.');
     }
   };
 
-  const toggleDrawer = () => {
-    setOpen(!open);
+  const toggleDrawer = () => setOpen(!open);
+  const handleTabChange = (_, newValue) => setActiveTab(newValue);
+  const showSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
   };
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -35,164 +52,89 @@ const Goals = () => {
       <AppBarComponent open={open} toggleDrawer={toggleDrawer} />
       <DrawerComponent open={open} toggleDrawer={toggleDrawer} />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          가족 건강 걷기 대시보드
-        </Typography>
+        <Container maxWidth="md">
+          <Typography variant="h4" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
+            가족 건강 걷기 대시보드
+          </Typography>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
-          <Card>
-            <CardContent>
-              <Typography>나의 주간 목표 걸음 수</Typography>
-              <Box sx={{ my: 2 }}>
-                <Input
-                  type="number"
-                  value={weeklyGoal}
-                  onChange={(e) => setWeeklyGoal(Number(e.target.value))}
-                  fullWidth
-                />
-                <Slider
-                  value={weeklyGoal}
-                  max={100000}
-                  step={1000}
-                  onChange={(e, value) => setWeeklyGoal(value)}
-                  valueLabelDisplay="auto"
-                />
-                <Typography variant="body2" color="text.secondary">
-                  일일 평균: {Math.round(weeklyGoal / 7).toLocaleString()} 걸음
-                </Typography>
-              </Box>
-              <Box>
-                <Typography>목표 시작일</Typography>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Button onClick={() => handleSaveGoal('weeklyGoal', weeklyGoal)} variant="contained" sx={{ width: '20%' }}>
-                  저장하기
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+          <Tabs value={activeTab} onChange={handleTabChange} centered sx={{ mb: 4 }}>
+            <Tab label="목표 설정" />
+            <Tab label="저장된 목표" />
+          </Tabs>
 
-          <Card>
-            <CardContent>
-              <Typography>나의 월간 목표 걸음 수</Typography>
-              <Box sx={{ my: 2 }}>
-                <Input
-                  type="number"
-                  value={monthlyGoal}
-                  onChange={(e) => setMonthlyGoal(Number(e.target.value))}
-                  fullWidth
-                />
-                <Slider
-                  value={monthlyGoal}
-                  max={500000}
-                  step={1000}
-                  onChange={(e, value) => setMonthlyGoal(value)}
-                  valueLabelDisplay="auto"
-                />
-                <Typography variant="body2" color="text.secondary">
-                  일일 평균: {Math.round(monthlyGoal / 30).toLocaleString()} 걸음
+          {activeTab === 0 ? (
+            <Card elevation={3}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h5" gutterBottom sx={{ mb: 3, textAlign: 'center' }}>
+                  나의 걷기 목표 설정
                 </Typography>
-              </Box>
-              <Box>
-                <Typography>목표 시작일</Typography>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Button onClick={() => handleSaveGoal('monthlyGoal', monthlyGoal)} variant="contained" sx={{ width: '20%' }}>
-                  저장하기
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <Typography gutterBottom>주간 목표 걸음 수</Typography>
+                  <Typography variant="h6" align="center">
+                    {weeklyGoal.toLocaleString()} 걸음
+                  </Typography>
+                  <Slider
+                    value={weeklyGoal}
+                    max={100000}
+                    step={1000}
+                    onChange={(_, value) => setWeeklyGoal(value)}
+                    valueLabelDisplay="auto"
+                  />
+                  <Typography variant="caption" sx={{ textAlign: 'center' }}>
+                    일일 평균: {Math.round(weeklyGoal / 7).toLocaleString()} 걸음
+                  </Typography>
 
-          <Card>
-            <CardContent>
-              <Typography>우리 가족 주간 누적 목표 걸음 수</Typography>
-              <Box sx={{ my: 2 }}>
-                <Input
-                  type="number"
-                  value={familyWeeklyGoal}
-                  onChange={(e) => setFamilyWeeklyGoal(Number(e.target.value))}
-                  fullWidth
-                />
-                <Slider
-                  value={familyWeeklyGoal}
-                  max={300000}
-                  step={1000}
-                  onChange={(e, value) => setFamilyWeeklyGoal(value)}
-                  valueLabelDisplay="auto"
-                />
-                <Typography variant="body2" color="text.secondary">
-                  일일 평균: {Math.round(familyWeeklyGoal / 7).toLocaleString()} 걸음
-                </Typography>
-              </Box>
-              <Box>
-                <Typography>목표 시작일</Typography>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Button onClick={() => handleSaveGoal('familyWeeklyGoal', familyWeeklyGoal)} variant="contained" sx={{ width: '20%' }}>
-                  저장하기
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+                  <Typography gutterBottom>월간 목표 걸음 수</Typography>
+                  <Typography variant="h6" align="center">
+                    {monthlyGoal.toLocaleString()} 걸음
+                  </Typography>
+                  <Slider
+                    value={monthlyGoal}
+                    max={1000000}
+                    step={5000}
+                    onChange={(_, value) => setMonthlyGoal(value)}
+                    valueLabelDisplay="auto"
+                  />
+                  <Typography variant="caption" sx={{ textAlign: 'center' }}>
+                    일일 평균: {Math.round(monthlyGoal / 30).toLocaleString()} 걸음
+                  </Typography>
 
-          <Card>
-            <CardContent>
-              <Typography>우리 가족 월간 목표 누적 걸음 수</Typography>
-              <Box sx={{ my: 2 }}>
-                <Input
-                  type="number"
-                  value={familyMonthlyGoal}
-                  onChange={(e) => setFamilyMonthlyGoal(Number(e.target.value))}
-                  fullWidth
-                />
-                <Slider
-                  value={familyMonthlyGoal}
-                  max={800000}
-                  step={1000}
-                  onChange={(e, value) => setFamilyMonthlyGoal(value)}
-                  valueLabelDisplay="auto"
-                />
-                <Typography variant="body2" color="text.secondary">
-                  일일 평균: {Math.round(familyMonthlyGoal / 30).toLocaleString()} 걸음
+                  <Button 
+                    onClick={handleSaveGoal} 
+                    variant="contained" 
+                    size="large"
+                    sx={{ mt: 2, py: 1.5 }}
+                  >
+                    저장하기
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card elevation={3}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h5" gutterBottom sx={{ mb: 3, textAlign: 'center' }}>
+                  저장된 목표
                 </Typography>
-              </Box>
-              <Box>
-                <Typography>목표 시작일</Typography>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Button onClick={() => handleSaveGoal('familyMonthlyGoal', familyMonthlyGoal)} variant="contained" sx={{ width: '20%' }}>
-                  저장하기
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Typography variant="body1">
+                    주간 목표: {weeklyGoal.toLocaleString()} 걸음
+                  </Typography>
+                  <Typography variant="body1">
+                    월간 목표: {monthlyGoal.toLocaleString()} 걸음
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
+        </Container>
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+      />
     </Box>
   );
 };
