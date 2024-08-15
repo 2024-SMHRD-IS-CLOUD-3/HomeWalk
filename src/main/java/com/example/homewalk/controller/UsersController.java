@@ -5,10 +5,13 @@ import com.example.homewalk.entity.Users;
 import com.example.homewalk.service.UsersService;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -161,5 +164,21 @@ public class UsersController {
         }
     }
 
-    
+    @PostMapping("/upload-kakao-avatar")
+    public ResponseEntity<String> uploadKakaoAvatar(@RequestHeader("Authorization") String token, @RequestParam("imageUrl") String imageUrl) {
+        try {
+            // 사용자 정보를 가져와서 프로필 이미지를 업데이트
+            Users user = usersService.getUserFromToken(token);
+
+            // 받은 imageUrl 그대로 DB에 저장
+            user.setAvatarCustomization(imageUrl);
+            usersService.updateUser(user); // 사용자 업데이트
+
+            return ResponseEntity.ok("Profile image URL updated successfully: " + imageUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update profile image: " + e.getMessage());
+        }
+    }
+
 }

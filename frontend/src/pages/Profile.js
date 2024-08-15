@@ -29,6 +29,8 @@ const Profile = () => {
       try {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         
+        console.log('token', token);
+
         if (token) {
           const userData = await fetchUserProfile(token);
           const { username, password, email, avatarCustomization } = userData;

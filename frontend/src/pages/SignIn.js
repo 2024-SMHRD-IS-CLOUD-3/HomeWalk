@@ -15,6 +15,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import { handleKakaoLogin } from '../utils/kakaoLogin'; // 카카오 로그인 로직을 불러옵니다
+import kakaoLogo from '../assets/kakao-svgrepo-com.svg'; // 이미지 파일 경로를 지정합니다.
 
 function Copyright(props) {
     return (
@@ -92,6 +94,14 @@ export default function SignIn() {
             document.getElementById('username').value = rememberedUsername;
             setRememberMe(true);
         }
+
+        // 카카오 SDK 초기화 확인
+        if (window.Kakao && !window.Kakao.isInitialized()) { // SDK가 로드되고 초기화되지 않았는지 확인
+            console.log('Kakao SDK loaded and initializing');
+            window.Kakao.init('cad60a30113d35de28e6be146cd5634a');
+        } else {
+            console.error('Kakao SDK not loaded or already initialized');
+        }
     }, []);
 
     return (
@@ -145,6 +155,27 @@ export default function SignIn() {
                             sx={{ mt: 3, mb: 2 }}
                         >
                             Sign In
+                        </Button>
+                        {/* 카카오 로그인 버튼 */}
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            onClick={handleKakaoLogin}
+                            sx={{
+                                mt: 1,
+                                mb: 2,
+                                bgcolor: '#FEE500', // 기본 배경색
+                                color: '#000',      // 기본 텍스트 색상
+                                ':hover': {
+                                    bgcolor: '#FDCB02', // 마우스를 올렸을 때 진한 노란색으로 변경
+                                },
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <img src={kakaoLogo} alt="Kakao Logo" style={{ marginRight: '8px', width: '24px', height: '24px' }} />
+                            카카오로 로그인
                         </Button>
                         <Grid container>
                             <Grid item xs>

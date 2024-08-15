@@ -13,6 +13,7 @@ import Activity from './pages/Activity';
 import Goals from './pages/Goals';
 import Posture from './pages/Posture';
 import { FamilyProvider } from './context/FamilyContext';
+import KakaoCallback from './components/KakaoCallback';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/families" element={<Families />} />
             <Route path="/posture" element={<Posture />} />
             <Route path="/challenges" element={<Challenges />} />
+            <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
           </Routes>
         </FamilyProvider>
       </AuthProvider>

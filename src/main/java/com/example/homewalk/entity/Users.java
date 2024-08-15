@@ -21,8 +21,8 @@ public class Users {
     @Column(nullable = false, length = 100)
     private String email;
 
-    @Column(columnDefinition = "JSON")
-    private String avatarCustomization;
+    @Column(name = "avatar_customization", length = 255)
+    private String avatarCustomization;  // URL을 저장하기 위해 VARCHAR(255) 사용
 
     @Column(nullable = false, columnDefinition = "int default 0")
     private Integer dailyStepGoal = 0;
@@ -35,5 +35,9 @@ public class Users {
 
     @Column(name = "is_active")
     private Boolean isActive = true;
+    
+    // 카카오 ID 추가
+    @Column(name = "kakao_id", unique = true, length = 50)
+    private String kakaoId;
 
 }

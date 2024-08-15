@@ -73,7 +73,7 @@ public class UsersService {
     }
 
     public String generateToken(Users user) {
-        return jwtUtil.generateToken(user.getUsername());
+        return jwtUtil.generateToken(user.getUserId());
     }
     
     public Users getUserById(Long userId) {
@@ -81,8 +81,8 @@ public class UsersService {
     }
     
     public Users getUserFromToken(String token) {
-        String username = jwtUtil.extractUsername(token.replace("Bearer ", ""));
-        return usersRepository.findByUsername(username);
+        Long userId = jwtUtil.extractUserId(token.replace("Bearer ", ""));
+        return usersRepository.findById(userId).orElse(null);
     }
     
     public void updateUser(Users user) {
@@ -93,8 +93,8 @@ public class UsersService {
     // 이미지 업로드 및 프로필 업데이트 메서드
     public String uploadUserProfileImage(String token, MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
-            String username = jwtUtil.extractUsername(token.replace("Bearer ", ""));
-            Users user = usersRepository.findByUsername(username);
+            Long userId = jwtUtil.extractUserId(token.replace("Bearer ", ""));
+            Users user = usersRepository.findById(userId).orElse(null);
 
             if (user == null) {
                 throw new RuntimeException("User not found");
