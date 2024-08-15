@@ -14,29 +14,36 @@ import Goals from './pages/Goals';
 import Posture from './pages/Posture';
 import { FamilyProvider } from './context/FamilyContext';
 import KakaoCallback from './components/KakaoCallback';
+import './fonts.css';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <FamilyProvider>
-          <Routes>
-            <Route path="/" element={<SignIn />} />
-            <Route path="/ResetPassword" element={<ResetPassword />} />
-            <Route path="/ResetPasswordPage" element={<ResetPasswordPage />} />
-            <Route path="/SignUp" element={<SignUp />} />
-            <Route path="/profile/" element={<Profile />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/activity" element={<Activity />} />
-            <Route path="/goals" element={<Goals />} />
-            <Route path="/families" element={<Families />} />
-            <Route path="/posture" element={<Posture />} />
-            <Route path="/challenges" element={<Challenges />} />
-            <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
-          </Routes>
-        </FamilyProvider>
-      </AuthProvider>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <AuthProvider>
+          <FamilyProvider>
+            <Routes>
+              <Route path="/" element={<SignIn />} />
+              <Route path="/ResetPassword" element={<ResetPassword />} />
+              <Route path="/ResetPasswordPage" element={<ResetPasswordPage />} />
+              <Route path="/SignUp" element={<SignUp />} />
+              <Route path="/profile/" element={<Profile />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/activity" element={<Activity />} />
+              <Route path="/goals" element={<Goals />} />
+              <Route path="/families" element={<Families />} />
+              <Route path="/posture" element={<Posture />} />
+              <Route path="/challenges" element={<Challenges />} />
+              <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
+            </Routes>
+          </FamilyProvider>
+        </AuthProvider>
+      </Router>
+    </ThemeProvider >
   );
 }
 
