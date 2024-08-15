@@ -61,11 +61,7 @@ public class UsersService {
     }
 
     public Users authenticateUser(String username, String password) {
-        Users user = usersRepository.findByUsernameAndPassword(username, password);
-        if (user != null && user.getIsActive()) {
-            return user;
-        }
-        return null;
+        return usersRepository.findByUsernameAndPassword(username, password);
     }
 
     public boolean existsByUsername(String username) {

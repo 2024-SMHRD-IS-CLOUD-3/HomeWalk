@@ -36,31 +36,33 @@ public class UsersController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody Users users) {
         Users authenticatedUser = usersService.authenticateUser(users.getUsername(), users.getPassword());
-        if (authenticatedUser != null) {
-            if (!authenticatedUser.getIsActive()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is inactive");
-            }
-
-            String token = usersService.generateToken(authenticatedUser); // 토큰 생성 메소드 호출
-
-            // AuthResponse 객체 생성 및 반환
-            AuthResponse authResponse = new AuthResponse(
-                authenticatedUser.getUserId(),
-                token,
-                authenticatedUser.getUsername(),
-                authenticatedUser.getEmail(),
-                authenticatedUser.getAvatarCustomization(),
-                authenticatedUser.getDailyStepGoal(),
-                authenticatedUser.getWeeklyStepGoal(),
-                authenticatedUser.getMonthlyStepGoal(),
-                authenticatedUser.getIsActive()
-            );
-
-            return ResponseEntity.ok(authResponse); // AuthResponse 객체 반환
-        } else {
+        
+        if (authenticatedUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
+
+        if (!authenticatedUser.getIsActive()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is inactive");
+        }
+
+        String token = usersService.generateToken(authenticatedUser); // 토큰 생성 메소드 호출
+
+        // AuthResponse 객체 생성 및 반환
+        AuthResponse authResponse = new AuthResponse(
+            authenticatedUser.getUserId(),
+            token,
+            authenticatedUser.getUsername(),
+            authenticatedUser.getEmail(),
+            authenticatedUser.getAvatarCustomization(),
+            authenticatedUser.getDailyStepGoal(),
+            authenticatedUser.getWeeklyStepGoal(),
+            authenticatedUser.getMonthlyStepGoal(),
+            authenticatedUser.getIsActive()
+        );
+
+        return ResponseEntity.ok(authResponse); // AuthResponse 객체 반환
     }
+
 
 
     @GetMapping("/check-username")
