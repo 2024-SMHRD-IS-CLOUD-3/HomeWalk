@@ -31,18 +31,18 @@ export const updateUserProfile = async (token, updatedUserData) => {
 
 // 사용자 프로필 이미지 업로드 함수
 export const uploadProfileImage = async (token, formData) => {
-  try {
-    const response = await axios.post('/api/upload-avatar', formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data; // 서버에서 반환한 이미지 경로
-  } catch (error) {
-    console.error('Failed to upload profile image', error);
-    throw error;
-  }
+    try {
+        const response = await axios.post('/api/upload-avatar', formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data; // 서버에서 반환한 이미지 경로
+    } catch (error) {
+        console.error('Failed to upload profile image', error);
+        throw error;
+    }
 };
 
 // 사용자 프로필 이미지 가져오는 함수 추가
@@ -54,4 +54,25 @@ export const fetchUserAvatar = async (userId) => {
         console.error('Failed to fetch user avatar', error);
         throw error;
     }
+};
+
+export const getDeactivationReasons = async () => {
+    const response = await axios.get('/api/deactivation-reasons');
+    return response.data;
+};
+
+export const deactivateUser = async (token, reasonId, comments) => {
+    const response = await axios.post(
+        '/api/deactivate-user',
+        {
+            reasonId,
+            comments,
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+    return response.data;
 };

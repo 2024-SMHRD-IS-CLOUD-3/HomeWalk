@@ -1,5 +1,6 @@
 package com.example.homewalk.controller;
 
+import com.example.homewalk.dto.DeactivateRequest;
 import com.example.homewalk.entity.Users;
 import com.example.homewalk.service.UsersService;
 
@@ -134,6 +135,29 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file: " + e.getMessage());
         }
     }
+    
+    @GetMapping("/deactivation-reasons")
+    public ResponseEntity<?> getDeactivationReasons() {
+        try {
+            return ResponseEntity.ok(usersService.getDeactivationReasons());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to fetch deactivation reasons: " + e.getMessage());
+        }
+    }
 
+    @PostMapping("/deactivate-user")
+    public ResponseEntity<String> deactivateUser(
+            @RequestHeader("Authorization") String token,
+            @RequestBody DeactivateRequest deactivateRequest) {
+        try {
+            Users user = usersService.getUserFromToken(token);
+            System.out.println("reasonId : " + deactivateRequest.getReasonId());
+            usersService.deactivateUser(user, deactivateRequest.getReasonId(), deactivateRequest.getComments()); // 사용자 탈퇴 처리
+            return ResponseEntity.ok("User deactivated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to deactivate user: " + e.getMessage());
+        }
+    }
 
+    
 }

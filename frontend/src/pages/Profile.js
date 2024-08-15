@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper, TextField, Button, Avatar, IconButton } from '@mui/material';
+import { Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper, TextField, Button, Avatar, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
-import { fetchUserProfile, updateUserProfile, uploadProfileImage } from '../api/profile';
-import { useAuth } from '../context/AuthContext'; // AuthContext 가져오기
+import { fetchUserProfile, updateUserProfile, uploadProfileImage, getDeactivationReasons, deactivateUser } from '../api/profile';
+import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
-  const { setAvatarCustomization } = useAuth(); // AuthContext에서 setAvatarCustomization 가져오기
+  const { setAvatarCustomization, logout } = useAuth(); 
   const [open, setOpen] = useState(true);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [localAvatar, setLocalAvatar] = useState(''); // 로컬 상태로 관리
-  const [serverAvatar, setServerAvatar] = useState(''); // 서버에서 가져온 기존 경로 관리
+  const [localAvatar, setLocalAvatar] = useState('');
+  const [serverAvatar, setServerAvatar] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isDeactivateModalOpen, setDeactivateModalOpen] = useState(false); 
+  const [reasons, setReasons] = useState([]); 
+  const [selectedReason, setSelectedReason] = useState(''); 
+  const [additionalComments, setAdditionalComments] = useState(''); 
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -26,13 +30,13 @@ const Profile = () => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         
         if (token) {
-          const userData = await fetchUserProfile(token); // fetchUserProfile로 사용자 정보 가져오기
+          const userData = await fetchUserProfile(token);
           const { username, password, email, avatarCustomization } = userData;
           setUsername(username);
           setPassword(password);
           setEmail(email);
-          setLocalAvatar(avatarCustomization); // 로컬 미리보기용으로 설정
-          setServerAvatar(avatarCustomization); // 서버에서 가져온 경로를 별도로 저장
+          setLocalAvatar(avatarCustomization);
+          setServerAvatar(avatarCustomization);
         } else {
           console.error('No token found');
         }
@@ -41,42 +45,67 @@ const Profile = () => {
       }
     };
 
+    const fetchReasons = async () => {
+      try {
+        const reasonsData = await getDeactivationReasons(); // API 호출하여 탈퇴 이유 목록 가져오기
+        console.log(reasonsData);
+        
+        setReasons(reasonsData);
+      } catch (error) {
+        console.error('Failed to fetch deactivation reasons', error);
+      }
+    };
+
     fetchUserData();
+    fetchReasons();
   }, []);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
     const localUrl = URL.createObjectURL(file);
-    setLocalAvatar(localUrl); // 로컬 URL로 미리보기 업데이트
+    setLocalAvatar(localUrl);
   };
 
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      let uploadedImagePath = serverAvatar; // 서버에 저장된 경로로 초기화
+      let uploadedImagePath = serverAvatar;
 
       if (selectedFile) {
         const formData = new FormData();
         formData.append('file', selectedFile);
-        uploadedImagePath = await uploadProfileImage(token, formData); // 서버에서 반환된 경로로 설정
+        uploadedImagePath = await uploadProfileImage(token, formData);
       }
 
       const updatedUserData = {
         username,
         password,
         email,
-        avatarCustomization: uploadedImagePath, // DB에 서버 경로 저장
+        avatarCustomization: uploadedImagePath,
       };
       
       await updateUserProfile(token, updatedUserData);
-
-      // 수정이 완료된 후에만 AppBar의 이미지를 업데이트
       setAvatarCustomization(localAvatar);
-
       alert('Profile updated successfully');
     } catch (error) {
       alert('Failed to update profile');
+    }
+  };
+
+  const handleDeactivate = () => {
+    setDeactivateModalOpen(true);
+  };
+
+  const handleConfirmDeactivation = async () => {
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      await deactivateUser(token, selectedReason, additionalComments); // 탈퇴 API 호출
+      setDeactivateModalOpen(false); 
+      logout(); 
+      alert('Account deactivated successfully');
+    } catch (error) {
+      alert('Failed to deactivate account');
     }
   };
 
@@ -153,14 +182,62 @@ const Profile = () => {
                   sx={{ mb: 2 }}
                 />
 
-                <Button variant="contained" color="primary" onClick={handleUpdate}>
-                  수정
-                </Button>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+                  <Button variant="contained" color="primary" onClick={handleUpdate}>
+                    수정
+                  </Button>
+
+                  <Button variant="outlined" color="error" onClick={handleDeactivate}>
+                    탈퇴
+                  </Button>
+                </Box>
               </Paper>
             </Grid>
           </Grid>
         </Container>
       </Box>
+
+      {/* 탈퇴 확인 모달 */}
+      <Dialog
+        open={isDeactivateModalOpen}
+        onClose={() => setDeactivateModalOpen(false)}
+        maxWidth="sm" // 모달 크기를 키우기 위해 추가
+        fullWidth
+      >
+        <DialogTitle>탈퇴 이유를 선택해주세요</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>탈퇴 이유</InputLabel>
+            <Select
+              value={selectedReason}
+              onChange={(e) => setSelectedReason(e.target.value)}
+              label="탈퇴 이유"
+            >
+              {reasons.map((reason) => (
+                <MenuItem key={reason.reasonId} value={reason.reasonId}>
+                  {reason.reasonText}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            fullWidth
+            label="추가 코멘트"
+            multiline
+            rows={4}
+            value={additionalComments}
+            onChange={(e) => setAdditionalComments(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeactivateModalOpen(false)} color="primary">
+            취소
+          </Button>
+          <Button onClick={handleConfirmDeactivation} color="error">
+            탈퇴
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

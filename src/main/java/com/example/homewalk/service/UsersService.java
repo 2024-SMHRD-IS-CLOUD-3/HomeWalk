@@ -1,8 +1,12 @@
 package com.example.homewalk.service;
 
+import com.example.homewalk.entity.DeactivationReason;
 import com.example.homewalk.entity.PasswordResetToken;
+import com.example.homewalk.entity.UserDeactivation;
 import com.example.homewalk.entity.Users;
+import com.example.homewalk.repository.DeactivationReasonRepository;
 import com.example.homewalk.repository.PasswordResetTokenRepository;
+import com.example.homewalk.repository.UserDeactivationRepository;
 import com.example.homewalk.repository.UsersRepository;
 import com.example.homewalk.util.JwtUtil; // JWT 유틸리티 클래스
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +39,12 @@ public class UsersService {
     
     @Autowired
     private PasswordResetTokenRepository tokenRepository; // 비밀번호 재설정 토큰 레포지토리 주입
+    
+    @Autowired
+    private DeactivationReasonRepository deactivationReasonRepository;
+    
+    @Autowired
+    private UserDeactivationRepository userDeactivationRepository;
     
     public Users findById(Long userId) {
         return usersRepository.findByUserId(userId);
@@ -162,5 +174,23 @@ public class UsersService {
     // 만료된 토큰 삭제
     public void deleteExpiredTokens() {
         tokenRepository.deleteAllExpiredTokens(new Date());
+    }
+    
+    public List<DeactivationReason> getDeactivationReasons() {
+        return deactivationReasonRepository.findAll();
+    }
+    
+    public void deactivateUser(Users user, Long reasonId, String comments) {
+        // 1. User의 isActive 필드를 false로 설정
+        user.setIsActive(false);
+        usersRepository.save(user);
+
+        // 2. 탈퇴 정보를 UserDeactivation 테이블에 저장
+        UserDeactivation deactivation = new UserDeactivation();
+        deactivation.setUser(user);
+        deactivation.setDeactivationDate(LocalDateTime.now());
+        deactivation.setReason(deactivationReasonRepository.findById(reasonId).orElse(null));
+        deactivation.setAdditionalComments(comments);
+        userDeactivationRepository.save(deactivation);
     }
 }
