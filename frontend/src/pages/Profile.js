@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper, TextField, Button, Avatar, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper, TextField, Button, Avatar, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, InputLabel, FormControl, Menu } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
@@ -15,10 +15,12 @@ const Profile = () => {
   const [localAvatar, setLocalAvatar] = useState('');
   const [serverAvatar, setServerAvatar] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [isDeactivateModalOpen, setDeactivateModalOpen] = useState(false); 
   const [reasons, setReasons] = useState([]); 
   const [selectedReason, setSelectedReason] = useState(''); 
   const [additionalComments, setAdditionalComments] = useState(''); 
+  const [isAvatarDeleted, setIsAvatarDeleted] = useState(false); // 아바타 삭제 여부
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -28,8 +30,6 @@ const Profile = () => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        
-        console.log('token', token);
 
         if (token) {
           const userData = await fetchUserProfile(token);
@@ -49,9 +49,7 @@ const Profile = () => {
 
     const fetchReasons = async () => {
       try {
-        const reasonsData = await getDeactivationReasons(); // API 호출하여 탈퇴 이유 목록 가져오기
-        console.log(reasonsData);
-        
+        const reasonsData = await getDeactivationReasons();
         setReasons(reasonsData);
       } catch (error) {
         console.error('Failed to fetch deactivation reasons', error);
@@ -67,6 +65,8 @@ const Profile = () => {
     setSelectedFile(file);
     const localUrl = URL.createObjectURL(file);
     setLocalAvatar(localUrl);
+    setIsAvatarDeleted(false); // 아바타가 변경되면 삭제 상태 해제
+    setAnchorEl(null); // 메뉴 닫기
   };
 
   const handleUpdate = async () => {
@@ -74,7 +74,9 @@ const Profile = () => {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       let uploadedImagePath = serverAvatar;
 
-      if (selectedFile) {
+      if (isAvatarDeleted) {
+        uploadedImagePath = ''; // 기본 아바타로 설정
+      } else if (selectedFile) {
         const formData = new FormData();
         formData.append('file', selectedFile);
         uploadedImagePath = await uploadProfileImage(token, formData);
@@ -86,7 +88,7 @@ const Profile = () => {
         email,
         avatarCustomization: uploadedImagePath,
       };
-      
+
       await updateUserProfile(token, updatedUserData);
       setAvatarCustomization(localAvatar);
       alert('Profile updated successfully');
@@ -102,13 +104,23 @@ const Profile = () => {
   const handleConfirmDeactivation = async () => {
     try {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      await deactivateUser(token, selectedReason, additionalComments); // 탈퇴 API 호출
-      setDeactivateModalOpen(false); 
-      logout(); 
+      await deactivateUser(token, selectedReason, additionalComments);
+      setDeactivateModalOpen(false);
+      logout();
       alert('Account deactivated successfully');
     } catch (error) {
       alert('Failed to deactivate account');
     }
+  };
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleDeleteAvatar = () => {
+    setLocalAvatar(''); // 기본 아바타로 설정
+    setIsAvatarDeleted(true); // 아바타 삭제 플래그 설정
+    setAnchorEl(null); // 메뉴 닫기
   };
 
   return (
@@ -139,10 +151,22 @@ const Profile = () => {
 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                   <Avatar src={localAvatar} sx={{ width: 100, height: 100 }} />
-                  <IconButton color="primary" component="label" sx={{ ml: -4, mt: 6 }}>
+                  <IconButton color="primary" onClick={handleAvatarClick} sx={{ ml: -4, mt: 6 }}>
                     <PhotoCamera />
-                    <input hidden accept="image/*" type="file" onChange={handleFileChange} />
                   </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={() => setAnchorEl(null)}
+                  >
+                    <MenuItem component="label">
+                      사진 변경
+                      <input hidden accept="image/*" type="file" onChange={handleFileChange} />
+                    </MenuItem>
+                    <MenuItem onClick={handleDeleteAvatar}>
+                      사진 삭제
+                    </MenuItem>
+                  </Menu>
                 </Box>
 
                 <TextField
@@ -203,7 +227,7 @@ const Profile = () => {
       <Dialog
         open={isDeactivateModalOpen}
         onClose={() => setDeactivateModalOpen(false)}
-        maxWidth="sm" // 모달 크기를 키우기 위해 추가
+        maxWidth="sm"
         fullWidth
       >
         <DialogTitle>탈퇴 이유를 선택해주세요</DialogTitle>
