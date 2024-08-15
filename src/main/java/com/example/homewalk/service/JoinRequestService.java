@@ -2,6 +2,7 @@ package com.example.homewalk.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -29,6 +30,14 @@ public class JoinRequestService {
     private final UsersRepository usersRepository;
 
     public FamilyJoinRequest saveJoinRequest(FamilyJoinRequest joinRequest) {
+    	// 중복 가입 신청이 있는지 확인
+        Optional<FamilyJoinRequest> existingRequest = joinRequestRepository.findByUserIdAndFamilyId(joinRequest.getUserId(), joinRequest.getFamilyId());
+
+        if (existingRequest.isPresent()) {
+            throw new IllegalStateException("이미 가입 신청이 존재합니다.");
+        }
+
+        // 새로운 가입 신청 저장
         joinRequest.setRequestDate(LocalDate.now());
         joinRequest.setApproved(false); // 기본값은 승인되지 않음
         return joinRequestRepository.save(joinRequest);

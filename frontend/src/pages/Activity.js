@@ -15,7 +15,6 @@ const Activity = () => {
     const { userObject } = useAuth(); 
     const [open, setOpen] = useState(true); // false -> true값으로 변경
     const [dailySteps, setDailySteps] = useState(0); // 일일 걸음 수 상태
-    const [currentWeeklyTotal, setCurrentWeeklyTotal] = useState(0); // 주간 총 걸음 수 상태
     const [currentMonthlyTotal, setCurrentMonthlyTotal] = useState(0); // 월간 총 걸음 수 상태
     const [currentWeekData, setCurrentWeekData] = useState([]); // 주간 걸음 수 데이터 상태
     const [todayStepsData, setTodayStepsData] = useState([]); // 시간대별 오늘의 걸음 수 데이터 상태
@@ -54,9 +53,6 @@ const Activity = () => {
                         const entryDate = new Date(entry.date);
                         return entryDate >= startOfWeek && entryDate <= endOfWeek; // 이번 주의 걸음 수 데이터 필터링
                     });
-
-                    const weekTotal = weekData.reduce((sum, entry) => sum + entry.stepsCount, 0); // 주간 총 걸음 수 계산
-                    setCurrentWeeklyTotal(weekTotal); // 주간 총 걸음 수 상태 업데이트
 
                     const monthData = stepsData.filter(entry => {
                         const entryDate = new Date(entry.date);
@@ -101,10 +97,6 @@ const Activity = () => {
             fetchPreviousWeekSteps(); // 전주의 걸음 수 데이터 가져오기
         }
     }, [userObject]);
-
-
-    // 차트 색상 배열
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CFE'];
 
     return (
         <Box sx={{ display: 'flex' }}>

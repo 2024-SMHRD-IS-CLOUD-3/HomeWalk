@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import {
   Drawer as MuiDrawer,
   List,
@@ -25,7 +25,6 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 const drawerWidth = 240;
 
 export default function DrawerComponent({ open, toggleDrawer }) {
-  const theme = useTheme();
   const location = useLocation();
 
   const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -128,4 +127,3 @@ export default function DrawerComponent({ open, toggleDrawer }) {
     </Drawer>
   );
 }
-

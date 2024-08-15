@@ -22,10 +22,8 @@ export default function TopMetrics() {
       return;
     }
 
-    // 1. 가족 구성원 정보 가져오기
     getFamilyData(userObject.userId)
       .then(familyData => {
-        // 2. 각 구성원의 오늘과 어제 걸음 수 데이터 가져오기
         return Promise.all(familyData.memberDetails.map(member =>
           getStepsComparisonData(member.userId).then(stepsData => {
             const todaySteps = stepsData.todaySteps ? stepsData.todaySteps.stepsCount : 0;
@@ -36,7 +34,8 @@ export default function TopMetrics() {
               ...member,
               steps: todaySteps,
               trend: trend.toFixed(2),
-              color: getColorBasedOnSteps(todaySteps), // 걸음 수에 따른 색상 결정
+              color: getColorBasedOnSteps(todaySteps),
+              avatarError: false, // 이미지 로드 에러 상태 추가
             };
           })
         ));
@@ -49,17 +48,26 @@ export default function TopMetrics() {
       });
   }, [userObject]);
 
+  const handleAvatarError = (index) => {
+    setMetricsData(prevMetricsData => {
+      const newMetricsData = [...prevMetricsData];
+      newMetricsData[index].avatarError = true; // 이미지 로드 에러 상태 업데이트
+      return newMetricsData;
+    });
+  };
+
   return (
-    <Grid container spacing={3} sx={{ ml: 2 }}> {/* 왼쪽 마진 추가 */}
+    <Grid container spacing={3} sx={{ ml: 2 }}>
       {metricsData.map((metric, index) => (
         <Grid item xs={12} sm={6} md={3} key={index}>
           <Card sx={{ bgcolor: `${metric.color}.light`, color: `${metric.color}.contrastText` }}>
             <CardHeader
               avatar={
-                metric.avatarCustomization ? (
+                !metric.avatarError && metric.avatarCustomization ? (
                   <img
                     src={metric.avatarCustomization}
                     alt="User Avatar"
+                    onError={() => handleAvatarError(index)} // 이미지 로드 에러 발생 시 처리
                     style={{ width: 40, height: 40, borderRadius: '50%' }}
                   />
                 ) : (
@@ -73,7 +81,7 @@ export default function TopMetrics() {
             />
             <CardContent>
               <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                {metric.steps.toLocaleString()} {/* 오늘의 걸음 수 */}
+                {metric.steps.toLocaleString()}
               </Typography>
               <Typography variant="subtitle1">걸음</Typography>
               <LinearProgress variant="determinate" value={(metric.steps / 10000) * 100} sx={{ my: 1, height: 10, borderRadius: 5 }} />
@@ -90,7 +98,7 @@ export default function TopMetrics() {
                   </>
                 ) : (
                   <>
-                    어제와 동일한 걸음 수 {/* 트렌드가 0인 경우 */}
+                    어제와 동일한 걸음 수
                   </>
                 )}
               </Typography>
@@ -102,7 +110,6 @@ export default function TopMetrics() {
   );
 }
 
-// 걸음 수에 따른 색상 결정 함수
 function getColorBasedOnSteps(steps) {
   if (steps < 2000) return 'error';
   if (steps < 4000) return 'warning';

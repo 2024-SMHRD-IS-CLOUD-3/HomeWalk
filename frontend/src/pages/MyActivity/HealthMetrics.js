@@ -93,7 +93,7 @@ const HealthMetrics = ({ userId }) => {
                             justifyContent: 'center'
                         }}
                     >
-                        {date.getDate()} // 날짜 표시
+                        {date.getDate()} {/* 날짜 표시 */}
                     </Box>
                 ) : (
                     date.getDate() // 걸음수가 없는 날은 기본 날짜 표시

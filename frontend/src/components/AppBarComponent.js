@@ -80,6 +80,7 @@ export default function AppBarComponent({ open, toggleDrawer }) {
     const [unreadCount, setUnreadCount] = useState(0);
     const [notifications, setNotifications] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [avatarError, setAvatarError] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -87,7 +88,6 @@ export default function AppBarComponent({ open, toggleDrawer }) {
             if (userObject?.userId) {
                 try {
                     const notifications = await getUnreadNotifications(userObject.userId);
-
                     setNotifications(notifications);
                     setUnreadCount(notifications.length);
                 } catch (error) {
@@ -113,7 +113,7 @@ export default function AppBarComponent({ open, toggleDrawer }) {
 
     const handleNotificationClick = (event) => {
         if (unreadCount > 0) {
-            setAnchorEl(event.currentTarget); // 알림 목록을 여는 상태 설정
+            setAnchorEl(event.currentTarget);
         }
     };
 
@@ -134,6 +134,10 @@ export default function AppBarComponent({ open, toggleDrawer }) {
         } finally {
             handleNotificationClose();
         }
+    };
+
+    const handleAvatarError = () => {
+        setAvatarError(true);
     };
 
     return (
@@ -180,10 +184,11 @@ export default function AppBarComponent({ open, toggleDrawer }) {
                     ))}
                 </Menu>
                 <IconButton color="inherit" onClick={handleProfileClick}>
-                    {userObject?.avatarCustomization ? (
+                    {!avatarError && userObject?.avatarCustomization ? (
                         <img
-                            src={userObject.avatarCustomization} // 로컬 URL 사용
+                            src={userObject.avatarCustomization}
                             alt="User Avatar"
+                            onError={handleAvatarError} // 이미지 로드 실패 시 처리
                             style={{ width: 30, height: 30, borderRadius: '50%' }}
                         />
                     ) : (
