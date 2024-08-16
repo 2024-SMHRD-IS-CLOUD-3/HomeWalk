@@ -25,7 +25,10 @@ public class VideoUploadController {
     private static final String UPLOAD_DIR = "uploads/";
 
     @PostMapping("/upload")
-    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> handleFileUpload(
+            @RequestParam("file") MultipartFile file, 
+            @RequestParam("userid") Long userId) {  // 사용자 이름도 함께 받음
+
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty");
         }
@@ -37,10 +40,11 @@ public class VideoUploadController {
             Files.createDirectories(filePath.getParent());
             Files.write(filePath, file.getBytes());
 
-            // Flask 서버로 파일 전송
+            // Flask 서버로 파일과 사용자 이름 전송
             RestTemplate restTemplate = new RestTemplate();
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("file", file.getResource());
+            body.add("userid", userId);  // 사용자 이름 추가
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
