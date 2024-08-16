@@ -22,7 +22,7 @@ function Copyright(props) {
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright © '}
             <Link color="inherit" href="https://mui.com/">
-                Your Website
+                Five Stars
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
@@ -112,11 +112,11 @@ export default function SignIn() {
                     alignItems: 'center',
                 }}
             >
-                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
                     <LockOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign in
+                    HomeWalk
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextField
@@ -124,7 +124,7 @@ export default function SignIn() {
                         required
                         fullWidth
                         id="username"
-                        label="Username"
+                        label="아이디"
                         name="username"
                         autoComplete="username"
                         autoFocus
@@ -134,14 +134,14 @@ export default function SignIn() {
                         required
                         fullWidth
                         name="password"
-                        label="Password"
+                        label="비밀번호"
                         type="password"
                         id="password"
                         autoComplete="current-password"
                     />
                     <FormControlLabel
                         control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} color="primary" />}
-                        label="Remember me"
+                        label="아이디 저장"
                     />
                     {errorMessage && <Typography color="error">{errorMessage}</Typography>}
                     <Button
@@ -150,7 +150,7 @@ export default function SignIn() {
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
                     >
-                        Sign In
+                        로그인
                     </Button>
                     {/* 카카오 로그인 버튼 */}
                     <Button
@@ -176,12 +176,12 @@ export default function SignIn() {
                     <Grid container>
                         <Grid item xs>
                             <Link component={RouterLink} to="/resetpassword" variant="body2">
-                                Forgot password?
+                                비밀번호를 잊으셨나요?
                             </Link>
                         </Grid>
                         <Grid item>
                             <Link component={RouterLink} to="/signup" variant="body2">
-                                {"Don't have an account? Sign Up"}
+                                {"계정이 없으신가요? 회원가입"}
                             </Link>
                         </Grid>
                     </Grid>

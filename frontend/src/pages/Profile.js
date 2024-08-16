@@ -5,6 +5,7 @@ import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import { fetchUserProfile, updateUserProfile, uploadProfileImage, getDeactivationReasons, deactivateUser } from '../api/profile';
 import { useAuth } from '../context/AuthContext';
+import Copyright from '../components/Copyright';
 
 const Profile = () => {
   const { setAvatarCustomization, logout } = useAuth(); 
@@ -131,10 +132,6 @@ const Profile = () => {
       <Box
         component="main"
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === 'light'
-              ? theme.palette.grey[100]
-              : theme.palette.grey[900],
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
@@ -174,7 +171,7 @@ const Profile = () => {
                   required
                   fullWidth
                   id="username"
-                  label="Username"
+                  label="아이디"
                   name="username"
                   autoComplete="username"
                   value={username}
@@ -187,7 +184,7 @@ const Profile = () => {
                   required
                   fullWidth
                   name="password"
-                  label="Password"
+                  label="비밀번호"
                   type="password"
                   id="password"
                   autoComplete="current-password"
@@ -200,7 +197,7 @@ const Profile = () => {
                   required
                   fullWidth
                   id="email"
-                  label="Email Address"
+                  label="이메일 주소"
                   name="email"
                   autoComplete="email"
                   value={email}
@@ -220,6 +217,21 @@ const Profile = () => {
               </Paper>
             </Grid>
           </Grid>
+          <Box
+  component="footer"
+  sx={{
+    py: 3,
+    px: 2,
+    position: 'fixed',
+    bottom: 0,
+    width: '60%',
+    display: 'flex',
+    justifyContent: 'center', // 수평 중앙 정렬
+    alignItems: 'center', // 수직 중앙 정렬
+  }}
+>
+  <Copyright />
+</Box>
         </Container>
       </Box>
 

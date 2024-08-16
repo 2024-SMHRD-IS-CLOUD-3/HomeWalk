@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { 
   Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper,
-  TextField, Button, IconButton
+  TextField, Button
 } from '@mui/material';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { createPost } from '../api/community';  // API 모듈 가져오기
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
+import { useAuth } from '../context/AuthContext';
 
 const Input = styled('input')({
   display: 'none',
@@ -17,22 +19,40 @@ const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const navigate = useNavigate();
+  const { userObject } = useAuth();  // Get the userObject from AuthContext
+
+  const userId = userObject?.userId;  // Directly get the userId from userObject
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  const handleImageUpload = (event) => {
+  const handleImageSelect = (event) => {
     if (event.target.files && event.target.files[0]) {
       setImage(URL.createObjectURL(event.target.files[0]));
+      setImageFile(event.target.files[0]);
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // 여기에 글 작성 제출 로직을 구현합니다.
-    console.log({ title, content, image });
-    // 실제로는 이 데이터를 서버로 보내야 합니다.
+    
+    if (!userId) {
+      console.error("User ID is not set");
+      return;
+    }
+  
+    try {
+      const postData = await createPost(userId, title, content, imageFile);
+      console.log('게시글이 성공적으로 등록되었습니다:', postData);
+  
+      // 게시글 작성 후 게시판 페이지로 이동
+      navigate('/community');
+    } catch (error) {
+      console.error('게시글 등록 중 오류가 발생했습니다:', error);
+    }
   };
 
   return (
@@ -70,6 +90,24 @@ const CreatePost = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
+                  <label htmlFor="icon-button-file">
+                    <Input 
+                      accept="image/*" 
+                      id="icon-button-file" 
+                      type="file"
+                      onChange={handleImageSelect} 
+                    />
+                    <Button variant="outlined" color="primary" component="span">
+                      이미지 선택
+                    </Button>
+                  </label>
+                  {image && (
+                    <Box mt={2}>
+                      <img src={image} alt="Uploaded" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+                    </Box>
+                  )}
+                </Grid>
+                <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="내용"
@@ -79,24 +117,6 @@ const CreatePost = () => {
                     onChange={(e) => setContent(e.target.value)}
                     required
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  <label htmlFor="icon-button-file">
-                    <Input 
-                      accept="image/*" 
-                      id="icon-button-file" 
-                      type="file"
-                      onChange={handleImageUpload} 
-                    />
-                    <IconButton color="primary" aria-label="upload picture" component="span">
-                      <PhotoCamera />
-                    </IconButton>
-                  </label>
-                  {image && (
-                    <Box mt={2}>
-                      <img src={image} alt="Uploaded" style={{ maxWidth: '100%', maxHeight: '300px' }} />
-                    </Box>
-                  )}
                 </Grid>
                 <Grid item xs={12}>
                   <Button variant="contained" color="primary" type="submit">

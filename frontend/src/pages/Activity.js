@@ -10,17 +10,20 @@ import MonthlyStepsCard from './MyActivity/MonthlyStepsCard';
 import StepsComparisonChart from './MyActivity/StepsComparisonChart';
 import StepsTimelineChart from './MyActivity/StepsTimelineChart';
 import HealthMetrics from './MyActivity/HealthMetrics';
-
-import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+import Copyright from '../components/Copyright';
 
 const Activity = () => {
     const { userObject } = useAuth(); 
-    const { open, toggleDrawer } = useDrawer();
+    const [open, setOpen] = useState(true); // false -> true값으로 변경
     const [dailySteps, setDailySteps] = useState(0); // 일일 걸음 수 상태
     const [currentMonthlyTotal, setCurrentMonthlyTotal] = useState(0); // 월간 총 걸음 수 상태
     const [currentWeekData, setCurrentWeekData] = useState([]); // 주간 걸음 수 데이터 상태
     const [todayStepsData, setTodayStepsData] = useState([]); // 시간대별 오늘의 걸음 수 데이터 상태
     const [previousWeekData, setPreviousWeekData] = useState([]); // 전주의 걸음 수 데이터 상태
+
+    const toggleDrawer = () => {
+        setOpen(!open); 
+    };
 
     // 사용자 걸음 수 데이터를 가져오는 useEffect 훅
     useEffect(() => {
@@ -122,6 +125,7 @@ const Activity = () => {
                     <StepsTimelineChart todayStepsData={todayStepsData} /> {/* 시간대별 걸음 수 타임라인 차트 */}
                 </Box>
                 {userObject && <HealthMetrics userId={userObject.userId} />} {/* 건강 지표 컴포넌트 */}
+                <Copyright sx={{ pt: 4 }} />
             </Box>
         </Box>
     );

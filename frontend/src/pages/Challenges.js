@@ -7,22 +7,20 @@ import {
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import { Add, Delete } from '@mui/icons-material';
-
-import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+import Copyright from '../components/Copyright';
 
 const Challenges = () => {
-  const { open, toggleDrawer } = useDrawer();
-  const [challengeOpen, challengeSetOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedChallenge, setSelectedChallenge] = useState(null);
-  const [newChallenge, setNewChallenge] = useState({ 
-    name: '', 
-    content: '', 
-    startDate: '', 
-    endDate: '', 
+  const [newChallenge, setNewChallenge] = useState({
+    name: '',
+    content: '',
+    startDate: '',
+    endDate: '',
     invitedUsers: []
   });
-  
+  const [drawerOpen, setDrawerOpen] = useState(true);
 
   // 현재 진행 중인 챌린지
   const [currentChallenges, setCurrentChallenges] = useState([
@@ -54,9 +52,13 @@ const Challenges = () => {
     { name: '박지성' }
   ];
 
-  const handleOpen = () => challengeSetOpen(true);
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
+  const handleOpen = () => setOpen(true);
   const handleClose = () => {
-    challengeSetOpen(false);
+    setOpen(false);
     setNewChallenge({ name: '', content: '', startDate: '', endDate: '', invitedUsers: [] });
   };
 
@@ -86,7 +88,7 @@ const Challenges = () => {
       startDate: challenge.startDate,
       endDate: challenge.endDate
     }]);
-    
+
     // 참여 가능한 챌린지 목록에서 제거
     const updatedOtherChallenges = otherChallenges.filter(c => c.id !== challenge.id);
     setOtherChallenges(updatedOtherChallenges);
@@ -106,8 +108,8 @@ const Challenges = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBarComponent open={open} toggleDrawer={toggleDrawer} />
-      <DrawerComponent open={open} toggleDrawer={toggleDrawer} />
+      <AppBarComponent open={drawerOpen} toggleDrawer={toggleDrawer} />
+      <DrawerComponent open={drawerOpen} toggleDrawer={toggleDrawer} />
       <Box
         component="main"
         sx={{
@@ -138,9 +140,9 @@ const Challenges = () => {
                 <Typography variant="h6" gutterBottom>현재 진행 중인 챌린지</Typography>
                 <List>
                   {currentChallenges.map((challenge, index) => (
-                    <ListItem 
-                      key={index} 
-                      button 
+                    <ListItem
+                      key={index}
+                      button
                       onClick={() => openChallengeDetail(challenge)}
                     >
                       <Checkbox
@@ -150,8 +152,8 @@ const Challenges = () => {
                           completeChallenge(index);
                         }}
                       />
-                      <ListItemText 
-                        primary={challenge.name} 
+                      <ListItemText
+                        primary={challenge.name}
                         secondary={`${challenge.startDate} ~ ${challenge.endDate}`}
                       />
                       <ListItemSecondaryAction>
@@ -224,9 +226,9 @@ const Challenges = () => {
                           <TableCell>{challenge.creator}</TableCell>
                           <TableCell>{challenge.participants}</TableCell>
                           <TableCell>
-                            <Button 
-                              variant="contained" 
-                              color="primary" 
+                            <Button
+                              variant="contained"
+                              color="primary"
                               onClick={() => joinChallenge(challenge)}
                             >
                               참여하기
@@ -244,7 +246,7 @@ const Challenges = () => {
 
         {/* 새로운 챌린지 생성 모달 */}
         <Modal
-          open={challengeOpen}
+          open={open}
           onClose={handleClose}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
@@ -380,8 +382,24 @@ const Challenges = () => {
             )}
           </Box>
         </Modal>
+        <Box
+          component="footer"
+          sx={{
+            py: 3,
+            px: 2,
+            position: 'fixed',
+            bottom: 0,
+            width: '85%',
+            display: 'flex',
+            justifyContent: 'center', // 수평 중앙 정렬
+            alignItems: 'center', // 수직 중앙 정렬
+          }}
+        >
+          <Copyright />
+        </Box>
       </Box>
     </Box>
+
   );
 };
 

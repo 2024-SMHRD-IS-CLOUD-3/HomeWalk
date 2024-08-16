@@ -11,7 +11,6 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { checkUsername, checkEmail, registerUser } from '../api/api';
 
@@ -20,7 +19,7 @@ function Copyright(props) {
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright © '}
             <Link color="inherit" href="https://mui.com/">
-                Your Website
+                Five Stars
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
@@ -28,7 +27,7 @@ function Copyright(props) {
     );
 }
 
-const defaultTheme = createTheme();
+
 
 export default function SignUp() {
     const [agree, setAgree] = React.useState(false);
@@ -75,7 +74,7 @@ export default function SignUp() {
     };
 
     return (
-        <ThemeProvider theme={defaultTheme}>
+        
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <Box
@@ -86,11 +85,11 @@ export default function SignUp() {
                         alignItems: 'center',
                     }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                    <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign up
+                        HomeWalk
                     </Typography>
                     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
                         <Grid container spacing={2}>
@@ -101,7 +100,7 @@ export default function SignUp() {
                                     required
                                     fullWidth
                                     id="username"
-                                    label="User Name"
+                                    label="아이디"
                                     autoFocus
                                     error={!!usernameError}
                                     helperText={usernameError}
@@ -112,7 +111,7 @@ export default function SignUp() {
                                     required
                                     fullWidth
                                     name="password"
-                                    label="Password"
+                                    label="비밀번호"
                                     type="password"
                                     id="password"
                                     autoComplete="new-password"
@@ -123,7 +122,7 @@ export default function SignUp() {
                                     required
                                     fullWidth
                                     id="email"
-                                    label="Email Address"
+                                    label="이메일 주소"
                                     name="email"
                                     autoComplete="email"
                                     error={!!emailError}
@@ -133,7 +132,7 @@ export default function SignUp() {
                             <Grid item xs={12}>
                                 <FormControlLabel
                                     control={<Checkbox value="agree" color="primary" checked={agree} onChange={(e) => setAgree(e.target.checked)} />}
-                                    label="I agree to the terms and conditions."
+                                    label="이용약관에 동의합니다."
                                 />
                             </Grid>
                         </Grid>
@@ -143,12 +142,12 @@ export default function SignUp() {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Sign Up
+                            회원가입
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
                                 <Link component={RouterLink} to="/" variant="body2">
-                                    Already have an account? Sign in
+                                    이미 계정이 있으신가요? 로그인
                                 </Link>
                             </Grid>
                         </Grid>
@@ -156,6 +155,6 @@ export default function SignUp() {
                 </Box>
                 <Copyright sx={{ mt: 5 }} />
             </Container>
-        </ThemeProvider>
+       
     );
 }

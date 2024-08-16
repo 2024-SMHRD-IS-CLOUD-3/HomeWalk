@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Avatar, Button, CssBaseline, TextField, Box, Typography, Container } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { sendResetPasswordEmail } from '../api/auth'; // 이메일 전송 API 함수
-
-const defaultTheme = createTheme();
+import Copyright from '../components/Copyright';
 
 export default function ResetPassword() {
     const [email, setEmail] = useState('');
@@ -18,9 +16,9 @@ export default function ResetPassword() {
             // 이메일을 서버로 전송하여 비밀번호 재설정 링크 요청
             const response = await sendResetPasswordEmail(email);
             if (response.success) {
-                setMessage('Password reset email sent. Please check your inbox.');
+                setMessage('암호 재설정 메일을 보냈습니다. 메일을 확인하세요.');
             } else {
-                setError('Failed to send password reset email.');
+                setError('암호 재설정 메일을 보내지 못했습니다.');
             }
         } catch (error) {
             setError('Failed to send password reset email.');
@@ -28,49 +26,64 @@ export default function ResetPassword() {
     };
 
     return (
-        <ThemeProvider theme={defaultTheme}>
-            <Container component="main" maxWidth="xs">
-                <CssBaseline />
-                <Box
-                    sx={{
-                        marginTop: 8,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
-                        Reset Password
-                    </Typography>
-                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="email"
-                            label="Email Address"
-                            name="email"
-                            autoComplete="email"
-                            autoFocus
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        {message && <Typography color="primary">{message}</Typography>}
-                        {error && <Typography color="error">{error}</Typography>}
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
-                        >
-                            Send Reset Link
-                        </Button>
-                    </Box>
+
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+                    <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                    비밀번호 수정
+                </Typography>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="email"
+                        label="이메일 주소"
+                        name="email"
+                        autoComplete="email"
+                        autoFocus
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    {message && <Typography color="primary">{message}</Typography>}
+                    {error && <Typography color="error">{error}</Typography>}
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        sx={{ mt: 3, mb: 2 }}
+                    >
+                        수정 링크 보내기
+                    </Button>
                 </Box>
-            </Container>
-        </ThemeProvider>
+            </Box>
+            <Box
+                component="footer"
+                sx={{
+                    py: 3,
+                    px: 2,
+                    position: 'fixed',
+                    bottom: 0,
+                    width: '20%',
+                    display: 'flex',
+                    justifyContent: 'center', // 수평 중앙 정렬
+                    alignItems: 'center', // 수직 중앙 정렬
+                }}
+            >
+                <Copyright />
+            </Box>
+        </Container>
+
     );
 }

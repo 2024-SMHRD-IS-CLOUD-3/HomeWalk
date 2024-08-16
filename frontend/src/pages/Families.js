@@ -6,12 +6,15 @@ import FamilyList from './Family/FamilyList';
 import FamilyCreate from './Family/FamilyCreate';
 import FamilyRequests from './Family/FamilyRequests';
 import MyFamily from './Family/MyFamily'; // MyFamily 컴포넌트 추가
-
-import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+import Copyright from '../components/Copyright';
 
 const Families = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const { open, toggleDrawer } = useDrawer();
+  const [open, setOpen] = useState(true);
+
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -40,10 +43,6 @@ const Families = () => {
       <Box
         component="main"
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === 'light'
-              ? theme.palette.grey[100]
-              : theme.palette.grey[900],
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
@@ -61,6 +60,21 @@ const Families = () => {
             {renderTab()}
           </Box>
         </Container>
+        <Box
+  component="footer"
+  sx={{
+    py: 3,
+    px: 2,
+    position: 'fixed',
+    bottom: 0,
+    width: '85%',
+    display: 'flex',
+    justifyContent: 'center', // 수평 중앙 정렬
+    alignItems: 'center', // 수직 중앙 정렬
+  }}
+>
+  <Copyright />
+</Box>
       </Box>
     </Box>
   );

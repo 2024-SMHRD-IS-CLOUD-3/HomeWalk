@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import {
   Drawer as MuiDrawer,
   List,
-  Divider,
+  //Divider,
   IconButton,
   ListItemButton,
   ListItemIcon,
@@ -33,12 +33,14 @@ export default function DrawerComponent({ open, toggleDrawer }) {
         position: 'relative',
         whiteSpace: 'nowrap',
         width: drawerWidth,
+        height: '100vh',
         transition: theme.transitions.create('width', {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen,
         }),
         boxSizing: 'border-box',
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: '#F0F0F0', // 밝은 회색 배경색 추가
+        color: theme.palette.text.primary, // 텍스트 색상을 기본 색상으로 설정
         ...(!open && {
           overflowX: 'hidden',
           transition: theme.transitions.create('width', {
@@ -60,8 +62,8 @@ export default function DrawerComponent({ open, toggleDrawer }) {
     justifyContent: 'space-between',
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
+    backgroundColor: '#F0F0F0', // 밝은 회색 배경색 추가
+    color: theme.palette.text.primary, // 텍스트 색상을 기본 색상으로 설정
   }));
 
   const StyledListItemButton = styled(ListItemButton)(({ theme, active }) => ({
@@ -99,8 +101,8 @@ export default function DrawerComponent({ open, toggleDrawer }) {
           {open ? <ChevronRightIcon /> : <MenuIcon />}
         </IconButton>
       </DrawerHeader>
-      <Divider />
-      <List component="nav" sx={{ pt: 2 }}>
+      {/* <Divider /> 이 줄을 제거합니다 */}
+      <List component="nav" sx={{ /* pt: 2 를 제거합니다 */ }}>
         {menuItems.map((item) => (
           <StyledListItemButton
             key={item.text}

@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Avatar, Button, CssBaseline, TextField, Box, Typography, Container } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, useLocation } from 'react-router-dom'; // useNavigate와 useLocation 추가
 import { resetPassword } from '../api/auth'; // 비밀번호 재설정 API 함수
+import Copyright from '../components/Copyright';
 
-const defaultTheme = createTheme();
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate(); // useNavigate 사용
@@ -40,7 +39,6 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <ThemeProvider theme={defaultTheme}>
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <Box
@@ -51,11 +49,11 @@ export default function ResetPasswordPage() {
                         alignItems: 'center',
                     }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                    <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Set New Password
+                        비밀번호 설정
                     </Typography>
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                         <TextField
@@ -63,7 +61,7 @@ export default function ResetPasswordPage() {
                             required
                             fullWidth
                             name="newPassword"
-                            label="New Password"
+                            label="새로운 비밀번호"
                             type="password"
                             id="newPassword"
                             value={newPassword}
@@ -74,7 +72,7 @@ export default function ResetPasswordPage() {
                             required
                             fullWidth
                             name="confirmPassword"
-                            label="Confirm Password"
+                            label="비밀번호 확인"
                             type="password"
                             id="confirmPassword"
                             value={confirmPassword}
@@ -88,11 +86,25 @@ export default function ResetPasswordPage() {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Reset Password
+                            비밀번호 수정
                         </Button>
                     </Box>
                 </Box>
+                <Box
+                 component="footer"
+                 sx={{
+                 py: 3,
+                 px: 2,
+                 position: 'fixed',
+                 bottom: 0,
+                 width: '20%',
+                 display: 'flex',
+                 justifyContent: 'center', // 수평 중앙 정렬
+                 alignItems: 'center', // 수직 중앙 정렬
+               }}
+                >
+                <Copyright />
+               </Box>
             </Container>
-        </ThemeProvider>
     );
 }
