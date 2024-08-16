@@ -16,3 +16,13 @@ export const saveGoals = async (userId, goalType, goalValue) => {
         throw error;
     }
 };
+
+export const fetchGoals = async (userId) => {
+    try {
+      const response = await axios.get(`${API_URL}/goals/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching goals:', error);
+      throw error;
+    }
+  };

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +26,26 @@ public class GoalsController {
         return ResponseEntity.ok(weeklyGoals);
     }
     
+    // 특정 사용자의 주간 및 월간 목표를 가져오는 API
+    @GetMapping("/{userId}")
+    public ResponseEntity<Map<String, Integer>> getGoalsForUser(@PathVariable Long userId) {
+        Goals weeklyGoalEntity = goalsService.getWeeklyGoal(userId);
+        Goals monthlyGoalEntity = goalsService.getMonthlyGoal(userId);
+
+        int weeklyGoal = (weeklyGoalEntity != null) ? weeklyGoalEntity.getGoalValue() : 0;
+        int monthlyGoal = (monthlyGoalEntity != null) ? monthlyGoalEntity.getGoalValue() : 0;
+
+        Map<String, Integer> response = new HashMap<>();
+        response.put("weekly", weeklyGoal);
+        response.put("monthly", monthlyGoal);
+
+        return ResponseEntity.ok(response);
+    }
+    
     // 주간 목표 저장 API
     @PostMapping("/save/weekly")
     public ResponseEntity<String> saveWeeklyGoal(@RequestBody GoalsDTO goalsDTO) {
         try {
-           System.out.println("goalsDTO" + goalsDTO);
             Goals savedGoal = goalsService.saveWeeklyGoal(goalsDTO.getUserId(), goalsDTO.getGoalValue());
             return ResponseEntity.ok("Weekly goal saved successfully: " + savedGoal.getGoalId());
         } catch (Exception e) {
