@@ -18,3 +18,30 @@
   font-weight: 700;
   font-style: normal;
 }
+
+@font-face {
+  font-family: 'GoormSansBold';
+  src: url('./fonts/goorm-sans-bold.woff2') format('woff2'),
+       url('./fonts/goorm-sans-bold.woff') format('woff'),
+       url('./fonts/goorm-sans-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GoormSansMedium';
+  src: url('./fonts/goorm-sans-medium.woff2') format('woff2'),
+       url('./fonts/goorm-sans-medium.woff') format('woff'),
+       url('./fonts/goorm-sans-medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GoormSansRegular';
+  src: url('./fonts/goorm-sans-regular.woff2') format('woff2'),
+       url('./fonts/goorm-sans-regular.woff') format('woff'),
+       url('./fonts/goorm-sans-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}

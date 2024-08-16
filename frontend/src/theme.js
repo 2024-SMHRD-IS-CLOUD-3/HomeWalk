@@ -34,13 +34,13 @@ const theme = createTheme({
         },
     },
     typography: {
-        fontFamily: 'GmarketSans, sans-serif',
+        fontFamily: 'GoormSansMedium, sans-serif',
     },
     components: {
         MuiCssBaseline: {
             styleOverrides: `
         body {
-          font-family: 'GmarketSans', sans-serif;
+          font-family: 'GoormSansMedium', sans-serif;
         }
       `,
         },
