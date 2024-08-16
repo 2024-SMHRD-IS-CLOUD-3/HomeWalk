@@ -100,7 +100,7 @@ const Activity = () => {
     }, [userObject]);
 
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
             <AppBarComponent open={open} toggleDrawer={toggleDrawer} /> 
             <DrawerComponent open={open} toggleDrawer={toggleDrawer} />
             <Box
@@ -108,6 +108,7 @@ const Activity = () => {
                 sx={{
                     flexGrow: 1,
                     p: 3,
+                    overflowY: 'auto',
                     width: { sm: `calc(100% - ${240}px)` },
                 }}
             >
