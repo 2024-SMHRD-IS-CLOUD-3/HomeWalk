@@ -12,6 +12,8 @@ import Challenges from './pages/Challenges';
 import Activity from './pages/Activity';
 import Goals from './pages/Goals';
 import Posture from './pages/Posture';
+import Community from './pages/Community';
+import CreatePost from './pages/CreatePost';
 import { FamilyProvider } from './context/FamilyContext';
 import KakaoCallback from './components/KakaoCallback';
 import './fonts.css';
@@ -38,6 +40,8 @@ function App() {
               <Route path="/families" element={<Families />} />
               <Route path="/posture" element={<Posture />} />
               <Route path="/challenges" element={<Challenges />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/createpost" element={<CreatePost />} />
               <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
             </Routes>
           </FamilyProvider>
