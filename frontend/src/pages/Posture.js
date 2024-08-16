@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, CssBaseline, Toolbar, Container, Typography, Button, TextField, Grid, Paper } from '@mui/material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import { uploadVideo } from '../api/postureApi';
 
+import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+
 const Posture = () => {
-  const [open, setOpen] = useState(true);
+  const { open, toggleDrawer } = useDrawer();
   const [selectedFile, setSelectedFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
-
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
+  const videoRef = useRef(null);
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -30,6 +29,13 @@ const Posture = () => {
       alert('Failed to upload the video. Please try again.');
     }
   };
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load(); // 새로운 영상 로드
+      videoRef.current.play(); // 자동 재생
+    }
+  }, [videoUrl]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -82,7 +88,12 @@ const Posture = () => {
                   Uploaded Video
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <video controls autoPlay style={{ maxWidth: '100%', height: 'auto' }}>
+                  <video
+                    ref={videoRef} // ref 추가
+                    controls
+                    autoPlay
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                  >
                     <source src={videoUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Container, Typography, Box, CssBaseline, Toolbar, Grid, Paper,
+  Container, Typography, Box, CssBaseline, Toolbar, Grid,
   Card, CardMedia, CardContent, CardActions, IconButton, Avatar,
   TextField, Button, Collapse
 } from '@mui/material';
@@ -13,16 +13,15 @@ import { useNavigate } from 'react-router-dom';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 
+import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+
 const Community = () => {
-  const [open, setOpen] = useState(true);
+  const { open, toggleDrawer } = useDrawer();
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [expandedComments, setExpandedComments] = useState({});
   const navigate = useNavigate();
 
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   // 더미 데이터 생성 함수
   const generateDummyPosts = (start, end) => {

@@ -7,13 +7,11 @@ import FamilyCreate from './Family/FamilyCreate';
 import FamilyRequests from './Family/FamilyRequests';
 import MyFamily from './Family/MyFamily'; // MyFamily 컴포넌트 추가
 
+import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+
 const Families = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const [open, setOpen] = useState(true);
-
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
+  const { open, toggleDrawer } = useDrawer();
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);

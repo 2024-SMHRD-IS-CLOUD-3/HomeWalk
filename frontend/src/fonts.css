@@ -1,20 +1,20 @@
 @font-face {
-    font-family: 'GmarketSans';
-    src: url('./fonts/GmarketSansTTFLight.ttf') format('truetype');
-    font-weight: 300;
-    font-style: normal;
-  }
-  
-  @font-face {
-    font-family: 'GmarketSans';
-    src: url('./fonts/GmarketSansTTFMedium.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-  }
-  
-  @font-face {
-    font-family: 'GmarketSans';
-    src: url('./fonts/GmarketSansTTFBold.ttf') format('truetype');
-    font-weight: 700;
-    font-style: normal;
-  }
+  font-family: 'GmarketSans';
+  src: url('./fonts/GmarketSansTTFLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GmarketSans';
+  src: url('./fonts/GmarketSansTTFMedium.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GmarketSans';
+  src: url('./fonts/GmarketSansTTFBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}

@@ -5,9 +5,11 @@ import DrawerComponent from '../components/DrawerComponent';
 import { saveGoals } from '../api/goals';
 import { useAuth } from '../context/AuthContext';
 
+import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+
 const Goals = () => {
   const { userObject } = useAuth();
-  const [open, setOpen] = useState(true);
+  const { open, toggleDrawer } = useDrawer();
   const [activeTab, setActiveTab] = useState(0);
   const [weeklyGoal, setWeeklyGoal] = useState(0);
   const [monthlyGoal, setMonthlyGoal] = useState(0);
@@ -38,7 +40,6 @@ const Goals = () => {
     }
   };
 
-  const toggleDrawer = () => setOpen(!open);
   const handleTabChange = (_, newValue) => setActiveTab(newValue);
   const showSnackbar = (message) => {
     setSnackbarMessage(message);

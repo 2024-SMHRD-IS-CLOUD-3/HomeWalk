@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, TextField, Button } from '@mui/material';
+import { Box, Card, CardContent, Typography, TextField, Button, Slider, Grid } from '@mui/material';
 import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-import { LocalizationProvider, StaticDatePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import axios from 'axios';
 
 const HealthMetrics = ({ userId }) => {
@@ -13,8 +11,6 @@ const HealthMetrics = ({ userId }) => {
     const [weight, setWeight] = useState(storedWeight ? parseFloat(storedWeight) : 70);
     const [bmi, setBmi] = useState(0);
     const [weightRecords, setWeightRecords] = useState([]);
-    const [walkedDays, setWalkedDays] = useState([]);
-    const [selectedDate, setSelectedDate] = useState(new Date());
 
     useEffect(() => {
         // 체중 기록을 가져오는 비동기 함수
@@ -27,21 +23,7 @@ const HealthMetrics = ({ userId }) => {
                 setWeightRecords([{ date: 'N/A', weight: 0 }]);
             }
         };
-
-        // 걸은 날을 가져오는 비동기 함수
-        const fetchWalkedDays = async () => {
-            try {
-                const response = await axios.get(`/api/steps/walkedDays/${userId}`);
-                const days = response.data.map(entry => entry.date);
-                setWalkedDays(days);
-            } catch (error) {
-                console.error('Error fetching walked days:', error);
-                setWalkedDays([]);
-            }
-        };
-
         fetchWeightRecords();
-        fetchWalkedDays();
     }, [userId]);
 
     // BMI 계산 함수
@@ -75,31 +57,12 @@ const HealthMetrics = ({ userId }) => {
         return '비만';
     };
 
-    // 특정 날짜를 하이라이트하는 함수
-    const renderDay = (date, selectedDate, pickersDayProps) => {
-        const isWalkedDay = walkedDays.includes(date.toISOString().split('T')[0]); // 걸음수가 있는 날인지 확인
-        return (
-            <div {...pickersDayProps}>
-                {isWalkedDay ? (
-                    <Box
-                        sx={{
-                            backgroundColor: '#4caf50', // 배경색을 초록색으로 설정
-                            color: 'white', // 글자색을 흰색으로 설정
-                            borderRadius: '50%', // 동그랗게 만들기
-                            width: '36px',
-                            height: '36px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}
-                    >
-                        {date.getDate()} {/* 날짜 표시 */}
-                    </Box>
-                ) : (
-                    date.getDate() // 걸음수가 없는 날은 기본 날짜 표시
-                )}
-            </div>
-        );
+    // 추가 카테고리 컬러
+    const getBMICategoryColor = (bmiValue) => {
+        if (bmiValue < 18.5) return '#3498db';
+        if (bmiValue < 25) return '#2ecc71';
+        if (bmiValue < 30) return '#f39c12';
+        return '#e74c3c';
     };
 
     return (
@@ -107,11 +70,13 @@ const HealthMetrics = ({ userId }) => {
             <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
                 건강 지표
             </Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 2 }}>
-                <Card>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
+            <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
                     <CardContent>
-                        <Typography variant="h6" gutterBottom>BMI 계산기</Typography>
-                        <TextField
+                    <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
+                        BMI 계산기
+                    </Typography>
+                        {/* <TextField
                             label="키 (cm)"
                             type="number"
                             value={height}
@@ -124,51 +89,104 @@ const HealthMetrics = ({ userId }) => {
                             value={weight}
                             onChange={(e) => setWeight(e.target.value)}
                             sx={{ mb: 1, width: '100%' }}
-                        />
+                        /> */}
+                                            <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            <Typography gutterBottom>키 (cm)</Typography>
+                            <Slider
+                                value={height}
+                                onChange={(_, newValue) => setHeight(newValue)}
+                                aria-labelledby="height-slider"
+                                valueLabelDisplay="auto"
+                                step={1}
+                                min={100}
+                                max={250}
+                                sx={{ color: '#3498db' }}
+                            />
+                            <TextField
+                                value={height}
+                                onChange={(e) => setHeight(e.target.value)}
+                                type="number"
+                                size="small"
+                                sx={{ width: '100%', mt: 1 }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Typography gutterBottom>체중 (kg)</Typography>
+                            <Slider
+                                value={weight}
+                                onChange={(_, newValue) => setWeight(newValue)}
+                                aria-labelledby="weight-slider"
+                                valueLabelDisplay="auto"
+                                step={0.1}
+                                min={30}
+                                max={200}
+                                sx={{ color: '#2ecc71' }}
+                            />
+                            <TextField
+                                value={weight}
+                                onChange={(e) => setWeight(e.target.value)}
+                                type="number"
+                                size="small"
+                                sx={{ width: '100%', mt: 1 }}
+                            />
+                        </Grid>
+                    </Grid>
                         <Button
                             variant="contained"
                             onClick={calculateBMI}
-                            sx={{ mb: 1, width: '100%' }}
-                        >
+                            sx={{ mt: 3, width: '100%', bgcolor: '#34495e', '&:hover': { bgcolor: '#2c3e50' } }}
+                            >
                             BMI 계산
                         </Button>
                         {bmi > 0 && (
-                            <Typography>
-                                BMI: {bmi} ({getBMICategory(bmi)})
+                            // <Typography>
+                            //     BMI: {bmi} ({getBMICategory(bmi)})
+                            // </Typography>
+                            <Box sx={{ mt: 3, textAlign: 'center' }}>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', color: getBMICategoryColor(bmi) }}>
+                                BMI: {bmi}
                             </Typography>
+                            <Typography variant="h6" sx={{ color: getBMICategoryColor(bmi) }}>
+                                ({getBMICategory(bmi)})
+                            </Typography>
+                        </Box>
                         )}
                     </CardContent>
                 </Card>
                 <Card>
                     <CardContent>
-                        <Typography variant="h6" gutterBottom>체중 변화</Typography>
-                        <Box sx={{ height: 300 }}>
+                    <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
+                        체중 변화
+                    </Typography>
+                        <Box sx={{ height: 300, mt: 2 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={weightRecords}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="date" />
-                                    <YAxis domain={['dataMin - 1', 'dataMax + 1']} />
-                                    <Tooltip />
-                                    <Line type="monotone" dataKey="weight" stroke="#8884d8" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#ecf0f1"/>
+                                    <XAxis
+                                    dataKey="date"
+                                    stroke="#34495e"
+                                    tick={{ fill: '#34495e' }}
+                                />
+                                <YAxis
+                                    domain={['dataMin - 1', 'dataMax + 1']}
+                                    stroke="#34495e"
+                                    tick={{ fill: '#34495e' }}
+                                />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#34495e', color: '#ecf0f1' }}
+                                    itemStyle={{ color: '#ecf0f1' }}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="weight"
+                                    stroke="#3498db"
+                                    strokeWidth={2}
+                                    dot={{ fill: '#2980b9', stroke: '#3498db', strokeWidth: 2, r: 4 }}
+                                    activeDot={{ r: 8 }}
+                                />
                                 </LineChart>
                             </ResponsiveContainer>
-                        </Box>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom>걸은 날 캘린더</Typography>
-                        <Box sx={{ height: 300 }}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <StaticDatePicker
-                                    displayStaticWrapperAs="desktop"
-                                    openTo="day"
-                                    value={selectedDate}
-                                    onChange={(newValue) => setSelectedDate(newValue)}
-                                    renderDay={renderDay}
-                                    slots={{ textField: (params) => <TextField {...params} /> }} // 변경된 부분
-                                />
-                            </LocalizationProvider>
                         </Box>
                     </CardContent>
                 </Card>
