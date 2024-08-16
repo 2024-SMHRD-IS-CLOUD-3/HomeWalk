@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Typography, Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box, Button } from '@mui/material';
+import { Paper, TextField, List, ListItem, ListItemText, Divider, Grid, Box, Button } from '@mui/material';
 import { getFamilies, leaveFamily, requestJoinFamily, cancelJoinRequest } from '../../api/family';
 import { useAuth } from '../../context/AuthContext';
 import { createNotification } from '../../api/notifications'; // 알림 생성 API 호출 추가
@@ -25,7 +25,6 @@ const FamilyList = () => {
                 return !isSame;
             });
 
-            console.log('Filtered Families:', filteredFamilies);
             setFamilies(filteredFamilies);
         } catch (error) {
             console.error('Error fetching families:', error);
@@ -85,9 +84,6 @@ const FamilyList = () => {
     return (
         <Grid item xs={12}>
             <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    가족 목록
-                </Typography>
                 <TextField
                     label="검색"
                     value={searchTerm}

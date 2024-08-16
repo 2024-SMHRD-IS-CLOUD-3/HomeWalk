@@ -7,9 +7,11 @@ import { fetchUserProfile, updateUserProfile, uploadProfileImage, getDeactivatio
 import { useAuth } from '../context/AuthContext';
 import Copyright from '../components/Copyright';
 
+import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+
 const Profile = () => {
+  const { open, toggleDrawer } = useDrawer();
   const { setAvatarCustomization, logout } = useAuth(); 
-  const [open, setOpen] = useState(true);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,10 +24,6 @@ const Profile = () => {
   const [selectedReason, setSelectedReason] = useState(''); 
   const [additionalComments, setAdditionalComments] = useState(''); 
   const [isAvatarDeleted, setIsAvatarDeleted] = useState(false); // 아바타 삭제 여부
-
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   useEffect(() => {
     const fetchUserData = async () => {

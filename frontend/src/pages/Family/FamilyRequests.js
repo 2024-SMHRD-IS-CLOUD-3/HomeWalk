@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Paper, List, ListItem, ListItemText, Divider, Grid, Button } from '@mui/material';
+import { Paper, List, ListItem, ListItemText, Divider, Grid, Button } from '@mui/material';
 import { getJoinRequestsForCreator, approveJoinRequest } from '../../api/family';  // 승인 API 호출 추가
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,7 +15,6 @@ const FamilyRequests = () => {
         }
 
         const requests = await getJoinRequestsForCreator(userObject.userId);
-        console.log('requests', requests);
         setJoinRequests(requests);
       } catch (error) {
         console.error('Error fetching join requests:', error);
@@ -45,9 +44,6 @@ const FamilyRequests = () => {
   return (
     <Grid item xs={12}>
       <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          가입 신청 목록
-        </Typography>
         <List>
           {joinRequests.map((request) => (
             <React.Fragment key={request.requestId}>

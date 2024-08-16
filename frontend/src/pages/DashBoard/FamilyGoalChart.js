@@ -61,7 +61,7 @@ export default function FamilyGoalChart() {
         }}
       >
         <Typography component="h2" variant="h6" color="primary" gutterBottom>
-          가족 목표 달성 비교
+          가족 주간 목표 달성 비교
         </Typography>
         <ResponsiveContainer>
           <BarChart

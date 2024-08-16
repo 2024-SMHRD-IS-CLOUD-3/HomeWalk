@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles';
 import {
   Drawer as MuiDrawer,
   List,
-  //Divider,
   IconButton,
   ListItemButton,
   ListItemIcon,
@@ -39,8 +38,8 @@ export default function DrawerComponent({ open, toggleDrawer }) {
           duration: theme.transitions.duration.enteringScreen,
         }),
         boxSizing: 'border-box',
-        backgroundColor: '#F0F0F0', // 밝은 회색 배경색 추가
-        color: theme.palette.text.primary, // 텍스트 색상을 기본 색상으로 설정
+        backgroundColor: theme.palette.primary.main, // 드로어 배경색을 primary.main으로 변경
+        color: theme.palette.primary.contrastText, // 텍스트 색상을 primary.contrastText로 변경
         ...(!open && {
           overflowX: 'hidden',
           transition: theme.transitions.create('width', {
@@ -62,23 +61,23 @@ export default function DrawerComponent({ open, toggleDrawer }) {
     justifyContent: 'space-between',
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
-    backgroundColor: '#F0F0F0', // 밝은 회색 배경색 추가
-    color: theme.palette.text.primary, // 텍스트 색상을 기본 색상으로 설정
+    backgroundColor: theme.palette.primary.dark, // 헤더 배경색을 primary.dark로 변경
+    color: theme.palette.primary.contrastText,
   }));
 
   const StyledListItemButton = styled(ListItemButton)(({ theme, active }) => ({
     margin: theme.spacing(0.5, 1),
     borderRadius: theme.shape.borderRadius,
     '&:hover': {
-      backgroundColor: theme.palette.action.hover,
+      backgroundColor: theme.palette.primary.dark, // hover 색상을 primary.dark로 변경
     },
     ...(active && {
-      backgroundColor: theme.palette.primary.light,
+      backgroundColor: theme.palette.secondary.main, // active 상태의 배경색을 secondary.main으로 변경
       '&:hover': {
-        backgroundColor: theme.palette.primary.main,
+        backgroundColor: theme.palette.secondary.dark,
       },
       '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
-        color: theme.palette.primary.contrastText,
+        color: theme.palette.secondary.contrastText,
       },
     }),
   }));
@@ -101,8 +100,7 @@ export default function DrawerComponent({ open, toggleDrawer }) {
           {open ? <ChevronRightIcon /> : <MenuIcon />}
         </IconButton>
       </DrawerHeader>
-      {/* <Divider /> 이 줄을 제거합니다 */}
-      <List component="nav" sx={{ /* pt: 2 를 제거합니다 */ }}>
+      <List component="nav">
         {menuItems.map((item) => (
           <StyledListItemButton
             key={item.text}
@@ -115,6 +113,7 @@ export default function DrawerComponent({ open, toggleDrawer }) {
                 minWidth: 0,
                 mr: open ? 3 : 'auto',
                 justifyContent: 'center',
+                color: 'inherit', // 아이콘 색상을 텍스트 색상과 동일하게 설정
               }}
             >
               {item.icon}

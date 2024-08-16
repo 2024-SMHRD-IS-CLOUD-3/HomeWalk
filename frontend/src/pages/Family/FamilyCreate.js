@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Paper, TextField, Button, Alert, Grid } from '@mui/material';
+import { Paper, TextField, Button, Alert, Grid } from '@mui/material';
 import { createFamily } from '../../api/family';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,9 +34,6 @@ const FamilyCreate = () => {
     return (
         <Grid item xs={12}>
             <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    가족 생성
-                </Typography>
                 {error && (
                     <Alert severity="error" sx={{ mb: 2 }}>
                         {error}

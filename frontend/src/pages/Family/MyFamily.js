@@ -42,9 +42,6 @@ const MyFamily = () => {
     return (
         <Grid item xs={12}>
             <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    나의 가족
-                </Typography>
                 {loading ? ( // 로딩 상태 처리
                     <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                         <CircularProgress />

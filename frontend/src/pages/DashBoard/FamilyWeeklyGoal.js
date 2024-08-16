@@ -56,7 +56,7 @@ export default function FamilyWeeklyGoal() {
         <Grid item xs={12} md={4}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 300 }}>
                 <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                    우리 가족 통합목표 달성률
+                    가족 주간 통합목표 달성률
                 </Typography>
                 <ResponsiveContainer>
                     <BarChart

@@ -5,6 +5,8 @@ import DrawerComponent from '../components/DrawerComponent';
 import { useAuth } from '../context/AuthContext';
 import { useDrawer } from '../context/DrawerContext';
 import { fetchGoals, saveGoals } from '../api/goals';
+import BookmarkIcon from '@mui/icons-material/Bookmark'; // 저장된 목표 아이콘
+import SettingsIcon from '@mui/icons-material/Settings'; // 목표 설정 아이콘
 
 const Goals = () => {
   const { userObject } = useAuth();
@@ -69,8 +71,8 @@ const Goals = () => {
           </Typography>
 
           <Tabs value={activeTab} onChange={handleTabChange} centered sx={{ mb: 4 }}>
-            <Tab label="저장된 목표" />
-            <Tab label="목표 설정" />
+            <Tab icon={<BookmarkIcon />} label="저장된 목표" />
+            <Tab icon={<SettingsIcon />} label="목표 설정" />
           </Tabs>
 
           {activeTab === 0 ? (

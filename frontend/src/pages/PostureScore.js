@@ -24,7 +24,7 @@ const PostureScore = ({ userId, username }) => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        {username ? `User ${username}의` : ''} 일별 점수 변화량
+        {username ? `${username}님의` : ''} 일별 점수 변화량
       </Typography>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart

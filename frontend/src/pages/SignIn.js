@@ -14,8 +14,8 @@ import Container from '@mui/material/Container';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
-import { handleKakaoLogin } from '../utils/kakaoLogin'; // 카카오 로그인 로직을 불러옵니다
-import kakaoLogo from '../assets/kakao-svgrepo-com.svg'; // 이미지 파일 경로를 지정합니다.
+import { handleKakaoLogin } from '../utils/kakaoLogin';
+import kakaoLogo from '../assets/kakao-svgrepo-com.svg';
 
 function Copyright(props) {
     return (
@@ -76,13 +76,11 @@ export default function SignIn() {
             console.error('Error logging in:', error);
 
             if (error.response && error.response.data) {
-                // 서버에서 반환한 에러 메시지 사용
                 setErrorMessage(error.response.data);
             } else {
                 setErrorMessage('Login failed. Please try again later.');
             }
         }
-
     };
 
     useEffect(() => {
@@ -92,8 +90,7 @@ export default function SignIn() {
             setRememberMe(true);
         }
 
-        // 카카오 SDK 초기화 확인
-        if (window.Kakao && !window.Kakao.isInitialized()) { // SDK가 로드되고 초기화되지 않았는지 확인
+        if (window.Kakao && !window.Kakao.isInitialized()) {
             console.log('Kakao SDK loaded and initializing');
             window.Kakao.init('cad60a30113d35de28e6be146cd5634a');
         } else {
@@ -102,7 +99,7 @@ export default function SignIn() {
     }, []);
 
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm">
             <CssBaseline />
             <Box
                 sx={{
@@ -110,15 +107,20 @@ export default function SignIn() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    backgroundColor: 'background.paper',
+                    padding: 4,
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    width: '100%', // 컨테이너의 전체 너비를 사용
                 }}
             >
-                <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+                <Avatar sx={{ m: 1, bgcolor: 'secondary.main', width: 56, height: 56 }}>
                     <LockOutlinedIcon />
                 </Avatar>
-                <Typography component="h1" variant="h5">
+                <Typography component="h1" variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
                     HomeWalk
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
                     <TextField
                         margin="normal"
                         required
@@ -128,6 +130,7 @@ export default function SignIn() {
                         name="username"
                         autoComplete="username"
                         autoFocus
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         margin="normal"
@@ -138,21 +141,22 @@ export default function SignIn() {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        sx={{ mb: 2 }}
                     />
                     <FormControlLabel
                         control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} color="primary" />}
                         label="아이디 저장"
+                        sx={{ mb: 2 }}
                     />
-                    {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+                    {errorMessage && <Typography color="error" sx={{ mb: 2 }}>{errorMessage}</Typography>}
                     <Button
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
+                        sx={{ mt: 2, mb: 2, py: 1.5 }}
                     >
                         로그인
                     </Button>
-                    {/* 카카오 로그인 버튼 */}
                     <Button
                         fullWidth
                         variant="contained"
@@ -160,26 +164,27 @@ export default function SignIn() {
                         sx={{
                             mt: 1,
                             mb: 2,
-                            bgcolor: '#FEE500', // 기본 배경색
-                            color: '#000',      // 기본 텍스트 색상
+                            py: 1.5,
+                            bgcolor: '#FEE500',
+                            color: '#000',
                             ':hover': {
-                                bgcolor: '#FDCB02', // 마우스를 올렸을 때 진한 노란색으로 변경
+                                bgcolor: '#FDCB02',
                             },
                             display: 'flex',
                             justifyContent: 'center',
-                            alignItems: 'center'
+                            alignItems: 'center',
                         }}
                     >
                         <img src={kakaoLogo} alt="Kakao Logo" style={{ marginRight: '8px', width: '24px', height: '24px' }} />
                         카카오로 로그인
                     </Button>
-                    <Grid container>
-                        <Grid item xs>
+                    <Grid container spacing={2} sx={{ mt: 2 }}>
+                        <Grid item xs={12} sm={6}>
                             <Link component={RouterLink} to="/resetpassword" variant="body2">
                                 비밀번호를 잊으셨나요?
                             </Link>
                         </Grid>
-                        <Grid item>
+                        <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
                             <Link component={RouterLink} to="/signup" variant="body2">
                                 {"계정이 없으신가요? 회원가입"}
                             </Link>

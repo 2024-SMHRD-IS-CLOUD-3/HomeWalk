@@ -8,6 +8,9 @@ import PostureScore from './PostureScore'; // 부화면 컴포넌트 가져오�
 import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
 import { useAuth } from '../context/AuthContext'; // 사용자 인증 정보 가져오기
 
+import VideoCallIcon from '@mui/icons-material/VideoCall'; // 비디오 업로드 아이콘
+import HistoryIcon from '@mui/icons-material/History'; // 점수 기록 아이콘
+
 const Posture = () => {
   const { open, toggleDrawer } = useDrawer();
   const { userObject } = useAuth(); // 사용자 정보 가져오기
@@ -62,8 +65,8 @@ const Posture = () => {
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
           <Paper sx={{ p: 3 }}>
             <Tabs value={tabValue} onChange={handleTabChange}>
-              <Tab label="Upload Video" />
-              <Tab label="Score History" />
+              <Tab icon={<VideoCallIcon />} label="영상 업로드" />
+              <Tab icon={<HistoryIcon />} label="점수 기록" />
             </Tabs>
 
             {tabValue === 0 && (

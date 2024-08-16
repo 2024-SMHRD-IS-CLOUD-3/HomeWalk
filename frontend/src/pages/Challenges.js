@@ -9,8 +9,11 @@ import DrawerComponent from '../components/DrawerComponent';
 import { Add, Delete } from '@mui/icons-material';
 import Copyright from '../components/Copyright';
 
+import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+
 const Challenges = () => {
-  const [open, setOpen] = useState(false);
+  const { open, toggleDrawer } = useDrawer();
+  const [challengeOpen, challengeSetOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedChallenge, setSelectedChallenge] = useState(null);
   const [newChallenge, setNewChallenge] = useState({
@@ -20,7 +23,6 @@ const Challenges = () => {
     endDate: '',
     invitedUsers: []
   });
-  const [drawerOpen, setDrawerOpen] = useState(true);
 
   // 현재 진행 중인 챌린지
   const [currentChallenges, setCurrentChallenges] = useState([
@@ -52,13 +54,9 @@ const Challenges = () => {
     { name: '박지성' }
   ];
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
-
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => challengeSetOpen(true);
   const handleClose = () => {
-    setOpen(false);
+    challengeSetOpen(false);
     setNewChallenge({ name: '', content: '', startDate: '', endDate: '', invitedUsers: [] });
   };
 
@@ -108,8 +106,8 @@ const Challenges = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBarComponent open={drawerOpen} toggleDrawer={toggleDrawer} />
-      <DrawerComponent open={drawerOpen} toggleDrawer={toggleDrawer} />
+      <AppBarComponent open={open} toggleDrawer={toggleDrawer} />
+      <DrawerComponent open={open} toggleDrawer={toggleDrawer} />
       <Box
         component="main"
         sx={{
@@ -246,7 +244,7 @@ const Challenges = () => {
 
         {/* 새로운 챌린지 생성 모달 */}
         <Modal
-          open={open}
+          open={challengeOpen}
           onClose={handleClose}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"

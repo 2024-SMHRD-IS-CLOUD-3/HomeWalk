@@ -26,7 +26,6 @@ export default function ResetPassword() {
     };
 
     return (
-
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <Box
@@ -35,15 +34,19 @@ export default function ResetPassword() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    backgroundColor: 'background.paper',
+                    padding: 3,
+                    borderRadius: 2,
+                    boxShadow: 3,
                 }}
             >
-                <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+                <Avatar sx={{ m: 1, bgcolor: 'secondary.main', width: 56, height: 56 }}>
                     <LockOutlinedIcon />
                 </Avatar>
-                <Typography component="h1" variant="h5">
+                <Typography component="h1" variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
                     비밀번호 수정
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
                     <TextField
                         margin="normal"
                         required
@@ -55,14 +58,15 @@ export default function ResetPassword() {
                         autoFocus
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
-                    {message && <Typography color="primary">{message}</Typography>}
-                    {error && <Typography color="error">{error}</Typography>}
+                    {message && <Typography color="primary" sx={{ mb: 2 }}>{message}</Typography>}
+                    {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
                     <Button
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
+                        sx={{ mt: 2, mb: 2, py: 1.5 }}
                     >
                         수정 링크 보내기
                     </Button>
@@ -73,17 +77,15 @@ export default function ResetPassword() {
                 sx={{
                     py: 3,
                     px: 2,
-                    position: 'fixed',
-                    bottom: 0,
-                    width: '20%',
+                    mt: 'auto',
+                    width: '100%',
                     display: 'flex',
-                    justifyContent: 'center', // 수평 중앙 정렬
-                    alignItems: 'center', // 수직 중앙 정렬
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}
             >
                 <Copyright />
             </Box>
         </Container>
-
     );
 }

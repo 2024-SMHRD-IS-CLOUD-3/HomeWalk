@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container, Typography, Box, CssBaseline, Toolbar, Grid,
   Card, CardMedia, CardContent, CardActions, IconButton, Avatar,
@@ -15,8 +15,10 @@ import DrawerComponent from '../components/DrawerComponent';
 import { useAuth } from '../context/AuthContext';
 import { toggleLike, getLikeCount } from '../api/like';
 
+import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+
 const Community = () => {
-  const [open, setOpen] = useState(true);
+  const { open, toggleDrawer } = useDrawer();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [expandedComments, setExpandedComments] = useState({});
@@ -27,11 +29,7 @@ const Community = () => {
 
   const useravartar = userObject?.avatarCustomization;
 
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       const postsData = await fetchPosts(); // 서버로부터 게시글 데이터를 가져옴
       setPosts(postsData);
@@ -51,11 +49,11 @@ const Community = () => {
     } catch (error) {
       console.error("Error loading posts:", error);
     }
-  };
+  }, [likedPosts, userObject.userId]); // 의존성 배열에 likedPosts와 userObject.userId 추가
 
   useEffect(() => {
     loadPosts(); // 컴포넌트가 마운트될 때 데이터를 불러옵니다.
-  }, []);
+  }, [loadPosts]); // 의존성 배열에 loadPosts 추가
 
   const handleLike = async (postId) => {
     try {
@@ -118,10 +116,6 @@ const Community = () => {
       <Box
         component="main"
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === 'light'
-              ? theme.palette.grey[100]
-              : theme.palette.grey[900],
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
@@ -159,7 +153,7 @@ const Community = () => {
               </Button>
             </Box>
           </Box>
-          <List sx={{ width: '100%', bgcolor: 'background.paper', height: 'calc(100vh - 200px)', overflow: 'auto' }}>
+          <List sx={{ width: '100%', height: 'calc(100vh - 200px)', overflow: 'auto' }}>
             <Grid container spacing={2}>
               {filteredPosts.map((post) => (
                 <Grid item xs={12} sm={6} key={post.id}>
