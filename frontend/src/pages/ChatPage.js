@@ -4,37 +4,60 @@ import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import { useDrawer } from '../context/DrawerContext';
 import { useAuth } from '../context/AuthContext';
+import { getFamilyData } from '../api/family'; // 가족 정보를 가져오는 API 호출
+
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 const ChatPage = () => {
     const { open, toggleDrawer } = useDrawer();
     const { userObject } = useAuth();
+    const [familyId, setFamilyId] = useState(null); // 가족 ID 상태 추가
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const stompClient = useRef(null);
     const messageEndRef = useRef(null);
 
-    const onConnected = useCallback(() => {
-        stompClient.current.subscribe('/topic/public', onMessageReceived);
-        stompClient.current.send(
-            "/app/chat.addUser",
-            {},
-            JSON.stringify({ sender: userObject.username, type: 'JOIN' })
-        );
+    // 1단계: 가족 정보를 불러오는 API 호출
+    useEffect(() => {
+        async function fetchFamilyInfo() {
+            try {
+                const familyData = await getFamilyData(userObject.userId);
+                setFamilyId(familyData.familyId); // 가족 ID 설정
+            } catch (error) {
+                console.error("Failed to fetch family info", error);
+            }
+        }
+
+        fetchFamilyInfo();
     }, [userObject]);
 
+    // 2단계: WebSocket 연결 및 가족별 채팅방 설정
+    const onConnected = useCallback(() => {
+        if (familyId) {
+            // 가족 ID를 이용하여 가족별 채팅방에 구독
+            stompClient.current.subscribe(`/topic/family/${familyId}`, onMessageReceived);
+            stompClient.current.send(
+                `/app/chat.addUser.${familyId}`, // 가족별 고유 채팅방 경로 사용
+                {},
+                JSON.stringify({ sender: userObject.username, type: 'JOIN' })
+            );
+        }
+    }, [familyId, userObject]);
+
     useEffect(() => {
-        const socket = new SockJS('http://localhost:8085/ws'); // 백엔드의 WebSocket 엔드포인트와 연결
-        stompClient.current = Stomp.over(socket);
-        stompClient.current.connect({}, onConnected, onError);
+        if (familyId) {
+            const socket = new SockJS('http://localhost:8085/ws'); // 백엔드의 WebSocket 엔드포인트와 연결
+            stompClient.current = Stomp.over(socket);
+            stompClient.current.connect({}, onConnected, onError);
+        }
 
         return () => {
             if (stompClient.current) {
                 stompClient.current.disconnect();
             }
         };
-    }, [onConnected]);
+    }, [onConnected, familyId]);
 
     const onError = (error) => {
         console.error('WebSocket error: ', error);
@@ -52,7 +75,7 @@ const ChatPage = () => {
                 content: message,
                 type: 'CHAT',
             };
-            stompClient.current.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+            stompClient.current.send(`/app/chat.sendMessage.${familyId}`, {}, JSON.stringify(chatMessage));
             setMessage('');
         }
     };
@@ -86,7 +109,7 @@ const ChatPage = () => {
                 <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
                     <Paper sx={{ p: 3 }}>
                         <Typography variant="h4" gutterBottom>
-                            채팅
+                            가족 채팅방
                         </Typography>
                         <Grid container spacing={2} sx={{ mt: 2 }}>
                             <Grid item xs={12}>
