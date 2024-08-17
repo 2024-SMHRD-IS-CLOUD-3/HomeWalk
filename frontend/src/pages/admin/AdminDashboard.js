@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, CssBaseline, Container, Tabs, Tab, Card, CardContent, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import AppBarComponent from '../../components/AppBarComponent';
 import DrawerComponent from '../../components/DrawerComponent';
 import { useDrawer } from '../../context/DrawerContext';

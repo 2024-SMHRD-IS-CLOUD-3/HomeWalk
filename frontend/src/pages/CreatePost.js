@@ -55,6 +55,10 @@ const CreatePost = () => {
     }
   };
 
+  const handleCancel = () => {
+    navigate('/community');
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -118,9 +122,12 @@ const CreatePost = () => {
                     required
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Button variant="contained" color="primary" type="submit">
                     작성하기
+                  </Button>
+                  <Button variant="outlined" color="secondary" onClick={handleCancel}>
+                    돌아가기
                   </Button>
                 </Grid>
               </Grid>

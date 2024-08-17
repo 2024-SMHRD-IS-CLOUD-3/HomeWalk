@@ -2,7 +2,6 @@ package com.example.homewalk.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.homewalk.dto.CommentRequestDto;
 import com.example.homewalk.entity.Post;
 import com.example.homewalk.entity.Users;
 import com.example.homewalk.repository.PostRepository;
@@ -52,7 +52,9 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/comment")
-    public Post addComment(@PathVariable Long postId, @RequestParam String comment) {
-        return postService.addComment(postId, comment);
+    public Post addComment(@PathVariable Long postId, 
+                           @RequestParam Long userId,  // @RequestParam으로 userId를 받음
+                           @RequestParam String content) {  // @RequestParam으로 content를 받음
+        return postService.addComment(postId, userId, content);
     }
 }

@@ -1,7 +1,9 @@
 package com.example.homewalk.service;
 
+import com.example.homewalk.entity.Comment;
 import com.example.homewalk.entity.Post;
 import com.example.homewalk.entity.Users;
+import com.example.homewalk.repository.CommentRepository;
 import com.example.homewalk.repository.PostRepository;
 import com.example.homewalk.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,16 @@ public class PostService {
     @Autowired
     private UsersRepository userRepository;
 
-    // 이미지 파일을 저장할 경로를 설정합니다.
+    @Autowired
+    private CommentRepository commentRepository;
+
     private final Path root = Paths.get("src/main/resources/static/assets/post");
+
+    public PostService() throws IOException {
+        if (Files.notExists(root)) {
+            Files.createDirectories(root);
+        }
+    }
 
     public List<Post> getAllPosts() {
         return postRepository.findAll();
@@ -34,12 +44,11 @@ public class PostService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 파일 저장
         String imageUrl = null;
         if (file != null && !file.isEmpty()) {
             String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Files.copy(file.getInputStream(), this.root.resolve(filename));
-            imageUrl = "/assets/post/" + filename; // 이미지 URL 경로 설정
+            imageUrl = "/assets/post/" + filename;
         }
 
         Post post = new Post();
@@ -55,10 +64,19 @@ public class PostService {
         return postRepository.findByUser_UserId(userId);
     }
 
-    public Post addComment(Long postId, String comment) {
+    public Post addComment(Long postId, Long userId, String content) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        post.getComments().add(comment);
-        return postRepository.save(post);
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setPost(post);
+        comment.setUser(user);
+
+        commentRepository.save(comment);
+
+        return post;
     }
 }

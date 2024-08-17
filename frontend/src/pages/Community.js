@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container, Typography, Box, CssBaseline, Toolbar, Grid,
   Card, CardMedia, CardContent, CardActions, IconButton, Avatar,
-  TextField, Button, Collapse, List, ListItem
+  TextField, Button, Collapse, List, ListItem, Badge
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
 import ShareIcon from '@mui/icons-material/Share';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
-import { fetchPosts, addComment } from '../api/community';
+import { fetchPosts } from '../api/community';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import { useAuth } from '../context/AuthContext';
-import { toggleLike, getLikeCount } from '../api/like';
-
-import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
+import { toggleLike, getLikeCount, getLikedPosts } from '../api/like';
+import { useDrawer } from '../context/DrawerContext';
+import axios from 'axios';
 
 const Community = () => {
   const { open, toggleDrawer } = useDrawer();
@@ -27,40 +27,51 @@ const Community = () => {
   const navigate = useNavigate();
   const { userObject } = useAuth();
 
-  const useravartar = userObject?.avatarCustomization;
+  const userId = userObject?.userId;
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
-      const postsData = await fetchPosts(); // 서버로부터 게시글 데이터를 가져옴
-      setPosts(postsData);
-      setFilteredPosts(postsData);
-
-      // 좋아요 상태를 초기화
-      const likedPostIds = [];
-      for (const post of postsData) {
-        const likeCount = await getLikeCount(post.id); // 좋아요 수를 가져옴
-        post.likesCount = likeCount;
-        const userLiked = likeCount > 0 && likedPosts.includes(userObject.userId); // 현재 사용자가 좋아요를 눌렀는지 확인
-        if (userLiked) {
-          likedPostIds.push(post.id);
-        }
+      if (!userId) {
+        console.error("User is not logged in");
+        return;
       }
+
+      const postsData = await fetchPosts();
+
+      const postsWithLikes = await Promise.all(postsData.map(async (post) => {
+        const likeCount = await getLikeCount(post.id);
+        return { ...post, likesCount: likeCount };
+      }));
+
+      setPosts(postsWithLikes);
+      setFilteredPosts(postsWithLikes);
+
+      const likedPostIds = await getLikedPosts(userId);
       setLikedPosts(likedPostIds);
     } catch (error) {
       console.error("Error loading posts:", error);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
-    loadPosts(); // 컴포넌트가 마운트될 때 데이터를 불러옵니다.
-  }, []);
+    loadPosts();
+  }, [loadPosts]);
+
+  useEffect(() => {
+    const query = searchQuery.toLowerCase();
+    const filtered = posts.filter(post =>
+      post.user.username.toLowerCase().includes(query)
+    );
+    setFilteredPosts(filtered);
+  }, [searchQuery, posts]);
 
   const handleLike = async (postId) => {
     try {
-      const alreadyLiked = likedPosts.includes(postId); // 이미 좋아요를 눌렀는지 확인
-      await toggleLike(userObject.userId, postId); // 좋아요 상태를 토글
+      if (!userId) return;
 
-      // 좋아요 상태 및 수 업데이트
+      const alreadyLiked = likedPosts.includes(postId);
+      await toggleLike(userId, postId);
+
       const likeCount = await getLikeCount(postId);
       setPosts(posts.map(post =>
         post.id === postId ? { ...post, likesCount: likeCount } : post
@@ -70,9 +81,9 @@ const Community = () => {
       ));
 
       if (alreadyLiked) {
-        setLikedPosts(likedPosts.filter(id => id !== postId)); // 좋아요 취소
+        setLikedPosts(likedPosts.filter(id => id !== postId));
       } else {
-        setLikedPosts([...likedPosts, postId]); // 좋아요 추가
+        setLikedPosts([...likedPosts, postId]);
       }
     } catch (error) {
       console.error("Error liking post:", error);
@@ -86,27 +97,28 @@ const Community = () => {
     }));
   };
 
-  const handleAddComment = async (postId, comment) => {
+  const handleAddComment = async (postId, commentContent) => {
     try {
-      const updatedPost = await addComment(postId, comment);
+      // 서버로 userId와 commentContent를 전달하여 댓글 추가
+      const updatedPost = await axios.post(`/api/posts/${postId}/comment`, null, {
+        params: {
+          userId: userId,  // userId를 params로 전달
+          content: commentContent  // 댓글 내용을 content로 전달
+        }
+      });
+
+      // 상태 업데이트 - 댓글이 추가된 게시물을 최신화
       setPosts(posts.map(post =>
-        post.id === postId ? updatedPost : post
+        post.id === postId ? updatedPost.data : post  // 서버에서 반환된 데이터로 게시물 업데이트
       ));
       setFilteredPosts(filteredPosts.map(post =>
-        post.id === postId ? updatedPost : post
+        post.id === postId ? updatedPost.data : post  // 필터된 게시물도 업데이트
       ));
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
-
-  const handleSearch = () => {
-    const query = searchQuery.toLowerCase();
-    setFilteredPosts(posts.filter(post =>
-      post.user.username.toLowerCase().includes(query) ||
-      post.content.toLowerCase().includes(query)
-    ));
-  };
+  
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -146,26 +158,28 @@ const Community = () => {
                 placeholder="검색"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && e.preventDefault()} // Enter 키를 눌러도 실시간 검색이 동작하므로 추가 작업이 필요하지 않습니다.
                 size="small"
                 sx={{ mr: 2 }}
               />
-              <Button
-                variant="contained"
-                onClick={handleSearch}
-              >
-                검색
-              </Button>
+              {/* handleSearch 함수가 필요 없으므로 아래 버튼은 생략할 수 있습니다 */}
             </Box>
           </Box>
-          <List sx={{ width: '100%', bgcolor: 'background.paper', height: 'calc(100vh - 200px)', overflow: 'auto' }}>
-            <Grid container spacing={2}>
+          <List sx={{ width: '100%', bgcolor: 'inherit', height: 'calc(100vh - 200px)', overflow: 'auto', padding: 0 }}>
+            <Grid container spacing={3} sx={{ margin: 0 }}>
               {filteredPosts.map((post) => (
                 <Grid item xs={12} sm={6} key={post.id}>
-                  <ListItem alignItems="flex-start">
-                    <Card sx={{ width: '100%' }}>
-                      <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+                  <ListItem
+                    alignItems="flex-start"
+                    sx={{
+                      padding: 0,
+                      backgroundColor: 'inherit'
+                    }}
+                  >
+                    <Card sx={{ width: '100%', backgroundColor: 'white', boxShadow: 'none', borderRadius: 1, border: '1px solid', borderColor: (theme) => theme.palette.divider }}>
+                      <CardContent sx={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor: (theme) => theme.palette.divider }}>
                         <Avatar sx={{ mr: 2 }}
-                          src={useravartar}
+                          src={post.userProfileImageUrl}
                         >{post.user.username[0].toUpperCase()}</Avatar>
                         <Typography variant="subtitle1">{post.user.username}</Typography>
                       </CardContent>
@@ -194,7 +208,9 @@ const Community = () => {
                           <FavoriteIcon />
                         </IconButton>
                         <IconButton aria-label="comment" onClick={() => toggleComments(post.id)}>
-                          <CommentIcon />
+                          <Badge badgeContent={post.comments.length} color="primary">
+                            <CommentIcon />
+                          </Badge>
                         </IconButton>
                         <IconButton aria-label="share">
                           <ShareIcon />
@@ -206,8 +222,8 @@ const Community = () => {
                           {post.comments.map((comment, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                               <Avatar sx={{ width: 24, height: 24, mr: 1 }}
-                                src={useravartar}>{comment[0].toUpperCase()}</Avatar>
-                              <Typography variant="body2"><strong>{comment}</strong></Typography>
+                                src={comment.user.avatarCustomization}>{comment.user.username[0].toUpperCase()}</Avatar>
+                              <Typography variant="body2"><strong>{comment.user.username}</strong>: {comment.content}</Typography>
                             </Box>
                           ))}
                           <TextField
