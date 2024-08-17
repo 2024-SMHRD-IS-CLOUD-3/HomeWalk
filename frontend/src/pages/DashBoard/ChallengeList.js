@@ -10,11 +10,13 @@ export default function ChallengeList() {
 
   useEffect(() => {
     const loadChallenges = async () => {
-      try {
-        const challengeData = await fetchCurrentChallenges(userObject?.userId);
-        setChallenges(challengeData); // API에서 받은 도전 과제 목록을 설정
-      } catch (error) {
-        console.error('Failed to load challenges:', error);
+      if (userObject?.userId) {
+        try {
+          const challengeData = await fetchCurrentChallenges(userObject?.userId);
+          setChallenges(challengeData); // API에서 받은 도전 과제 목록을 설정
+        } catch (error) {
+          console.error('Failed to load challenges:', error);
+        }
       }
     };
 
