@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api';
+const API_URL = 'http://localhost:8085/api';
 
 export const loginUser = async (userData) => {
     const response = await axios.post(`${API_URL}/signin`, userData, {
@@ -28,7 +28,7 @@ export const resetPassword = async (token, newPassword) => {
 
 export const uploadKakaoProfileImage = async (token, imageUrl) => {
     try {
-        const response = await axios.post('http://localhost:8081/api/upload-kakao-avatar', null, {
+        const response = await axios.post('http://localhost:8085/api/upload-kakao-avatar', null, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },

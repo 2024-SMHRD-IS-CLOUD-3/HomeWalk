@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api';
+const API_URL = 'http://localhost:8085/api';
 
 export const checkUsername = async (username) => {
     const response = await axios.get(`${API_URL}/check-username`, { params: { username } });

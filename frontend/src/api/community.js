@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api/posts';  // API 경로 수정
+const API_URL = 'http://localhost:8085/api/posts';  // API 경로 수정
 
 // 게시글 데이터를 가져오는 함수
 export const fetchPosts = async () => {

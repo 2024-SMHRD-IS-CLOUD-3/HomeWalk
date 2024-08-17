@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api'; // 실제 API URL을 넣으세요
+const API_URL = 'http://localhost:8085/api'; // 실제 API URL을 넣으세요
 
 // 특정 구성원의 모든 걸음 수 데이터를 가져오는 함수
 export const getStepsData = async (memberId) => {
