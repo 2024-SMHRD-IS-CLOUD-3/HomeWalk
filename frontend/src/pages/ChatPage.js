@@ -13,6 +13,7 @@ const ChatPage = () => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const stompClient = useRef(null);
+    const messageEndRef = useRef(null);
 
     const onConnected = useCallback(() => {
         stompClient.current.subscribe('/topic/public', onMessageReceived);
@@ -56,6 +57,18 @@ const ChatPage = () => {
         }
     };
 
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            handleSendMessage();
+        }
+    };
+
+    useEffect(() => {
+        if (messageEndRef.current) {
+            messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -87,6 +100,8 @@ const ChatPage = () => {
                                                 />
                                             </ListItem>
                                         ))}
+                                        {/* 이 div가 정확히 리스트의 마지막에 위치해야 합니다 */}
+                                        <div ref={messageEndRef} style={{ height: 0 }} />
                                     </List>
                                 </Paper>
                             </Grid>
@@ -95,6 +110,7 @@ const ChatPage = () => {
                                     fullWidth
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
+                                    onKeyPress={handleKeyPress} // Enter 키 이벤트 추가
                                     variant="outlined"
                                     placeholder="메시지를 입력하세요..."
                                 />
