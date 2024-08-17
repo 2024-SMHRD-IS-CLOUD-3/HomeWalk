@@ -19,6 +19,7 @@ import {
   SettingsAccessibility as SettingsAccessibilityIcon,
   FamilyRestroom as FamilyRestroomIcon,
   AdminPanelSettings as AdminPanelSettingsIcon, // 관리 아이콘 추가
+  Chat as ChatIcon // ChatIcon 추가
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 
@@ -94,6 +95,7 @@ export default function DrawerComponent({ open, toggleDrawer }) {
     { text: '챌린지(도전)', icon: <EmojiEventsIcon />, path: '/challenges' },
     { text: '가족관리', icon: <FamilyRestroomIcon />, path: '/families' },
     { text: '자세인식', icon: <SettingsAccessibilityIcon />, path: '/posture' },
+    { text: '채팅', icon: <ChatIcon />, path: '/chatpage' } // 채팅 메뉴 추가
   ];
 
   // userId가 6일 경우, "회원 관리" 메뉴 추가

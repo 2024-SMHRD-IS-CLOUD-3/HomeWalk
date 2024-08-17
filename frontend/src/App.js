@@ -22,6 +22,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ChatPage from './pages/ChatPage';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
                 <Route path="/community" element={<Community />} />
                 <Route path="/createpost" element={<CreatePost />} />
                 <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
+                <Route path="/chatpage" element={<ChatPage />} />
                 <Route path="/admindashboard" element={<AdminDashboard />} />
               </Routes>
             </DrawerProvider>
