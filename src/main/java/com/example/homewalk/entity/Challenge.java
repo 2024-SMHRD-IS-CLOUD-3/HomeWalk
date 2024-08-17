@@ -16,6 +16,7 @@ public class Challenge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "challenge_id")
     private Long challengeId;
 
     @Column(name = "challenge_type", nullable = false)

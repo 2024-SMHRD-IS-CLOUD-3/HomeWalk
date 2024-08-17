@@ -8,7 +8,7 @@ import { useDrawer } from '../context/DrawerContext';
 import CurrentChallengesList from './Challenges/CurrentChallengesList';
 import ChallengeModal from './Challenges/ChallengeModal';
 import AvailableChallenges from './Challenges/AvailableChallenges';
-import { createChallenge, fetchCurrentChallenges, fetchAvailableChallenges } from '../api/challenges'; // API 호출 함수 임포트
+import { createChallenge, fetchCurrentChallenges, fetchAvailableChallenges, fetchCompletedChallenges } from '../api/challenges'; // API 호출 함수 임포트
 
 import { useAuth } from '../context/AuthContext';
 
@@ -25,36 +25,31 @@ const Challenges = () => {
 
   const [currentChallenges, setCurrentChallenges] = useState([]);
   const [otherChallenges, setOtherChallenges] = useState([]);
+  const [completedChallenges, setCompletedChallenges] = useState([]); // 완료된 챌린지 상태 추가
+
+  const userId = userObject?.userId;
 
   // 챌린지 데이터를 가져오는 useEffect
   useEffect(() => {
-    const loadChallenges = async () => {
-      try {
-        const current = await fetchCurrentChallenges(userObject?.userId);
-        const available = await fetchAvailableChallenges(userObject?.userId);
-        setCurrentChallenges(current);
-        setOtherChallenges(available);
-      } catch (error) {
-        console.error('챌린지 데이터를 불러오는 데 실패했습니다:', error);
-      }
-    };
+    if (userId) {
+      const loadChallenges = async () => {
+        try {
+          const current = await fetchCurrentChallenges(userId);
+          const available = await fetchAvailableChallenges(userId);
+          const completed = await fetchCompletedChallenges(userId); // 완료된 챌린지 가져오기
+          setCurrentChallenges(current);
+          setOtherChallenges(available);
+          setCompletedChallenges(completed); // 완료된 챌린지 설정
+        } catch (error) {
+          console.error('챌린지 데이터를 불러오는 데 실패했습니다:', error);
+        }
+      };
+  
+      loadChallenges();
+    }
+  }, [userId]);
 
-    loadChallenges();
-  }, [userObject?.userId]);
-
-  // 챌린지 모달 열기/닫기
-  const handleOpen = () => setChallengeOpen(true);
-  const handleClose = () => {
-    setChallengeOpen(false);
-    setNewChallenge({ name: '', content: '', startDate: '', endDate: '' });
-  };
-
-  // 새로운 챌린지 입력 처리
-  const handleNewChallenge = (e) => {
-    setNewChallenge({ ...newChallenge, [e.target.name]: e.target.value });
-  };
-
-  // 새로운 챌린지 생성
+  // 새로운 챌린지 생성 시 호출되는 함수
   const submitNewChallenge = async () => {
     console.log(newChallenge);
     try {
@@ -64,7 +59,7 @@ const Challenges = () => {
         startDate: newChallenge.startDate,
         endDate: newChallenge.endDate,
         reward: '참여자 보상', // 보상을 예시로 설정
-        createdUserId : userObject?.userId,
+        createdUserId : userId,
         createdBy: userObject?.username, // 만든 사람을 예시로 설정 (로그인 시스템 연동 시 수정 필요)
       };
 
@@ -76,6 +71,35 @@ const Challenges = () => {
     } catch (error) {
       console.error('챌린지 생성 실패:', error);
     }
+  };
+
+  // 챌린지 참여 후 UI 업데이트를 위한 함수
+  const handleChallengeJoined = (joinedChallenge) => {
+    // 참여한 챌린지를 otherChallenges에서 제거하고 currentChallenges에 추가
+    setOtherChallenges(otherChallenges.filter(challenge => challenge.challengeId !== joinedChallenge.challengeId));
+    setCurrentChallenges([...currentChallenges, joinedChallenge]);
+  };
+
+  // 챌린지에서 사용자 제거 시 호출되는 함수
+  const deleteChallenge = (index, challengeId) => {
+    // currentChallenges에서 해당 챌린지를 제거
+    setCurrentChallenges((prevChallenges) => prevChallenges.filter((_, i) => i !== index));
+    
+    // 사용자가 나간 챌린지를 다시 참여 가능한 챌린지 목록에 추가
+    const removedChallenge = currentChallenges.find((_, i) => i === index);
+    setOtherChallenges((prevChallenges) => [...prevChallenges, removedChallenge]);
+  };
+
+  // 챌린지 모달 열기/닫기
+  const handleOpen = () => setChallengeOpen(true);
+  const handleClose = () => {
+    setChallengeOpen(false);
+    setNewChallenge({ name: '', content: '', startDate: '', endDate: '' });
+  };
+
+  // 새로운 챌린지 입력 처리
+  const handleNewChallenge = (e) => {
+    setNewChallenge({ ...newChallenge, [e.target.name]: e.target.value });
   };
 
   return (
@@ -109,15 +133,16 @@ const Challenges = () => {
           <Grid item xs={12} md={12}>
             <CurrentChallengesList
               currentChallenges={currentChallenges}
+              completedChallenges={completedChallenges} // 완료된 챌린지 전달
               openChallengeDetail={() => {}}
               completeChallenge={() => {}}
-              deleteChallenge={() => {}}
+              deleteChallenge={deleteChallenge} // 삭제 핸들러 전달
             />
           </Grid>
           <Grid item xs={12}>
             <AvailableChallenges
               otherChallenges={otherChallenges}
-              joinChallenge={() => {}}
+              onChallengeJoined={handleChallengeJoined} // 챌린지 참여 후 UI 업데이트
               openChallengeDetail={() => {}}
             />
           </Grid>

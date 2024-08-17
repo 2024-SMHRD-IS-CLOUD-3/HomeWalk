@@ -28,5 +28,10 @@ public class ChallengeParticipant {
 
     @Column(name = "achieved", nullable = false)
     private Boolean achieved;
+    
+    // Achieved에 대한 getter 추가
+    public boolean isAchieved() {
+        return achieved;
+    }
 
 }

@@ -1,20 +1,25 @@
-import React from 'react';
-import { Card, CardContent, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardContent, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Button, Snackbar, Alert } from '@mui/material';
 import { joinChallenge as joinChallengeAPI } from '../../api/challenges'; // API 호출 함수 임포트
 import { useAuth } from '../../context/AuthContext'; // 사용자 인증 정보 가져오기
 
 const AvailableChallenges = ({ otherChallenges, onChallengeJoined, openChallengeDetail }) => {
   const { userObject } = useAuth(); // 현재 로그인한 사용자 정보 가져오기
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar 상태 관리
 
   const handleJoinChallenge = async (challenge) => {
     try {
-      console.log('challenge', challenge);
       await joinChallengeAPI(challenge.challengeId, userObject?.userId); // API 호출로 참여자 등록
       onChallengeJoined(challenge); // 성공적으로 참여한 경우 UI 업데이트
+      setSnackbarOpen(true); // 챌린지 참여 성공 시 Snackbar 표시
     } catch (error) {
       console.error('Failed to join the challenge:', error);
       // 사용자에게 실패 메시지 표시 (옵션)
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false); // Snackbar 닫기
   };
 
   return (
@@ -33,7 +38,7 @@ const AvailableChallenges = ({ otherChallenges, onChallengeJoined, openChallenge
             </TableHead>
             <TableBody>
               {otherChallenges.map((challenge) => (
-                <TableRow key={challenge.id}>
+                <TableRow key={challenge.challengeId}>
                   <TableCell>
                     <Button onClick={() => openChallengeDetail(challenge)}>
                       {challenge.challengeType} {/* 챌린지 타입을 이름 대신 사용 */}
@@ -60,6 +65,17 @@ const AvailableChallenges = ({ otherChallenges, onChallengeJoined, openChallenge
           </Table>
         </TableContainer>
       </CardContent>
+
+      {/* 챌린지 참여 성공 시 표시될 Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          챌린지에 참여하였습니다.
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };
