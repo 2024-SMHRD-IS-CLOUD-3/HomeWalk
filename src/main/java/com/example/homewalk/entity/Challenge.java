@@ -32,6 +32,9 @@ public class Challenge {
 
     @Column(name = "reward")
     private String reward;
+    
+    @Column(name = "created_user_id", nullable = false)
+    private Long createdUserId;
 
     @Column(name = "created_by", nullable = false)
     private String createdBy;

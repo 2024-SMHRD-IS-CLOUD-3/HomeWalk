@@ -21,7 +21,7 @@ public class ChallengeParticipant {
     private Challenge challenge;
 
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private Long userId;
 
     @Column(name = "progress", nullable = false)
     private Integer progress;

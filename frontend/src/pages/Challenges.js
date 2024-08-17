@@ -6,7 +6,6 @@ import { Add } from '@mui/icons-material';
 
 import { useDrawer } from '../context/DrawerContext';
 import CurrentChallengesList from './Challenges/CurrentChallengesList';
-import PastChallengesList from './Challenges/PastChallengesList';
 import ChallengeModal from './Challenges/ChallengeModal';
 import AvailableChallenges from './Challenges/AvailableChallenges';
 import { createChallenge, fetchCurrentChallenges, fetchAvailableChallenges } from '../api/challenges'; // API 호출 함수 임포트
@@ -25,15 +24,14 @@ const Challenges = () => {
   });
 
   const [currentChallenges, setCurrentChallenges] = useState([]);
-  const [pastChallenges, setPastChallenges] = useState([]);
   const [otherChallenges, setOtherChallenges] = useState([]);
 
   // 챌린지 데이터를 가져오는 useEffect
   useEffect(() => {
     const loadChallenges = async () => {
       try {
-        const current = await fetchCurrentChallenges(userObject.username);
-        const available = await fetchAvailableChallenges(userObject.username);
+        const current = await fetchCurrentChallenges(userObject?.userId);
+        const available = await fetchAvailableChallenges(userObject?.userId);
         setCurrentChallenges(current);
         setOtherChallenges(available);
       } catch (error) {
@@ -42,7 +40,7 @@ const Challenges = () => {
     };
 
     loadChallenges();
-  }, [userObject.username]);
+  }, [userObject?.userId]);
 
   // 챌린지 모달 열기/닫기
   const handleOpen = () => setChallengeOpen(true);
@@ -66,6 +64,7 @@ const Challenges = () => {
         startDate: newChallenge.startDate,
         endDate: newChallenge.endDate,
         reward: '참여자 보상', // 보상을 예시로 설정
+        createdUserId : userObject?.userId,
         createdBy: userObject?.username, // 만든 사람을 예시로 설정 (로그인 시스템 연동 시 수정 필요)
       };
 
@@ -107,17 +106,12 @@ const Challenges = () => {
         </Button>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={12}>
             <CurrentChallengesList
               currentChallenges={currentChallenges}
               openChallengeDetail={() => {}}
               completeChallenge={() => {}}
               deleteChallenge={() => {}}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <PastChallengesList
-              pastChallenges={pastChallenges}
             />
           </Grid>
           <Grid item xs={12}>

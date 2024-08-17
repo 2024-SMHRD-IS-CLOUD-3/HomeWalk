@@ -31,3 +31,16 @@ export const createChallenge = async (challengeData) => {
     throw error;
   }
 };
+
+export const joinChallenge = async (challengeId, userId) => {
+  try {
+    const response = await axios.post(`${API_URL}/challenges/${challengeId}/join`, null, {
+      params: { userId }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to join challenge', error);
+    throw error;
+  }
+};
+

@@ -27,7 +27,7 @@ public class ChallengeService {
     }
     
     // 사용자가 참여 중인 챌린지 가져오기
-    public List<Challenge> getCurrentChallenges(String userId) {
+    public List<Challenge> getCurrentChallenges(Long userId) {
         List<ChallengeParticipant> participantEntries = participantsRepository.findByUserId(userId);
         return participantEntries.stream()
                                  .map(ChallengeParticipant::getChallenge)
@@ -35,7 +35,7 @@ public class ChallengeService {
     }
 
     // 사용자가 만들지 않은 다른 사람들이 만든 챌린지 가져오기
-    public List<Challenge> getAvailableChallenges(String userId) {
+    public List<Challenge> getAvailableChallenges(Long userId) {
         List<Challenge> allChallenges = challengeRepository.findAll();
         return allChallenges.stream()
                             .filter(challenge -> !challenge.getCreatedBy().equals(userId))
@@ -51,12 +51,27 @@ public class ChallengeService {
         // 챌린지를 만든 사용자를 자동으로 참여자로 추가
         ChallengeParticipant participant = new ChallengeParticipant();
         participant.setChallenge(savedChallenge);
-        participant.setUserId(savedChallenge.getCreatedBy()); // createdBy 필드를 사용하여 참여자로 추가
+        participant.setUserId(challenge.getCreatedUserId()); // createdBy 필드를 사용하여 참여자로 추가
         participant.setProgress(0);  // 초기 진행 상황 설정
         participant.setAchieved(false); // 초기 목표 달성 여부 설정
 
         participantsRepository.save(participant);
 
         return savedChallenge;
+    }
+    
+ // 새로운 참여자 추가 기능 구현
+    @Transactional
+    public ChallengeParticipant addParticipantToChallenge(Long challengeId, Long userId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid challenge Id:" + challengeId));
+
+        ChallengeParticipant participant = new ChallengeParticipant();
+        participant.setChallenge(challenge);
+        participant.setUserId(userId);
+        participant.setProgress(0);  // 초기 진행 상황 설정
+        participant.setAchieved(false); // 초기 목표 달성 여부 설정
+
+        return participantsRepository.save(participant);
     }
 }

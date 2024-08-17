@@ -7,6 +7,7 @@ import { useDrawer } from '../context/DrawerContext';
 import { fetchGoals, saveGoals } from '../api/goals';
 import BookmarkIcon from '@mui/icons-material/Bookmark'; // 저장된 목표 아이콘
 import SettingsIcon from '@mui/icons-material/Settings'; // 목표 설정 아이콘
+import Copyright from '../components/Copyright';
 
 const Goals = () => {
   const { userObject } = useAuth();
@@ -141,6 +142,21 @@ const Goals = () => {
             </Card>
           )}
         </Container>
+        <Box
+          component="footer"
+          sx={{
+            py: 3,
+            px: 4,
+            position: 'fixed',
+            bottom: 0,
+            width: '90%',
+            display: 'flex',
+            justifyContent: 'center', // 수평 중앙 정렬
+            alignItems: 'center', // 수직 중앙 정렬
+          }}
+        >
+          <Copyright />
+        </Box>
       </Box>
       <Snackbar
         open={snackbarOpen}
@@ -149,6 +165,7 @@ const Goals = () => {
         message={snackbarMessage}
       />
     </Box>
+    
   );
 };
 
