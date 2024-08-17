@@ -12,6 +12,8 @@ import StepsTimelineChart from './MyActivity/StepsTimelineChart';
 import HealthMetrics from './MyActivity/HealthMetrics';
 import Copyright from '../components/Copyright';
 
+import { fetchGoals } from '../api/goals';
+
 import { useDrawer } from '../context/DrawerContext'; // 드로어 상태 가져오기
 
 const Activity = () => {
@@ -22,6 +24,9 @@ const Activity = () => {
     const [currentWeekData, setCurrentWeekData] = useState([]); // 주간 걸음 수 데이터 상태
     const [todayStepsData, setTodayStepsData] = useState([]); // 시간대별 오늘의 걸음 수 데이터 상태
     const [previousWeekData, setPreviousWeekData] = useState([]); // 전주의 걸음 수 데이터 상태
+
+    const [weeklyGoal, setWeeklyGoal] = useState(0); // 초기값을 설정하거나, 기본 목표값을 설정합니다
+    const [monthlyGoal, setMonthlyGoal] = useState(0); // 초기값을 설정하거나, 기본 목표값을 설정합니다
 
     // 사용자 걸음 수 데이터를 가져오는 useEffect 훅
     useEffect(() => {
@@ -91,9 +96,33 @@ const Activity = () => {
             }
         };
 
+        // 사용자의 목표 데이터를 가져오는 함수
+        const fetchUserGoals = async () => {
+            if (userObject) {
+                try {
+                    const goals = await fetchGoals(userObject.userId); // 사용자 목표 데이터 가져오기
+    
+                    const weeklyGoalData = goals.weekly; // 주간 걸음 목표 데이터
+                    const monthlyGoalData = goals.monthly; // 월간 걸음 목표 데이터
+
+                    if (weeklyGoalData) {
+                        setWeeklyGoal(weeklyGoalData); // 주간 목표 상태 업데이트
+                    }
+
+                    if (monthlyGoalData) {
+                        setMonthlyGoal(monthlyGoalData); // 월간 목표 상태 업데이트
+                    }
+    
+                } catch (error) {
+                    console.error('Failed to fetch goals:', error);
+                }
+            }
+        };
+
         if (userObject) {
             fetchSteps(); // 현재 주의 걸음 수 데이터 가져오기
             fetchPreviousWeekSteps(); // 전주의 걸음 수 데이터 가져오기
+            fetchUserGoals();
         }
     }, [userObject]);
 
@@ -116,8 +145,8 @@ const Activity = () => {
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 2 }}>
                     <TodayStepsCard dailySteps={dailySteps} /> {/* 일일 걸음 수 카드 */}
-                    <WeeklyStepsCard currentWeekData={currentWeekData} weeklyGoal={70000} /> {/* 주간 걸음 수 카드 */}
-                    <MonthlyStepsCard currentMonthlyTotal={currentMonthlyTotal} monthlyGoal={300000} /> {/* 월간 걸음 수 카드 */}
+                    <WeeklyStepsCard currentWeekData={currentWeekData} weeklyGoal={weeklyGoal} /> {/* 주간 걸음 수 카드 */}
+                    <MonthlyStepsCard currentMonthlyTotal={currentMonthlyTotal} monthlyGoal={monthlyGoal} /> {/* 월간 걸음 수 카드 */}
                 </Box>
                 <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                     <StepsComparisonChart currentWeekData={currentWeekData} previousWeekData={previousWeekData} /> {/* 주간 걸음 수 비교 차트 */}
