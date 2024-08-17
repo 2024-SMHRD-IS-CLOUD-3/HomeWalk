@@ -3,14 +3,14 @@ import { Card, CardContent, Typography, TableContainer, Table, TableHead, TableR
 import { joinChallenge as joinChallengeAPI } from '../../api/challenges'; // API 호출 함수 임포트
 import { useAuth } from '../../context/AuthContext'; // 사용자 인증 정보 가져오기
 
-const AvailableChallenges = ({ otherChallenges, onChallengeJoined, openChallengeDetail }) => {
+const AvailableChallenges = ({ otherChallenges, loadChallenges, openChallengeDetail }) => {
   const { userObject } = useAuth(); // 현재 로그인한 사용자 정보 가져오기
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar 상태 관리
 
   const handleJoinChallenge = async (challenge) => {
     try {
       await joinChallengeAPI(challenge.challengeId, userObject?.userId); // API 호출로 참여자 등록
-      onChallengeJoined(challenge); // 성공적으로 참여한 경우 UI 업데이트
+      loadChallenges(); // 참여 후 데이터 새로 불러오기
       setSnackbarOpen(true); // 챌린지 참여 성공 시 Snackbar 표시
     } catch (error) {
       console.error('Failed to join the challenge:', error);

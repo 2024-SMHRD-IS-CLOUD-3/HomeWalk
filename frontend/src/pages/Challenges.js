@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Toolbar, Typography, Button, Grid } from '@mui/material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
@@ -29,29 +29,29 @@ const Challenges = () => {
 
   const userId = userObject?.userId;
 
-  // 챌린지 데이터를 가져오는 useEffect
-  useEffect(() => {
-    if (userId) {
-      const loadChallenges = async () => {
-        try {
-          const current = await fetchCurrentChallenges(userId);
-          const available = await fetchAvailableChallenges(userId);
-          const completed = await fetchCompletedChallenges(userId); // 완료된 챌린지 가져오기
-          setCurrentChallenges(current);
-          setOtherChallenges(available);
-          setCompletedChallenges(completed); // 완료된 챌린지 설정
-        } catch (error) {
-          console.error('챌린지 데이터를 불러오는 데 실패했습니다:', error);
-        }
-      };
-  
-      loadChallenges();
+  // 챌린지 데이터를 불러오는 함수
+  const loadChallenges = useCallback(async () => {
+    try {
+      const current = await fetchCurrentChallenges(userId);
+      const available = await fetchAvailableChallenges(userId);
+      const completed = await fetchCompletedChallenges(userId); // 완료된 챌린지 가져오기
+      setCurrentChallenges(current);
+      setOtherChallenges(available);
+      setCompletedChallenges(completed); // 완료된 챌린지 설정
+    } catch (error) {
+      console.error('챌린지 데이터를 불러오는 데 실패했습니다:', error);
     }
   }, [userId]);
 
+  // 챌린지 데이터를 가져오는 useEffect
+  useEffect(() => {
+    if (userId) {
+      loadChallenges(); // 초기 데이터 로드
+    }
+  }, [userId, loadChallenges]);
+
   // 새로운 챌린지 생성 시 호출되는 함수
   const submitNewChallenge = async () => {
-    console.log(newChallenge);
     try {
       const challengeData = {
         challengeType: newChallenge.name, // 챌린지 이름을 타입으로 사용
@@ -59,35 +59,16 @@ const Challenges = () => {
         startDate: newChallenge.startDate,
         endDate: newChallenge.endDate,
         reward: '참여자 보상', // 보상을 예시로 설정
-        createdUserId : userId,
+        createdUserId: userId,
         createdBy: userObject?.username, // 만든 사람을 예시로 설정 (로그인 시스템 연동 시 수정 필요)
       };
 
-      const createdChallenge = await createChallenge(challengeData);
-
-      // 생성된 챌린지를 현재 챌린지 목록에 추가
-      setCurrentChallenges([...currentChallenges, createdChallenge]);
-      handleClose();
+      await createChallenge(challengeData); // 챌린지 생성
+      loadChallenges(); // 데이터 새로 불러오기
+      handleClose(); // 모달 닫기
     } catch (error) {
       console.error('챌린지 생성 실패:', error);
     }
-  };
-
-  // 챌린지 참여 후 UI 업데이트를 위한 함수
-  const handleChallengeJoined = (joinedChallenge) => {
-    // 참여한 챌린지를 otherChallenges에서 제거하고 currentChallenges에 추가
-    setOtherChallenges(otherChallenges.filter(challenge => challenge.challengeId !== joinedChallenge.challengeId));
-    setCurrentChallenges([...currentChallenges, joinedChallenge]);
-  };
-
-  // 챌린지에서 사용자 제거 시 호출되는 함수
-  const deleteChallenge = (index, challengeId) => {
-    // currentChallenges에서 해당 챌린지를 제거
-    setCurrentChallenges((prevChallenges) => prevChallenges.filter((_, i) => i !== index));
-    
-    // 사용자가 나간 챌린지를 다시 참여 가능한 챌린지 목록에 추가
-    const removedChallenge = currentChallenges.find((_, i) => i === index);
-    setOtherChallenges((prevChallenges) => [...prevChallenges, removedChallenge]);
   };
 
   // 챌린지 모달 열기/닫기
@@ -135,14 +116,13 @@ const Challenges = () => {
               currentChallenges={currentChallenges}
               completedChallenges={completedChallenges} // 완료된 챌린지 전달
               openChallengeDetail={() => {}}
-              completeChallenge={() => {}}
-              deleteChallenge={deleteChallenge} // 삭제 핸들러 전달
+              loadChallenges={loadChallenges} // 챌린지 데이터 새로 불러오기 함수 전달
             />
           </Grid>
           <Grid item xs={12}>
             <AvailableChallenges
               otherChallenges={otherChallenges}
-              onChallengeJoined={handleChallengeJoined} // 챌린지 참여 후 UI 업데이트
+              loadChallenges={loadChallenges} // 챌린지 데이터 새로 불러오기 함수 전달
               openChallengeDetail={() => {}}
             />
           </Grid>

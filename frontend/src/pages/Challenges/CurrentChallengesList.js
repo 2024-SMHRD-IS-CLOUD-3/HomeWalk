@@ -4,25 +4,25 @@ import { Delete } from '@mui/icons-material';
 import { leaveChallenge as leaveChallengeAPI, deleteChallengeAPI, updateChallengeAchievement } from '../../api/challenges'; // API 호출 함수 임포트
 import { useAuth } from '../../context/AuthContext'; // 사용자 인증 정보 가져오기
 
-const CurrentChallengesList = ({ currentChallenges, completedChallenges, openChallengeDetail, completeChallenge, deleteChallenge }) => {
+const CurrentChallengesList = ({ currentChallenges, completedChallenges, openChallengeDetail, loadChallenges }) => {
   const { userObject } = useAuth(); // 현재 로그인한 사용자 정보 가져오기
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar 상태 관리
   const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar 메시지 관리
   const [dialogOpen, setDialogOpen] = useState(false); // 경고창 상태 관리
   const [challengeToDelete, setChallengeToDelete] = useState(null); // 삭제할 챌린지 저장
 
-  const handleLeaveChallenge = async (index, challenge) => {
+  const handleLeaveChallenge = async (challenge) => {
     // 챌린지를 만든 사람이 현재 사용자와 동일한지 확인
     if (challenge.createdUserId === userObject?.userId) {
       // 경고창 띄우기
-      setChallengeToDelete({ index, challengeId: challenge.challengeId });
+      setChallengeToDelete(challenge.challengeId);
       setDialogOpen(true);
     } else {
       try {
         await leaveChallengeAPI(challenge.challengeId, userObject?.userId); // API 호출로 챌린지에서 제거
-        deleteChallenge(index); // 성공적으로 제거한 경우 UI 업데이트
         setSnackbarMessage('챌린지에서 나왔습니다.');
         setSnackbarOpen(true); // 챌린지 제거 성공 시 Snackbar 표시
+        loadChallenges(); // 챌린지 목록 새로 불러오기
       } catch (error) {
         console.error('Failed to leave the challenge:', error);
         setSnackbarMessage('챌린지에서 나오는 데 실패했습니다.');
@@ -33,12 +33,11 @@ const CurrentChallengesList = ({ currentChallenges, completedChallenges, openCha
 
   const handleDeleteChallenge = async () => {
     if (challengeToDelete) {
-      const { index, challengeId } = challengeToDelete;
       try {
-        await deleteChallengeAPI(challengeId); // 챌린지 및 관련 데이터 삭제
-        deleteChallenge(index); // UI에서 제거
+        await deleteChallengeAPI(challengeToDelete); // 챌린지 및 관련 데이터 삭제
         setSnackbarMessage('챌린지가 삭제되었습니다.');
         setSnackbarOpen(true);
+        loadChallenges(); // 챌린지 목록 새로 불러오기
       } catch (error) {
         console.error('Failed to delete the challenge:', error);
         setSnackbarMessage('챌린지 삭제에 실패했습니다.');
@@ -50,14 +49,13 @@ const CurrentChallengesList = ({ currentChallenges, completedChallenges, openCha
     }
   };
 
-  const handleCompleteChallenge = async (index) => {
-    const challenge = currentChallenges[index];
+  const handleCompleteChallenge = async (challenge) => {
     try {
       // 서버에 요청을 보내 achieved 상태를 업데이트
       await updateChallengeAchievement(challenge.challengeId, userObject?.userId, true);
-      completeChallenge(index); // 진행 중인 챌린지 목록에서 제거
       setSnackbarMessage('챌린지를 완료했습니다.');
       setSnackbarOpen(true); // 챌린지 완료 성공 시 Snackbar 표시
+      loadChallenges(); // 챌린지 목록 새로 불러오기
     } catch (error) {
       console.error('Failed to complete the challenge:', error);
       setSnackbarMessage('챌린지를 완료하는 데 실패했습니다.');
@@ -82,13 +80,13 @@ const CurrentChallengesList = ({ currentChallenges, completedChallenges, openCha
           <CardContent>
             <Typography variant="h6" gutterBottom>현재 진행 중인 챌린지</Typography>
             <List>
-              {currentChallenges.map((challenge, index) => (
-                <ListItem key={index} button onClick={() => openChallengeDetail(challenge)}>
+              {currentChallenges.map((challenge) => (
+                <ListItem key={challenge.challengeId} button onClick={() => openChallengeDetail(challenge)}>
                   <Checkbox
                     edge="start"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleCompleteChallenge(index);
+                      handleCompleteChallenge(challenge);
                     }}
                   />
                   <ListItemText
@@ -101,7 +99,7 @@ const CurrentChallengesList = ({ currentChallenges, completedChallenges, openCha
                       aria-label="delete"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleLeaveChallenge(index, challenge); // 챌린지에서 제거 처리
+                        handleLeaveChallenge(challenge); // 챌린지에서 제거 처리
                       }}
                     >
                       <Delete />
@@ -118,10 +116,10 @@ const CurrentChallengesList = ({ currentChallenges, completedChallenges, openCha
       <Grid item xs={12} md={6}>
         <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom>완료된 챌린지</Typography>
+            <Typography variant="h6" gutterBottom>내가 완료한 챌린지</Typography>
             <List>
-              {completedChallenges.map((challenge, index) => (
-                <ListItem key={index}>
+              {completedChallenges.map((challenge) => (
+                <ListItem key={challenge.challengeId}>
                   <ListItemText
                     primary={challenge.challengeType}  // 챌린지 이름 대신 challengeType을 사용
                     secondary={`기간: ${challenge.startDate} ~ ${challenge.endDate}`}  // 기간을 표시
