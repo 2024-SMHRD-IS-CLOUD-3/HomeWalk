@@ -18,12 +18,17 @@ import {
   EmojiEvents as EmojiEventsIcon,
   SettingsAccessibility as SettingsAccessibilityIcon,
   FamilyRestroom as FamilyRestroomIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon, // 관리 아이콘 추가
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
+
+import { useAuth } from '../context/AuthContext';
 
 const drawerWidth = 240;
 
 export default function DrawerComponent({ open, toggleDrawer }) {
+  const { userObject } = useAuth();
+
   const location = useLocation();
 
   const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -90,6 +95,11 @@ export default function DrawerComponent({ open, toggleDrawer }) {
     { text: '가족관리', icon: <FamilyRestroomIcon />, path: '/families' },
     { text: '자세인식', icon: <SettingsAccessibilityIcon />, path: '/posture' },
   ];
+
+  // userId가 6일 경우, "회원 관리" 메뉴 추가
+  if (userObject?.userId === 6) {
+    menuItems.push({ text: '회원 관리', icon: <AdminPanelSettingsIcon />, path: '/admindashboard' });
+  }
 
   return (
     <Drawer variant="permanent" open={open}>

@@ -1,6 +1,7 @@
 package com.example.homewalk.controller;
 
 import com.example.homewalk.dto.DeactivateRequest;
+import com.example.homewalk.dto.DeactivationStatisticsDto;
 import com.example.homewalk.entity.Users;
 import com.example.homewalk.service.UsersService;
 
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,6 +165,12 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to deactivate user: " + e.getMessage());
         }
     }
+    
+    @GetMapping("/deactivation-stats")
+    public ResponseEntity<List<DeactivationStatisticsDto>> getDeactivationStatistics() {
+        List<DeactivationStatisticsDto> stats = usersService.getDeactivationStatistics();
+        return ResponseEntity.ok(stats);
+    }
 
     @PostMapping("/upload-kakao-avatar")
     public ResponseEntity<String> uploadKakaoAvatar(@RequestHeader("Authorization") String token, @RequestParam("imageUrl") String imageUrl) {
@@ -181,4 +189,9 @@ public class UsersController {
         }
     }
 
+    @GetMapping("/users")
+    public ResponseEntity<List<Users>> getAllUsers() {
+        List<Users> usersList = usersService.getAllUsers();
+        return ResponseEntity.ok(usersList);
+    }
 }

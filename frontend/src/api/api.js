@@ -47,3 +47,24 @@ export const getPreviousWeekStepsByUserId = async (userId) => {
     const response = await axios.get(`${API_URL}/steps/previousWeek/${userId}`);
     return response.data;
 };
+
+// 관리자 - 회원 전체 정보
+export const fetchUsers = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/users`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch users:', error);
+        throw error;
+    }
+};
+
+export const fetchDeactivationStatistics = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/deactivation-stats`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch deactivation statistics:', error);
+        throw error;
+    }
+};

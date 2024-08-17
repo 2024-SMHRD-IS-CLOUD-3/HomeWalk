@@ -1,5 +1,6 @@
 package com.example.homewalk.service;
 
+import com.example.homewalk.dto.DeactivationStatisticsDto;
 import com.example.homewalk.entity.DeactivationReason;
 import com.example.homewalk.entity.PasswordResetToken;
 import com.example.homewalk.entity.UserDeactivation;
@@ -188,5 +189,13 @@ public class UsersService {
         deactivation.setReason(deactivationReasonRepository.findById(reasonId).orElse(null));
         deactivation.setAdditionalComments(comments);
         userDeactivationRepository.save(deactivation);
+    }
+    
+    public List<Users> getAllUsers() {
+        return usersRepository.findAll();
+    }
+    
+    public List<DeactivationStatisticsDto> getDeactivationStatistics() {
+        return userDeactivationRepository.findDeactivationStatistics();
     }
 }

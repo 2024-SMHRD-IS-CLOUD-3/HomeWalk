@@ -21,6 +21,7 @@ import './fonts.css';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/community" element={<Community />} />
                 <Route path="/createpost" element={<CreatePost />} />
                 <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
+                <Route path="/admindashboard" element={<AdminDashboard />} />
               </Routes>
             </DrawerProvider>
           </FamilyProvider>
