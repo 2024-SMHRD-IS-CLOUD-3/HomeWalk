@@ -18,7 +18,7 @@ const CurrentChallengesList = ({ currentChallenges, openChallengeDetail, complet
             />
             <ListItemText
               primary={challenge.challengeType}  // 챌린지 이름 대신 challengeType을 사용
-              secondary={`기간: ${challenge.startDate} ~ ${challenge.endDate}`}  // 기간과 목표, 보상을 표시
+              secondary={`기간: ${challenge.startDate} ~ ${challenge.endDate}`}  // 기간을 표시
             />
             <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="delete" onClick={(e) => {

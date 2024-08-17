@@ -5,6 +5,9 @@ import com.example.homewalk.entity.ChallengeParticipant;
 import com.example.homewalk.repository.ChallengeParticipantsRepository;
 import com.example.homewalk.repository.ChallengeRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,27 @@ public class ChallengeService {
     
     @Autowired
     private ChallengeParticipantsRepository participantsRepository;
+    
+    public List<Challenge> getAllChallenges() {
+        return challengeRepository.findAll();
+    }
+    
+    // 사용자가 참여 중인 챌린지 가져오기
+    public List<Challenge> getCurrentChallenges(String userId) {
+        List<ChallengeParticipant> participantEntries = participantsRepository.findByUserId(userId);
+        return participantEntries.stream()
+                                 .map(ChallengeParticipant::getChallenge)
+                                 .collect(Collectors.toList());
+    }
+
+    // 사용자가 만들지 않은 다른 사람들이 만든 챌린지 가져오기
+    public List<Challenge> getAvailableChallenges(String userId) {
+        List<Challenge> allChallenges = challengeRepository.findAll();
+        return allChallenges.stream()
+                            .filter(challenge -> !challenge.getCreatedBy().equals(userId))
+                            .filter(challenge -> participantsRepository.findByChallengeAndUserId(challenge, userId) == null)
+                            .collect(Collectors.toList());
+    }
 
     @Transactional
     public Challenge createChallengeWithParticipant(Challenge challenge) {

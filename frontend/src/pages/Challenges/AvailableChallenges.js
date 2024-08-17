@@ -20,11 +20,15 @@ const AvailableChallenges = ({ otherChallenges, joinChallenge, openChallengeDeta
               <TableRow key={challenge.id}>
                 <TableCell>
                   <Button onClick={() => openChallengeDetail(challenge)}>
-                    {challenge.name}
+                    {challenge.challengeType} {/* 챌린지 타입을 이름 대신 사용 */}
                   </Button>
                 </TableCell>
-                <TableCell>{challenge.creator}</TableCell>
-                <TableCell>{challenge.participants}</TableCell>
+                <TableCell>
+                  {challenge.creator?.username || challenge.createdBy} {/* 객체일 경우, 이름이나 사용자명을 사용 */}
+                </TableCell>
+                <TableCell>
+                  {Array.isArray(challenge.participants) ? challenge.participants.length : 0} {/* 참가자 수를 배열 길이로 표시 */}
+                </TableCell>
                 <TableCell>
                   <Button
                     variant="contained"

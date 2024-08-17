@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Toolbar, Typography, Button, Grid } from '@mui/material';
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
@@ -8,11 +8,10 @@ import { useDrawer } from '../context/DrawerContext';
 import CurrentChallengesList from './Challenges/CurrentChallengesList';
 import PastChallengesList from './Challenges/PastChallengesList';
 import ChallengeModal from './Challenges/ChallengeModal';
-import { createChallenge } from '../api/challenges'; // createChallenge API 함수 임포트
-import AvailableChallenges from './Challenges/AvailableChallenges'; // AvailableChallenges 컴포넌트 임포트
+import AvailableChallenges from './Challenges/AvailableChallenges';
+import { createChallenge, fetchCurrentChallenges, fetchAvailableChallenges } from '../api/challenges'; // API 호출 함수 임포트
 
 import { useAuth } from '../context/AuthContext';
-
 
 const Challenges = () => {
   const { userObject } = useAuth();
@@ -28,6 +27,22 @@ const Challenges = () => {
   const [currentChallenges, setCurrentChallenges] = useState([]);
   const [pastChallenges, setPastChallenges] = useState([]);
   const [otherChallenges, setOtherChallenges] = useState([]);
+
+  // 챌린지 데이터를 가져오는 useEffect
+  useEffect(() => {
+    const loadChallenges = async () => {
+      try {
+        const current = await fetchCurrentChallenges(userObject.username);
+        const available = await fetchAvailableChallenges(userObject.username);
+        setCurrentChallenges(current);
+        setOtherChallenges(available);
+      } catch (error) {
+        console.error('챌린지 데이터를 불러오는 데 실패했습니다:', error);
+      }
+    };
+
+    loadChallenges();
+  }, [userObject.username]);
 
   // 챌린지 모달 열기/닫기
   const handleOpen = () => setChallengeOpen(true);

@@ -2,6 +2,8 @@ package com.example.homewalk.entity;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -35,6 +37,7 @@ public class Challenge {
     private String createdBy;
     
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    @JsonManagedReference  // 부모 관계에 해당하는 곳에 이 어노테이션을 사용합니다.
     private List<ChallengeParticipant> participants;
 
 }
