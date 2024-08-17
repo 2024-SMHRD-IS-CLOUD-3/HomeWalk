@@ -1,5 +1,7 @@
 package com.example.homewalk.entity;
 
+import java.util.Map;
+
 import lombok.Data;
 
 @Data
@@ -11,7 +13,8 @@ public class ChatMessage {
     public enum MessageType {
         CHAT, JOIN, LEAVE
     }
-
-}
+    
+    private Map<String, String> userStatusMap; // 사용자 상태 맵 추가
+}	
 
 

@@ -1,14 +1,24 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, CssBaseline, Toolbar, Container, Typography, Button, TextField, Grid, Paper, List, ListItem, ListItemText } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; // 메인 페이지로 이동하기 위한 useNavigate 훅
+import { Box, CssBaseline, Toolbar, Container, Typography, Button, TextField, Grid, Paper, List, ListItem, ListItemText, Avatar, Badge } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // AccountCircleIcon 추가
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import { useDrawer } from '../context/DrawerContext';
 import { useAuth } from '../context/AuthContext';
-import { getFamilyData } from '../api/family'; // 가족 정보를 가져오는 API 호출
+import { getFamilyData } from '../api/family';
 
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+
+const StyledBadge = styled(Badge)(({ theme, status }) => ({
+    '& .MuiBadge-badge': {
+        backgroundColor: status === 'JOIN' ? '#44b700' : '#808080', // 초록색 (JOIN) 또는 회색 (LEAVE)
+        color: status === 'JOIN' ? '#44b700' : '#808080',
+        boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    },
+}));
 
 const ChatPage = () => {
     const { open, toggleDrawer } = useDrawer();
@@ -17,17 +27,25 @@ const ChatPage = () => {
     const [familyName, setFamilyName] = useState(''); // 가족명 상태 추가
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
+    const [familyMembers, setFamilyMembers] = useState([]); // 가족 구성원 상태 추가
     const stompClient = useRef(null);
     const messageEndRef = useRef(null);
     const navigate = useNavigate(); // 페이지 이동을 위한 useNavigate 훅
 
-    // 1단계: 가족 정보를 불러오는 API 호출
     useEffect(() => {
         async function fetchFamilyInfo() {
             try {
                 const familyData = await getFamilyData(userObject.userId);
                 setFamilyId(familyData.familyId); // 가족 ID 설정
                 setFamilyName(familyData.familyName); // 가족명 설정
+                // 가족 구성원 설정
+                setFamilyMembers(familyData.memberDetails.map(member => ({
+                    username: member.username,
+                    avatarCustomization: member.avatarCustomization,
+                    color: 'primary', // 기본 색상 설정
+                    status: 'LEAVE', // 기본 상태는 LEAVE로 설정
+                    avatarError: false,
+                })));
             } catch (error) {
                 console.error("Failed to fetch family info", error);
             }
@@ -36,13 +54,11 @@ const ChatPage = () => {
         fetchFamilyInfo();
     }, [userObject]);
 
-    // 2단계: WebSocket 연결 및 가족별 채팅방 설정
     const onConnected = useCallback(() => {
         if (familyId) {
-            // 가족 ID를 이용하여 가족별 채팅방에 구독
             stompClient.current.subscribe(`/topic/family/${familyId}`, onMessageReceived);
             stompClient.current.send(
-                `/app/chat.addUser.${familyId}`, // 가족별 고유 채팅방 경로 사용
+                `/app/chat.addUser.${familyId}`,
                 {},
                 JSON.stringify({ sender: userObject.username, type: 'JOIN' })
             );
@@ -51,7 +67,7 @@ const ChatPage = () => {
 
     useEffect(() => {
         if (familyId) {
-            const socket = new SockJS('http://localhost:8085/ws'); // 백엔드의 WebSocket 엔드포인트와 연결
+            const socket = new SockJS('http://localhost:8085/ws');
             stompClient.current = Stomp.over(socket);
             stompClient.current.connect({}, onConnected, onError);
         }
@@ -70,6 +86,28 @@ const ChatPage = () => {
     const onMessageReceived = (message) => {
         const messageContent = JSON.parse(message.body);
         setMessages((prevMessages) => [...prevMessages, messageContent]);
+
+        // 서버에서 받은 사용자 상태 맵을 이용해 가족 구성원의 상태 업데이트
+        if (messageContent.userStatusMap) {
+            // 서버에서 전체 상태를 전달받았을 때, 이를 가족 구성원 상태에 반영
+            setFamilyMembers((prevMembers) =>
+                prevMembers.map((member) =>
+                    ({
+                        ...member,
+                        status: messageContent.userStatusMap[member.username] || 'LEAVE',
+                    })
+                )
+            );
+        } else if (messageContent.type === 'JOIN' || messageContent.type === 'LEAVE') {
+            // 개별 JOIN 또는 LEAVE 메시지를 받았을 때, 해당 사용자 상태만 업데이트
+            setFamilyMembers((prevMembers) =>
+                prevMembers.map((member) =>
+                    member.username === messageContent.sender
+                        ? { ...member, status: messageContent.type }
+                        : member
+                )
+            );
+        }
     };
 
     const handleSendMessage = () => {
@@ -107,6 +145,14 @@ const ChatPage = () => {
         }
     }, [messages]);
 
+    const handleAvatarError = (index) => {
+        setFamilyMembers(prevMembers => {
+            const newMembers = [...prevMembers];
+            newMembers[index].avatarError = true; // 이미지 로드 에러 상태 업데이트
+            return newMembers;
+        });
+    };
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -123,7 +169,7 @@ const ChatPage = () => {
                 <Toolbar />
                 <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} md={10}>
+                        <Grid item xs={12} md={8}>
                             <Paper sx={{ p: 3 }}>
                                 <Typography variant="h4" gutterBottom>
                                     {familyName} 가족 채팅방
@@ -135,12 +181,11 @@ const ChatPage = () => {
                                                 {messages.map((msg, index) => (
                                                     <ListItem key={index} alignItems="flex-start">
                                                         <ListItemText
-                                                            primary={`${msg.sender} (${msg.type === 'JOIN' ? 'joined' : msg.timestamp})`}
+                                                            primary={`${msg.sender}`}
                                                             secondary={msg.content}
                                                         />
                                                     </ListItem>
                                                 ))}
-                                                {/* 이 div가 정확히 리스트의 마지막에 위치해야 합니다 */}
                                                 <div ref={messageEndRef} style={{ height: 0 }} />
                                             </List>
                                         </Paper>
@@ -150,7 +195,7 @@ const ChatPage = () => {
                                             fullWidth
                                             value={message}
                                             onChange={(e) => setMessage(e.target.value)}
-                                            onKeyPress={handleKeyPress} // Enter 키 이벤트 추가
+                                            onKeyPress={handleKeyPress}
                                             variant="outlined"
                                             placeholder="메시지를 입력하세요..."
                                         />
@@ -166,16 +211,49 @@ const ChatPage = () => {
                                             전송
                                         </Button>
                                     </Grid>
+                                    <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        fullWidth
+                                        onClick={handleLeaveChat}
+                                        sx={{ mt: 2 }}
+                                    >
+                                        나가기
+                                    </Button>
                                 </Grid>
-                                <Button
-                                    variant="outlined"
-                                    color="secondary"
-                                    fullWidth
-                                    onClick={handleLeaveChat}
-                                    sx={{ mt: 2 }}
-                                >
-                                    나가기
-                                </Button>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Paper sx={{ p: 3, height: '100%' }}>
+                                <Typography variant="h6" gutterBottom>
+                                    가족 구성원
+                                </Typography>
+                                <List>
+                                    {familyMembers && familyMembers.map((member, index) => (
+                                        <ListItem key={index}>
+                                            <StyledBadge
+                                                overlap="circular"
+                                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                                variant="dot"
+                                                status={member.status} // JOIN 또는 LEAVE에 따라 뱃지 색상 변경
+                                            >
+                                                {!member.avatarError && member.avatarCustomization ? (
+                                                    <img
+                                                        src={member.avatarCustomization}
+                                                        alt="User Avatar"
+                                                        onError={() => handleAvatarError(index)}
+                                                        style={{ width: 40, height: 40, borderRadius: '50%' }}
+                                                    />
+                                                ) : (
+                                                    <Avatar sx={{ bgcolor: `${member.color}.dark`, width: 40, height: 40 }}>
+                                                        <AccountCircleIcon sx={{ fontSize: 30 }} />
+                                                    </Avatar>
+                                                )}
+                                            </StyledBadge>
+                                            <ListItemText primary={member.username} />
+                                        </ListItem>
+                                    ))}
+                                </List>
                             </Paper>
                         </Grid>
                     </Grid>
