@@ -18,7 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3005") // 프론트엔드 주소와 일치하게 설정
+		registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3005", "http://192.168.219.55:3005") // 프론트엔드 주소와 일치하게 설정
 				.withSockJS();
 	}
 }
