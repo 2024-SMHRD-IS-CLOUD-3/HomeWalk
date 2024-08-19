@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8085/api';
+const API_URL = 'http://192.168.219.55:8085/api';
 
 // 가족 정보 관련 API
 export const createFamily = async (userId, familyData) => {

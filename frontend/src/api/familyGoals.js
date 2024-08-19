@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8085/api'; // 실제 API URL을 넣으세요
+const API_URL = 'http://192.168.219.55:8085/api'; // 실제 API URL을 넣으세요
 
 // 특정 사용자들의 주간 목표 데이터를 가져오는 API 호출 함수
 export const getWeeklyFamilyGoals = async (userIds) => {

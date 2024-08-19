@@ -67,7 +67,7 @@ const ChatPage = () => {
 
     useEffect(() => {
         if (familyId) {
-            const socket = new SockJS('http://localhost:8085/ws');
+            const socket = new SockJS('http://192.168.219.55:8085/ws');
             stompClient.current = Stomp.over(socket);
             stompClient.current.connect({}, onConnected, onError);
         }
