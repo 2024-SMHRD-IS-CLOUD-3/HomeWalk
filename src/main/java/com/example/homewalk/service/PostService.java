@@ -46,9 +46,17 @@ public class PostService {
 
         String imageUrl = null;
         if (file != null && !file.isEmpty()) {
-            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Files.copy(file.getInputStream(), this.root.resolve(filename));
-            imageUrl = "/assets/post/" + filename;
+            String filename = file.getOriginalFilename();
+            Path filePath = this.root.resolve(filename);
+
+            // 파일이 이미 존재하는지 확인
+            if (Files.notExists(filePath)) {
+                Files.copy(file.getInputStream(), filePath);
+                imageUrl = "/assets/post/" + filename;
+            } else {
+                // 파일이 이미 존재하면 해당 파일의 URL만 설정
+                imageUrl = "/assets/post/" + filename;
+            }
         }
 
         Post post = new Post();

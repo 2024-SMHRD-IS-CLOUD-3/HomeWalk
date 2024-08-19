@@ -15,11 +15,12 @@ import DrawerComponent from '../components/DrawerComponent';
 import { useAuth } from '../context/AuthContext';
 import { toggleLike, getLikeCount, getLikedPosts } from '../api/like';
 import { useDrawer } from '../context/DrawerContext';
+import { usePostContext } from '../context/PostContext';
 import axios from 'axios';
 
 const Community = () => {
   const { open, toggleDrawer } = useDrawer();
-  const [posts, setPosts] = useState([]);
+  const { posts, setPosts } = usePostContext(); // PostContext에서 posts와 setPosts 가져오기
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [expandedComments, setExpandedComments] = useState({});
   const [likedPosts, setLikedPosts] = useState([]);
@@ -40,18 +41,20 @@ const Community = () => {
 
       const postsWithLikes = await Promise.all(postsData.map(async (post) => {
         const likeCount = await getLikeCount(post.id);
-        return { ...post, likesCount: likeCount };
+        return { ...post, likesCount: likeCount, comments: post.comments || [] }; // comments를 빈 배열로 초기화
       }));
 
-      setPosts(postsWithLikes);
-      setFilteredPosts(postsWithLikes);
+      const sortedPosts = postsWithLikes.reverse(); // 최신 게시물을 맨 앞으로 정렬
+
+      setPosts(sortedPosts);
+      setFilteredPosts(sortedPosts);
 
       const likedPostIds = await getLikedPosts(userId);
       setLikedPosts(likedPostIds);
     } catch (error) {
       console.error("Error loading posts:", error);
     }
-  }, [userId]);
+  }, [userId, setPosts]);
 
   useEffect(() => {
     loadPosts();
@@ -99,26 +102,23 @@ const Community = () => {
 
   const handleAddComment = async (postId, commentContent) => {
     try {
-      // 서버로 userId와 commentContent를 전달하여 댓글 추가
       const updatedPost = await axios.post(`/api/posts/${postId}/comment`, null, {
         params: {
-          userId: userId,  // userId를 params로 전달
-          content: commentContent  // 댓글 내용을 content로 전달
+          userId: userId,
+          content: commentContent
         }
       });
 
-      // 상태 업데이트 - 댓글이 추가된 게시물을 최신화
       setPosts(posts.map(post =>
-        post.id === postId ? updatedPost.data : post  // 서버에서 반환된 데이터로 게시물 업데이트
+        post.id === postId ? { ...post, comments: updatedPost.data.comments } : post
       ));
       setFilteredPosts(filteredPosts.map(post =>
-        post.id === postId ? updatedPost.data : post  // 필터된 게시물도 업데이트
+        post.id === postId ? { ...post, comments: updatedPost.data.comments } : post
       ));
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
-  
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -158,11 +158,10 @@ const Community = () => {
                 placeholder="검색"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && e.preventDefault()} // Enter 키를 눌러도 실시간 검색이 동작하므로 추가 작업이 필요하지 않습니다.
+                onKeyPress={(e) => e.key === 'Enter' && e.preventDefault()}
                 size="small"
                 sx={{ mr: 2 }}
               />
-              {/* handleSearch 함수가 필요 없으므로 아래 버튼은 생략할 수 있습니다 */}
             </Box>
           </Box>
           <List sx={{ width: '100%', bgcolor: 'inherit', height: 'calc(100vh - 200px)', overflow: 'auto', padding: 0 }}>
@@ -179,7 +178,7 @@ const Community = () => {
                     <Card sx={{ width: '100%', backgroundColor: 'white', boxShadow: 'none', borderRadius: 1, border: '1px solid', borderColor: (theme) => theme.palette.divider }}>
                       <CardContent sx={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor: (theme) => theme.palette.divider }}>
                         <Avatar sx={{ mr: 2 }}
-                          src={post.userProfileImageUrl}
+                          src={post.user.avatarCustomization}
                         >{post.user.username[0].toUpperCase()}</Avatar>
                         <Typography variant="subtitle1">{post.user.username}</Typography>
                       </CardContent>
@@ -208,7 +207,7 @@ const Community = () => {
                           <FavoriteIcon />
                         </IconButton>
                         <IconButton aria-label="comment" onClick={() => toggleComments(post.id)}>
-                          <Badge badgeContent={post.comments.length} color="primary">
+                          <Badge badgeContent={(post.comments || []).length} color="primary">
                             <CommentIcon />
                           </Badge>
                         </IconButton>
@@ -219,7 +218,7 @@ const Community = () => {
 
                       <Collapse in={expandedComments[post.id]} timeout="auto" unmountOnExit>
                         <CardContent>
-                          {post.comments.map((comment, index) => (
+                          {(post.comments || []).map((comment, index) => (  // comments가 null 또는 undefined일 경우 빈 배열로 대체
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                               <Avatar sx={{ width: 24, height: 24, mr: 1 }}
                                 src={comment.user.avatarCustomization}>{comment.user.username[0].toUpperCase()}</Avatar>
@@ -240,6 +239,7 @@ const Community = () => {
                           />
                         </CardContent>
                       </Collapse>
+
                     </Card>
                   </ListItem>
                 </Grid>

@@ -5,7 +5,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import { createPost } from '../api/community';  // API 모듈 가져오기
+import { usePostContext } from '../context/PostContext';  // PostContext에서 가져옵니다.
+import { createPost } from '../api/community';  
 import AppBarComponent from '../components/AppBarComponent';
 import DrawerComponent from '../components/DrawerComponent';
 import { useAuth } from '../context/AuthContext';
@@ -21,9 +22,10 @@ const CreatePost = () => {
   const [image, setImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const navigate = useNavigate();
-  const { userObject } = useAuth();  // Get the userObject from AuthContext
+  const { userObject } = useAuth();
+  const { addNewPost } = usePostContext();  // PostContext에서 addNewPost 가져오기
 
-  const userId = userObject?.userId;  // Directly get the userId from userObject
+  const userId = userObject?.userId;
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -46,9 +48,10 @@ const CreatePost = () => {
   
     try {
       const postData = await createPost(userId, title, content, imageFile);
-      console.log('게시글이 성공적으로 등록되었습니다:', postData);
-  
-      // 게시글 작성 후 게시판 페이지로 이동
+
+      // 새로 생성된 게시물을 바로 추가
+      addNewPost(postData);
+
       navigate('/community');
     } catch (error) {
       console.error('게시글 등록 중 오류가 발생했습니다:', error);
