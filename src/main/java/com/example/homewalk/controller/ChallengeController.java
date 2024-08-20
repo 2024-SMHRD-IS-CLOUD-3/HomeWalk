@@ -40,7 +40,6 @@ public class ChallengeController {
 
     @PostMapping
     public Challenge createChallenge(@RequestBody Challenge challenge) {
-    	System.out.println("challenge" + challenge);
         return challengeService.createChallengeWithParticipant(challenge);
     }
     

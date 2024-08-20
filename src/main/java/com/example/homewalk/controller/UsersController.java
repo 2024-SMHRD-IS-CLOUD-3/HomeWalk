@@ -158,7 +158,6 @@ public class UsersController {
             @RequestBody DeactivateRequest deactivateRequest) {
         try {
             Users user = usersService.getUserFromToken(token);
-            System.out.println("reasonId : " + deactivateRequest.getReasonId());
             usersService.deactivateUser(user, deactivateRequest.getReasonId(), deactivateRequest.getComments()); // 사용자 탈퇴 처리
             return ResponseEntity.ok("User deactivated successfully");
         } catch (RuntimeException e) {

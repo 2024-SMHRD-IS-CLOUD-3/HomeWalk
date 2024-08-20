@@ -34,7 +34,6 @@ const Activity = () => {
             if (userObject) {
                 try {
                     const stepsData = await getStepsByUserId(userObject.userId); // 현재 사용자의 걸음 수 데이터 가져오기
-
                     const today = new Date().toISOString().split('T')[0]; // 오늘의 날짜 가져오기
                     const todayStepsData = stepsData.find(entry => entry.date === today); // 오늘의 걸음 수 데이터 필터링
                     const todaySteps = todayStepsData ? todayStepsData.stepsCount : 0; // 오늘의 걸음 수

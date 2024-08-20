@@ -30,7 +30,7 @@ public class OAuthController {
     private final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
     private final String CLIENT_ID = "05643ecda9086c42b45ad6285a412284"; // 카카오에서 발급받은 REST API 키
-    private final String REDIRECT_URI = "http://localhost:3005/oauth/callback/kakao"; // 콜백 URL
+    private final String REDIRECT_URI = "http://192.168.219.55:3005/oauth/callback/kakao"; // 콜백 URL
 
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, Object> request) {

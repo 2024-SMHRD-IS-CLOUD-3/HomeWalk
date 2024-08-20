@@ -11,6 +11,8 @@ const PostureScore = ({ userId, username }) => {
       if (userId) {
         try {
           const data = await fetchScoreData(userId);
+          console.log('data', data);
+          
           setScoreData(data);
         } catch (error) {
           console.error('Failed to fetch score data:', error);
@@ -32,7 +34,7 @@ const PostureScore = ({ userId, username }) => {
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis dataKey="recordDate" />
           <YAxis />
           <Tooltip />
           <Line type="monotone" dataKey="score" stroke="#8884d8" activeDot={{ r: 8 }} />

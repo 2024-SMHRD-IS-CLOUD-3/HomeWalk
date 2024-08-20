@@ -10,7 +10,7 @@ export const handleKakaoLogin = () => {
 
         // 카카오 로그인 요청
         window.Kakao.Auth.authorize({
-            redirectUri: 'http://localhost:3005/oauth/callback/kakao'  // 콜백 URL 설정
+            redirectUri: 'http://192.168.219.55:3005/oauth/callback/kakao'  // 콜백 URL 설정
         });
     });
 };

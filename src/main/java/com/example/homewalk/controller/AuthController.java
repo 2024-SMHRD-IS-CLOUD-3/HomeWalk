@@ -39,7 +39,7 @@ public class AuthController {
             String token = userService.createPasswordResetToken(email);
 
             // 비밀번호 재설정 링크 생성
-            String resetLink = "http://localhost:3005/resetpasswordpage?token=" + token;
+            String resetLink = "http://192.168.219.55:3005/resetpasswordpage?token=" + token;
             
             System.out.println("resetLink : " + resetLink);
 

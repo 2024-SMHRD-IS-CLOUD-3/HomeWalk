@@ -16,19 +16,7 @@ import { loginUser } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import { handleKakaoLogin } from '../utils/kakaoLogin';
 import kakaoLogo from '../assets/kakao-svgrepo-com.svg';
-
-function Copyright(props) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Five Stars
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import Copyright from '../components/Copyright';
 
 export default function SignIn() {
     const navigate = useNavigate();
