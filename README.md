@@ -40,7 +40,6 @@
             <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=black">
             <img src="https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white" >
             <img src="https://img.shields.io/badge/Axios-007CE2?style=for-the-badge&logo=axios&logoColor=white" >
-            
         </td>
     </tr>
     <tr>
@@ -63,7 +62,7 @@
         <td>IDE</td>
         <td>
             <img src="https://img.shields.io/badge/Eclipse-2C2255?style=for-the-badge&logo=Eclipse&logoColor=white"/>
-            <img src="https://img.shields.io/badge/VSCode-007ACC?style=for-the-badge&logo=VisualStudioCode&logoColor=white"/>
+            <img src="https://img.shields.io/badge/VSCode-007ACC?style=for-the-adge&logo=VisualStudioCode&logoColor=white"/>
         </td>
     </tr>
     <tr>
@@ -75,7 +74,6 @@
         </td>
     </tr>
 </table>
-
 
 <br>
 
