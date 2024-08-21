@@ -40,6 +40,7 @@
             <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=black">
             <img src="https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white" >
             <img src="https://img.shields.io/badge/Axios-007CE2?style=for-the-badge&logo=axios&logoColor=white" >
+            
         </td>
     </tr>
     <tr>
@@ -78,7 +79,7 @@
 
 <br>
 
-## ⚙ 시스템 아키텍처(구조) 예시 
+## ⚙ 시스템 아키텍처
 ![시스템아키텍처](https://github.com/user-attachments/assets/a18e89b9-7bb4-42da-830b-71ea41364d6c)
 <br>
 
